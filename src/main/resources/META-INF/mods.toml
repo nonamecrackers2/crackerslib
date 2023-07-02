@@ -11,7 +11,7 @@ description='''
 Contains a bunch of helpful code for nonamecrackers2's mods
 '''
 
-[[dependencies.crackerslib]
+[[dependencies.crackerslib]]
     modId="forge"
     mandatory=true
     versionRange="[47,)"
