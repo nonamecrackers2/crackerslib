@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[47,)"
+loaderVersion="[45,)"
 license="All rights reserved"
 
 [[mods]]
@@ -11,16 +11,16 @@ description='''
 Contains a bunch of helpful code for nonamecrackers2's mods
 '''
 
-[[dependencies.crackerslib]
+[[dependencies.crackerslib]] #optional
     modId="forge"
     mandatory=true
-    versionRange="[47,)"
+    versionRange="[45,)"
     ordering="NONE"
     side="BOTH"
     
 [[dependencies.crackerslib]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.20.1,1.21)"
+    versionRange="[1.19.4,1.20)"
     ordering="NONE"
     side="BOTH"
