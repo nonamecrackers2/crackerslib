@@ -5,7 +5,7 @@ plugins {
 }
 
 version = "${mc_version}-${mod_version}"
-group = 'nonamecrackers2.crackerslib' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group = 'nonamecrackers2' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'crackerslib-forge'
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
@@ -130,7 +130,7 @@ dependencies {
     // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
-
+    
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // implementation fg.deobf("com.tterrag.registrate:Registrate:MC${mc_version}-${registrate_version}") // Adds registrate as a dependency
 
@@ -167,7 +167,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
         	group = "nonamecrackers2"
-        	artifactId = "crackerslib-forge"
+            artifactId = "crackerslib-forge"
             artifact jar
         }
     }
