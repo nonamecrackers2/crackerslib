@@ -1,4 +1,4 @@
-package nonamecrackers2.crackerslib.packet;
+package nonamecrackers2.crackerslib.common.packet;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;

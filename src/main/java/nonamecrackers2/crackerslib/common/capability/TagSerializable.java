@@ -1,4 +1,4 @@
-package nonamecrackers2.crackerslib.capability;
+package nonamecrackers2.crackerslib.common.capability;
 
 import net.minecraft.nbt.CompoundTag;
 
