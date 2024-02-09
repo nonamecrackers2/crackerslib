@@ -5,6 +5,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import nonamecrackers2.crackerslib.common.config.ConfigHolder;
@@ -22,6 +23,11 @@ public class CrackersLib
 		modBus.addListener(this::commonSetup);
 		ModLoadingContext context = ModLoadingContext.get();
 		context.registerConfig(ModConfig.Type.CLIENT, ExampleConfig.CLIENT_SPEC);
+	}
+	
+	public void clientSetup(final FMLClientSetupEvent event)
+	{
+		
 	}
 	
 	public void commonSetup(final FMLCommonSetupEvent event)

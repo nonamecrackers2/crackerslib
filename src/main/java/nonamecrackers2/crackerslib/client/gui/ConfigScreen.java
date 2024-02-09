@@ -3,33 +3,18 @@ package nonamecrackers2.crackerslib.client.gui;
 import java.util.List;
 import java.util.function.Consumer;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.client.ConfigScreenHandler.ConfigScreenFactory;
+import net.minecraftforge.fml.ModList;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigListItem;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigOptionList;
-import nonamecrackers2.crackerslib.client.gui.widget.config.entry.BooleanConfigEntry;
-import nonamecrackers2.crackerslib.client.gui.widget.config.entry.DoubleConfigEntry;
-import nonamecrackers2.crackerslib.client.gui.widget.config.entry.EnumConfigEntry;
-import nonamecrackers2.crackerslib.client.gui.widget.config.entry.IntegerConfigEntry;
-import nonamecrackers2.crackerslib.client.gui.widget.config.entry.ListConfigEntry;
 import nonamecrackers2.crackerslib.common.config.ConfigHolder;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 
@@ -115,7 +100,9 @@ public class ConfigScreen extends Screen
 	private void closeMenu()
 	{
 		this.list.onClosed();
-		this.minecraft.setScreen(new ConfigScreen.Home(this.config.getModId(), this.isWorldLoaded, this.hasSinglePlayerServer, this.previous));
+		ModList.get().getModContainerById(this.config.getModId()).flatMap(mc -> mc.getCustomExtension(ConfigScreenFactory.class).map(ConfigScreenFactory::screenFunction)).ifPresent(function -> {
+			this.minecraft.setScreen(function.apply(this.minecraft, this.previous));
+		});;
 	}
 	
 	private void resetValues()
