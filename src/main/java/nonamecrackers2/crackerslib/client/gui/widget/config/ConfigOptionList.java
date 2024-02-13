@@ -2,6 +2,7 @@ package nonamecrackers2.crackerslib.client.gui.widget.config;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
@@ -26,11 +27,13 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	private String lastSearch = "";
 	private final Runnable valuesChangedResponder;
 	private final String modid;
+	private final ForgeConfigSpec spec;
 	
-	public ConfigOptionList(Minecraft mc, String modid, int width, int height, int top, int bottom, Runnable valuesChangedResponder)
+	public ConfigOptionList(Minecraft mc, String modid, ForgeConfigSpec spec, int width, int height, int top, int bottom, Runnable valuesChangedResponder)
 	{
 		super(mc, width, height, top, bottom, ROW_HEIGHT);
 		this.modid = modid;
+		this.spec = spec;
 		this.setRenderBackground(false);
 		this.setRenderTopAndBottom(true);
 		this.valuesChangedResponder = valuesChangedResponder;
@@ -41,48 +44,61 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 		return this.modid;
 	}
 	
-	public <T> void addConfigValue(ForgeConfigSpec.ConfigValue<T> value, ConfigOptionList.ConfigEntryBuilder<T> itemBuilder)
+	public <T> void addConfigValue(String path, ConfigOptionList.ConfigEntryBuilder itemBuilder, Optional<ConfigCategory> category)
 	{
-		ConfigCategory category = this.getOrCreateCategoryFor(value);
-		if (category != null)
-			category.addChild(itemBuilder.build(this.minecraft, this.modid, value, this.valuesChangedResponder));
-		else
-			this.items.add(itemBuilder.build(this.minecraft, this.modid, value, this.valuesChangedResponder));
+		category.ifPresentOrElse(c -> {
+			c.addChild(itemBuilder.build(this.minecraft, this.modid, path, this.spec, this.valuesChangedResponder));
+		}, () -> {
+			this.items.add(itemBuilder.build(this.minecraft, this.modid, path, this.spec, this.valuesChangedResponder));
+		});
 	}
 	
-	private @Nullable ConfigCategory getOrCreateCategoryFor(ForgeConfigSpec.ConfigValue<?> value)
+	public ConfigCategory makeCategory(String path, Optional<ConfigCategory> previousCategory)
 	{
-		List<String> rawPath = value.getPath();
-		rawPath.remove(rawPath.size() - 1);
-		String beginning = rawPath.get(0);
-		rawPath.remove(0);
-		if (!rawPath.isEmpty())
-		{
-			String current = beginning;
-			ConfigCategory prevCategory = null;
-			for (int i = 0; i < rawPath.size(); i++)
-			{
-				String str = rawPath.get(i);
-				current += "." + str;
-				ConfigCategory category = this.getCategoryByPath(current);
-				if (category == null)
-				{
-					category = new ConfigCategory(this.minecraft, this.modid, current, this);
-					this.categories.add(category);
-					if (prevCategory == null)
-						this.items.add(category);
-					else
-						prevCategory.addCategory(category);
-				}
-				prevCategory = category;
-			}
-			return prevCategory;
-		}
-		else
-		{
-			return null;
-		}
+		var category = new ConfigCategory(this.minecraft, this.modid, path, this);
+		previousCategory.ifPresentOrElse(c -> {
+			c.addChild(category);
+		}, () -> {
+			this.items.add(category);
+		});
+		return category;
 	}
+	
+	//TODO: Reintroduce
+//	private @Nullable ConfigCategory getOrCreateCategoryFor(String path)
+//	{
+//		List<String> rawPath = value.getPath();
+//		rawPath.remove(rawPath.size() - 1);
+//		String beginning = rawPath.get(0);
+//		rawPath.remove(0);
+//		if (!rawPath.isEmpty())
+//		{
+//			String current = beginning;
+//			ConfigCategory prevCategory = null;
+//			for (int i = 0; i < rawPath.size(); i++)
+//			{
+//				String str = rawPath.get(i);
+//				current += "." + str;
+//				ConfigCategory category = this.getCategoryByPath(current);
+//				if (category == null)
+//				{
+//					category = new ConfigCategory(this.minecraft, this.modid, current, this);
+//					this.categories.add(category);
+//					if (prevCategory == null)
+//						this.items.add(category);
+//					else
+//						prevCategory.addCategory(category);
+//				}
+//				prevCategory = category;
+//			}
+//			return prevCategory;
+//		}
+//		else
+//		{
+//			return null;
+//		}
+//		return null;
+//	}
 	
 	private @Nullable ConfigCategory getCategoryByPath(String path)
 	{
@@ -270,8 +286,8 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	}
 	
 	@FunctionalInterface
-	public static interface ConfigEntryBuilder<T>
+	public static interface ConfigEntryBuilder
 	{
-		ConfigEntry<T, ?> build(Minecraft mc, String modid, ForgeConfigSpec.ConfigValue<T> value, Runnable responder);
+		ConfigEntry<?, ?> build(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated);
 	}
 }

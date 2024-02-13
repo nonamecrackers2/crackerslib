@@ -5,9 +5,9 @@ import net.minecraftforge.common.ForgeConfigSpec;
 
 public class DoubleConfigEntry extends NumberConfigEntry<Double>
 {
-	public DoubleConfigEntry(Minecraft mc, String modid, ForgeConfigSpec.ConfigValue<Double> value, Runnable responder)
+	public DoubleConfigEntry(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
 	{
-		super(mc, modid, value, responder);
+		super(mc, modid, path, spec, onValueUpdated);
 	}
 	
 	@Override

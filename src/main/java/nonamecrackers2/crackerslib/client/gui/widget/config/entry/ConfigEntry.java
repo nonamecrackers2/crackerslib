@@ -4,8 +4,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.lang3.StringUtils;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -16,17 +14,19 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraftforge.common.ForgeConfigSpec;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigListItem;
-import nonamecrackers2.crackerslib.common.config.ConfigHolder;
 import nonamecrackers2.crackerslib.common.config.ReloadType;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 
 public abstract class ConfigEntry<T, W extends AbstractWidget> implements ConfigListItem
 {
 	protected final Minecraft mc;
-	protected final String modid;
+//	protected final ConfigHolder config;
 	protected final ForgeConfigSpec.ConfigValue<T> value;
+	protected final ForgeConfigSpec.ValueSpec valueSpec;
+	protected final ForgeConfigSpec spec;
+//	protected final T defaultValue;
 	protected final ReloadType reloadType;
-	protected final String rawName;
+	protected final String path;
 	protected final Component name;
 	protected final Component description;
 	protected final @Nullable Component reloadTypeText;
@@ -34,19 +34,23 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	protected W widget;
 	protected Component displayName;
 	
-	public ConfigEntry(Minecraft mc, String modid, ForgeConfigSpec.ConfigValue<T> value, Runnable onValueUpdated)
+	public ConfigEntry(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
 	{
 		this.mc = mc;
-		this.modid = modid;
-		this.value = value;
-		this.reloadType = ConfigHolder.getReloadType(modid, value);
-		this.rawName = StringUtils.join(value.getPath(), ".");
-		var path = value.getPath();
-		this.name = Component.translatable("gui." + modid + ".config." + path.get(path.size() - 1) + ".title");
-		var spec = ConfigHolder.getValueSpec(modid, value);
-		String key = spec.getTranslationKey();
+		//TODO: Reintroduce
+		this.reloadType = ReloadType.NONE;//config.reloadTypeFor(value);
+		this.path = path;//StringUtils.join(value.getPath(), ".");
+		this.value = spec.getValues().getRaw(path);
+		this.valueSpec = spec.getRaw(path);
+		this.spec = spec;
+		String name = path;
+		int index = path.indexOf('.');
+		if (index > 0 && index + 1 < name.length())
+			name = path.substring(index + 1);
+		this.name = Component.translatable("gui." + modid + ".config." + name + ".title");
+		String key = this.valueSpec.getTranslationKey();
 		if (key.isEmpty())
-			this.description = Component.literal(spec.getComment());
+			this.description = Component.literal(this.valueSpec.getComment());
 		else
 			this.description = Component.translatable(key);
 		this.onValueUpdated = onValueUpdated;
@@ -61,10 +65,10 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		return this.onValueUpdated;
 	}
 	
-	public ForgeConfigSpec.ConfigValue<T> getConfigValue()
-	{
-		return this.value;
-	}
+//	public ForgeConfigSpec.ConfigValue<T> getConfigValue()
+//	{
+//		return this.value;
+//	}
 	
 	public Component getName()
 	{
@@ -111,7 +115,7 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	public void onSavedAndClosed()
 	{
 		var current = this.getCurrentValue();
-		if (ConfigHolder.isValid(this.modid, this.value, current))
+		if (this.valueSpec.test(current))
 			this.value.set(current);
 	}
 	
@@ -171,7 +175,7 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	{ 
 		MutableComponent comment = this.description.copy();
 		comment.append("\n");
-		comment.append(Component.literal(this.rawName).withStyle(ChatFormatting.GRAY));
+		comment.append(Component.literal(this.path).withStyle(ChatFormatting.GRAY));
 		String defaultName = "Default: ";
 		Object object;
 		if (!preset.getValues().isEmpty() && !preset.isDefault() && preset.getValues().containsKey(this.value))
@@ -197,7 +201,7 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	public int compareTo(ConfigListItem item)
 	{
 		if (item instanceof ConfigEntry<?, ?> entry)
-			return this.rawName.compareTo(entry.rawName);
+			return this.path.compareTo(entry.path);
 		else
 			return -1;
 	}
@@ -206,7 +210,7 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	public boolean matchesSearch(String text)
 	{
 		String lowerCase = text.toLowerCase();
-		return this.rawName.toLowerCase().replace("_", " ").contains(lowerCase) || this.getName().getString().toLowerCase().contains(lowerCase);
+		return this.path.toLowerCase().replace("_", " ").contains(lowerCase) || this.getName().getString().toLowerCase().contains(lowerCase);
 	}
 	
 //	public static ConfigEntry<Integer, EditBox> integerVal(Minecraft mc, ForgeConfigSpec.ConfigValue<Integer> value)

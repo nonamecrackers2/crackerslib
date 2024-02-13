@@ -21,9 +21,9 @@ public class ListConfigEntry extends ConfigEntry<List<?>, EditBox>
 	protected static final Splitter SPLITTER = Splitter.on(PATH_SPLITTER);
 	private final ListConfigEntry.ValueParser<?> parser;
 	
-	public ListConfigEntry(Minecraft mc, String modid, ForgeConfigSpec.ConfigValue<List<?>> value, Runnable onValueUpdated, ListConfigEntry.ValueParser<?> parser)
+	public ListConfigEntry(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated, ListConfigEntry.ValueParser<?> parser)
 	{
-		super(mc, modid, value, onValueUpdated);
+		super(mc, modid, path, spec, onValueUpdated);
 		this.parser = parser;
 	}
 	
@@ -40,7 +40,7 @@ public class ListConfigEntry extends ConfigEntry<List<?>, EditBox>
 			{
 				this.getValueUpdatedResponder().run();
 				var val = this.compileValuesFromString(value);
-				if (ConfigHolder.isValid(this.modid, this.value, val))
+				if (this.valueSpec.test(val))
 					this.widget.setTextColor(0xFFFFFFFF);
 				else
 					this.widget.setTextColor(ChatFormatting.RED.getColor());

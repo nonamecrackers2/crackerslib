@@ -9,9 +9,9 @@ import nonamecrackers2.crackerslib.common.config.ConfigHolder;
 
 public abstract class NumberConfigEntry<T extends Number> extends ConfigEntry<T, EditBox>
 {
-	public NumberConfigEntry(Minecraft mc, String modid, ForgeConfigSpec.ConfigValue<T> value, Runnable responder)
+	public NumberConfigEntry(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
 	{
-		super(mc, modid, value, responder);
+		super(mc, modid, path, spec, onValueUpdated);
 	}
 
 	@Override
@@ -24,7 +24,7 @@ public abstract class NumberConfigEntry<T extends Number> extends ConfigEntry<T,
 			{
 				this.getValueUpdatedResponder().run();
 				var val = this.parseValue(value);
-				if (ConfigHolder.isValid(this.modid, this.value, val))
+				if (this.valueSpec.test(val))//ConfigHolder.isValid(this.modid, this.value, val))
 					this.widget.setTextColor(0xFFFFFFFF);
 				else
 					this.widget.setTextColor(ChatFormatting.RED.getColor());

@@ -96,7 +96,7 @@ public class ConfigPreset
 			Set<ReloadType> reloadTypes = new HashSet<>();
 			for (Entry<ForgeConfigSpec.ConfigValue<?>, ?> entry : this.getValues().entrySet())
 			{
-				var reloadType = ConfigHolder.getReloadType(this.config.getModId(), entry.getKey());
+				var reloadType = this.config.reloadTypeFor(entry.getKey());
 				if (reloadType != ReloadType.NONE)
 					reloadTypes.add(reloadType);
 			}

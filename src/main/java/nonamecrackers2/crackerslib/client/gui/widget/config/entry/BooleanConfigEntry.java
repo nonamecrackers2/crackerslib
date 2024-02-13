@@ -10,9 +10,9 @@ import nonamecrackers2.crackerslib.client.gui.widget.CyclableButton;
 
 public class BooleanConfigEntry extends ConfigEntry<Boolean, CyclableButton<Boolean>>
 {
-	public BooleanConfigEntry(Minecraft mc, String modid, ForgeConfigSpec.ConfigValue<Boolean> value, Runnable responder)
+	public BooleanConfigEntry(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
 	{
-		super(mc, modid, value, responder);
+		super(mc, modid, path, spec, onValueUpdated);
 	}
 
 	@Override

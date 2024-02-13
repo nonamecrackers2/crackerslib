@@ -13,6 +13,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import nonamecrackers2.crackerslib.common.config.ConfigHolder;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 
 public class ConfigCategory implements ConfigListItem

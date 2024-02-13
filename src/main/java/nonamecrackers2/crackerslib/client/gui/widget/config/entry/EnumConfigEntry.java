@@ -10,10 +10,10 @@ public class EnumConfigEntry<T extends Enum<T>> extends ConfigEntry<T, CyclableB
 {
 	private final Class<T> enumClass;
 	
-	public EnumConfigEntry(Minecraft mc, String modid, ForgeConfigSpec.ConfigValue<T> value, Runnable responder)
+	public EnumConfigEntry(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
 	{
-		super(mc, modid, value, responder);
-		this.enumClass = value.getDefault().getDeclaringClass();
+		super(mc, modid, path, spec, onValueUpdated);
+		this.enumClass = this.value.getDefault().getDeclaringClass();
 	}
 
 	@Override

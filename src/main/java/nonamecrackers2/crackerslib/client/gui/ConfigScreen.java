@@ -5,6 +5,8 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Lists;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -12,10 +14,12 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.ConfigScreenHandler.ConfigScreenFactory;
+import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.config.ModConfig;
+import nonamecrackers2.crackerslib.CrackersLib;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigListItem;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigOptionList;
-import nonamecrackers2.crackerslib.common.config.ConfigHolder;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 
 public class ConfigScreen extends Screen
@@ -24,10 +28,12 @@ public class ConfigScreen extends Screen
 	private static final int BUTTON_WIDTH = 200;
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int EXIT_BUTTON_OFFSET = 26;
-	private final ConfigHolder config;
+	private final String modid;
+	private final ForgeConfigSpec spec;
 	private final Consumer<ConfigOptionList> itemGenerator;
-	private final boolean isWorldLoaded;
-	private final boolean hasSinglePlayerServer;
+	//TODO: Reimplement by holding the instance of the home screen
+//	private final boolean isWorldLoaded;
+//	private final boolean hasSinglePlayerServer;
 	private final @Nullable Screen previous;
 	private final List<ConfigPreset> presets;
 	private ConfigOptionList list;
@@ -39,15 +45,18 @@ public class ConfigScreen extends Screen
 	private Tooltip currentHoveredTooltip;
 	private EditBox searchBox;
 	
-	public ConfigScreen(ConfigHolder config, Consumer<ConfigOptionList> itemGenerator, boolean isWorldLoaded, boolean hasSinglePlayerServer, @Nullable Screen previous)
+	public ConfigScreen(String modid, ForgeConfigSpec spec, ModConfig.Type type, Consumer<ConfigOptionList> itemGenerator, @Nullable Screen previous)
 	{
-		super(Component.translatable("gui.crackerslib.screen." + config.getType().extension() + "Options.title"));
-		this.config = config;
+		super(Component.translatable("gui.crackerslib.screen." + type.extension() + "Options.title"));
+		this.modid = modid;
+		this.spec = spec;
 		this.itemGenerator = itemGenerator;
-		this.isWorldLoaded = isWorldLoaded;
-		this.hasSinglePlayerServer = hasSinglePlayerServer;
+//		this.isWorldLoaded = isWorldLoaded;
+//		this.hasSinglePlayerServer = hasSinglePlayerServer;
 		this.previous = previous;
-		this.presets = this.config.getPresets();
+//		this.presets = this.config.getPresets();
+		//TODO: Reintroduce
+		this.presets = Lists.newArrayList(ConfigPreset.Builder.empty().build(Component.literal("empty"), CrackersLib.id("empty")));
 	}
 	
 	@Override
@@ -55,7 +64,7 @@ public class ConfigScreen extends Screen
 	{
 		if (this.list == null)
 		{
-			this.list = new ConfigOptionList(this.minecraft, this.config.getModId(), this.width, this.height, 30, this.height - 30, this::onValueChanged);
+			this.list = new ConfigOptionList(this.minecraft, this.modid, this.spec,  this.width, this.height, 30, this.height - 30, this::onValueChanged);
 			this.itemGenerator.accept(this.list);
 		}
 		this.list.buildList();
@@ -100,7 +109,7 @@ public class ConfigScreen extends Screen
 	private void closeMenu()
 	{
 		this.list.onClosed();
-		ModList.get().getModContainerById(this.config.getModId()).flatMap(mc -> mc.getCustomExtension(ConfigScreenFactory.class).map(ConfigScreenFactory::screenFunction)).ifPresent(function -> {
+		ModList.get().getModContainerById(this.modid).flatMap(mc -> mc.getCustomExtension(ConfigScreenFactory.class).map(ConfigScreenFactory::screenFunction)).ifPresent(function -> {
 			this.minecraft.setScreen(function.apply(this.minecraft, this.previous));
 		});;
 	}

@@ -24,19 +24,15 @@ import com.google.common.collect.Multimap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import nonamecrackers2.crackerslib.CrackersLib;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 import nonamecrackers2.crackerslib.common.event.RegisterConfigHoldersEvent;
 import nonamecrackers2.crackerslib.common.util.AttributeModifierSnapshot;
-import nonamecrackers2.crackerslib.common.util.ConfigExtension;
 
 public class ConfigHolder
 {
@@ -177,6 +173,22 @@ public class ConfigHolder
 		return this.values.get(value);
 	}
 	
+	public <T> boolean isValid(ForgeConfigSpec.ConfigValue<T> config, T val)
+	{
+		return this.getValueSpec(config).test(val);
+	}
+
+	public @Nullable ForgeConfigSpec.ValueSpec getValueSpec(ForgeConfigSpec.ConfigValue<?> value)
+	{
+		Objects.requireNonNull(specsByModId, "Config wrapper system not initalized!");
+		for (ForgeConfigSpec spec : specsByModId.get(this.modid))
+		{
+			if (spec.getRaw(value.getPath()) instanceof ValueSpec valueSpec)
+				return valueSpec;
+		}
+		return null;
+	}
+	
 	public @Nullable Class<?> getListClassForValue(ForgeConfigSpec.ConfigValue<List<?>> value)
 	{
 		return this.listValueClasses.get(value);
@@ -196,48 +208,48 @@ public class ConfigHolder
 		return StringUtils.join(value.getPath(), ".");
 	}
 	
-	public static ReloadType getReloadType(String modid, ForgeConfigSpec.ConfigValue<?> value)
-	{
-		for (var config : configsByModid.get(modid))
-		{
-			var type = config.reloadTypeFor(value);
-			if (type != null)
-				return type;
-		}
-		throw new NullPointerException("Value '" + value + "' is not registered in any config!");
-	}
+//	public static ReloadType getReloadType(String modid, ForgeConfigSpec.ConfigValue<?> value)
+//	{
+//		for (var config : configsByModid.get(modid))
+//		{
+//			var type = config.reloadTypeFor(value);
+//			if (type != null)
+//				return type;
+//		}
+//		throw new NullPointerException("Value '" + value + "' is not registered in any config!");
+//	}
 	
-	public static Class<?> getValueClassOfListValue(String modid, ForgeConfigSpec.ConfigValue<List<?>> value)
-	{
-		for (var config : configsByModid.get(modid))
-		{
-			Class<?> clazz = config.getListClassForValue(value);
-			if (clazz != null)
-				return clazz;
-		}
-		throw new NullPointerException("Value '" + value + "' is not registered in any config!");
-	}
+//	public static Class<?> getValueClassOfListValue(String modid, ForgeConfigSpec.ConfigValue<List<?>> value)
+//	{
+//		for (var config : configsByModid.get(modid))
+//		{
+//			Class<?> clazz = config.getListClassForValue(value);
+//			if (clazz != null)
+//				return clazz;
+//		}
+//		throw new NullPointerException("Value '" + value + "' is not registered in any config!");
+//	}
 	
 	public static Class<?> getValuesClass(ForgeConfigSpec.ConfigValue<?> value)
 	{
 		return value.getDefault().getClass();
 	}
 	
-	public static <T> boolean isValid(String modid, ForgeConfigSpec.ConfigValue<T> config, T val)
-	{
-		return getValueSpec(modid, config).test(val);
-	}
-	
-	public static @Nullable ForgeConfigSpec.ValueSpec getValueSpec(String modid, ForgeConfigSpec.ConfigValue<?> value)
-	{
-		Objects.requireNonNull(specsByModId, "Config wrapper system not initalized!");
-		for (ForgeConfigSpec spec : specsByModId.get(modid))
-		{
-			if (spec.getRaw(value.getPath()) instanceof ValueSpec valueSpec)
-				return valueSpec;
-		}
-		return null;
-	}
+////	public static <T> boolean isValid(String modid, ForgeConfigSpec.ConfigValue<T> config, T val)
+////	{
+////		return getValueSpec(modid, config).test(val);
+////	}
+//	
+////	public static @Nullable ForgeConfigSpec.ValueSpec getValueSpec(String modid, ForgeConfigSpec.ConfigValue<?> value)
+////	{
+////		Objects.requireNonNull(specsByModId, "Config wrapper system not initalized!");
+////		for (ForgeConfigSpec spec : specsByModId.get(modid))
+////		{
+////			if (spec.getRaw(value.getPath()) instanceof ValueSpec valueSpec)
+////				return valueSpec;
+////		}
+////		return null;
+////	}
 	
 	public static <T> void setToDefault(ForgeConfigSpec.ConfigValue<T> value)
 	{
@@ -274,14 +286,5 @@ public class ConfigHolder
 		configsByModid = event.getConfigs();
 		specsByModId = event.getSpecs();
 		LOGGER.info("Registered {} config wrapper(s)", configsByModid.size());
-		for (String modid : configsByModid.keySet())
-		{
-			ModList.get().getModContainerById(modid).ifPresent(container -> 
-			{
-				DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-					ConfigExtension.registerConfigExtension(container);
-				});
-			});
-		}
     }
 }

@@ -6,14 +6,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.config.ModConfig;
 import nonamecrackers2.crackerslib.CrackersLib;
-import nonamecrackers2.crackerslib.common.config.ConfigHolder;
+import nonamecrackers2.crackerslib.common.config.ConfigHelper;
 import nonamecrackers2.crackerslib.common.config.ReloadType;
-import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
-import nonamecrackers2.crackerslib.common.event.RegisterConfigHoldersEvent;
 
 public class ExampleConfig
 {
@@ -27,12 +23,12 @@ public class ExampleConfig
 		CLIENT_SPEC = clientPair.getRight();
 	}
 	
-	public static void registerConfig(RegisterConfigHoldersEvent event)
-	{
-		event.registerConfig(CrackersLib.MODID, CLIENT_SPEC, CLIENT);
-	}
+//	public static void registerConfig(RegisterConfigHoldersEvent event)
+//	{
+//		event.registerConfig(CrackersLib.MODID, CLIENT_SPEC, CLIENT);
+//	}
 	
-	public static class ClientConfig extends ConfigHolder
+	public static class ClientConfig extends ConfigHelper
 	{
 		public final ForgeConfigSpec.ConfigValue<Boolean> exampleBoolean;
 		public final ForgeConfigSpec.ConfigValue<Integer> exampleInteger;
@@ -42,8 +38,9 @@ public class ExampleConfig
 		
 		public ClientConfig(ForgeConfigSpec.Builder builder)
 		{
-			super(ModConfig.Type.CLIENT, CrackersLib.MODID);
+			super(CrackersLib.MODID);
 			
+			//TODO: Test without comment
 			builder.comment("Example Client Config").push("client");
 			
 			this.exampleBoolean = this.createValue(builder, true, "exampleBoolean", ReloadType.NONE, "A simple boolean config value");
@@ -61,16 +58,16 @@ public class ExampleConfig
 			}, "exampleListString", ReloadType.NONE, "An example of a list of strings that must all be lowercase");
 			
 			builder.pop();
-			
-			ConfigPreset examplePreset = ConfigPreset.Builder.of(this)
-					.setConfigPreset(this.exampleEnum, ExampleConfig.ExampleEnum.GOING)
-					.setConfigPreset(this.exampleDouble, 1.0D)
-					.setConfigPreset(this.exampleBoolean, true)
-					.build(Component.literal("Example Preset"), CrackersLib.id("example"))
-					.withDescription(Component.literal("A simple example preset"));
-			this.putPresets(examplePreset);
-			
-			this.makeDefaultPreset();
+//			
+//			ConfigPreset examplePreset = ConfigPreset.Builder.of(this)
+//					.setConfigPreset(this.exampleEnum, ExampleConfig.ExampleEnum.GOING)
+//					.setConfigPreset(this.exampleDouble, 1.0D)
+//					.setConfigPreset(this.exampleBoolean, true)
+//					.build(Component.literal("Example Preset"), CrackersLib.id("example"))
+//					.withDescription(Component.literal("A simple example preset"));
+//			this.putPresets(examplePreset);
+//			
+//			this.makeDefaultPreset();
 		}
 	}
 	

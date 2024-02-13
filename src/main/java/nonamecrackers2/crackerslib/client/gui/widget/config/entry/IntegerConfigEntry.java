@@ -5,9 +5,9 @@ import net.minecraftforge.common.ForgeConfigSpec;
 
 public class IntegerConfigEntry extends NumberConfigEntry<Integer>
 {
-	public IntegerConfigEntry(Minecraft mc, String modid, ForgeConfigSpec.ConfigValue<Integer> value, Runnable responder)
+	public IntegerConfigEntry(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
 	{
-		super(mc, modid, value, responder);
+		super(mc, modid, path, spec, onValueUpdated);
 	}
 
 	@Override

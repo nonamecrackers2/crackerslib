@@ -1,12 +1,14 @@
 package nonamecrackers2.crackerslib.client.gui;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.electronwill.nightconfig.core.UnmodifiableConfig;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -21,13 +23,12 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.config.ModConfig;
+import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigCategory;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigOptionList;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.BooleanConfigEntry;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.DoubleConfigEntry;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.EnumConfigEntry;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.IntegerConfigEntry;
-import nonamecrackers2.crackerslib.client.gui.widget.config.entry.ListConfigEntry;
-import nonamecrackers2.crackerslib.common.config.ConfigHolder;
 
 public class ConfigHomeScreen extends Screen
 {
@@ -40,6 +41,7 @@ public class ConfigHomeScreen extends Screen
 	
 	private final ResourceLocation titleLogo;
 	private final String modid;
+	private final Map<ModConfig.Type, ForgeConfigSpec> specs;
 	
 	private final boolean isWorldLoaded;
 	private final boolean hasSinglePlayerServer;
@@ -57,19 +59,15 @@ public class ConfigHomeScreen extends Screen
 	private Button githubButton;
 	private Button nazaKofiButton;
 	
-	public ConfigHomeScreen(String modid, boolean isWorldLoaded, boolean hasSinglePlayerServer, @Nullable Screen previous)
+	public ConfigHomeScreen(String modid, Map<ModConfig.Type, ForgeConfigSpec> specs, boolean isWorldLoaded, boolean hasSinglePlayerServer, @Nullable Screen previous)
 	{
 		super(Component.translatable("gui." + modid + ".screen.config.home.title"));
-		this.modid = modid;
 		this.titleLogo = new ResourceLocation(modid, "textures/gui/config/config_title.png");
+		this.modid = modid;
+		this.specs = specs;
 		this.isWorldLoaded = isWorldLoaded;
 		this.hasSinglePlayerServer = hasSinglePlayerServer;
 		this.previous = previous;
-	}
-	
-	public ConfigHomeScreen(String modid, boolean isWorldLoaded, boolean hasSinglePlayerServer)
-	{
-		this(modid, isWorldLoaded, hasSinglePlayerServer, null);
 	}
 	
 	@Override
@@ -170,65 +168,104 @@ public class ConfigHomeScreen extends Screen
 	
 	protected void openConfigMenu(ModConfig.Type type)
 	{
-		ConfigHolder.getConfig(this.modid, type).ifPresent(this::openConfigMenu);
-	}
-	
-	@SuppressWarnings("unchecked")
-	protected void openConfigMenu(@Nonnull ConfigHolder config)
-	{
-		this.minecraft.setScreen(new ConfigScreen(config, list -> 
+		ForgeConfigSpec spec = this.specs.get(type);
+		if (spec != null)
 		{
-			for (var value : config.getValues())
-			{
-				if (!config.shouldHideFromGui(value))// && canAddConfigToGui(value))
-				{
-					var clazz = ConfigHolder.getValuesClass(value);
-					if (Integer.class.isAssignableFrom(clazz))
-						list.addConfigValue((ForgeConfigSpec.ConfigValue<Integer>)value, IntegerConfigEntry::new);
-					else if (Double.class.isAssignableFrom(clazz))
-						list.addConfigValue((ForgeConfigSpec.ConfigValue<Double>)value, DoubleConfigEntry::new);
-					else if (Boolean.class.isAssignableFrom(clazz))
-						list.addConfigValue((ForgeConfigSpec.ConfigValue<Boolean>)value, BooleanConfigEntry::new);
-					else if (Enum.class.isAssignableFrom(clazz))
-						addEnumEntry(list, value);
-					else if (tryToAddListEntry(list, clazz, value)) {}
-					else
-						LOGGER.warn("Unknown config GUI entry for type '{}'", clazz);
-				}
-			}
-		}, this.isWorldLoaded, this.hasSinglePlayerServer, this.previous));
-	}
-	
-	@SuppressWarnings("unchecked")
-	protected static <T extends Enum<T>> void addEnumEntry(ConfigOptionList list, ForgeConfigSpec.ConfigValue<?> value)
-	{
-		list.addConfigValue((ForgeConfigSpec.ConfigValue<T>)value, EnumConfigEntry::new);
-	}
-	
-	protected static boolean tryToAddListEntry(ConfigOptionList list, Class<?> valueClass, ForgeConfigSpec.ConfigValue<?> value)
-	{
-		if (List.class.isAssignableFrom(valueClass))
-		{
-			@SuppressWarnings("unchecked")
-			var cast = (ForgeConfigSpec.ConfigValue<List<?>>)value;
-			var clazz = ConfigHolder.getValueClassOfListValue(list.getModid(), cast);
-			if (String.class.isAssignableFrom(clazz))
-			{
-				list.addConfigValue((ForgeConfigSpec.ConfigValue<List<?>>)cast, (mc, modid, val, updater) -> {
-					return new ListConfigEntry(mc, modid, val, updater, s -> s);
-				});
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else
-		{
-			return false;
+			this.minecraft.setScreen(new ConfigScreen(this.modid, spec, type, list -> {
+				buildConfigList(list, spec.getValues().valueMap(), "", Optional.empty());
+			}, this.previous));
 		}
 	}
+	
+	private static void buildConfigList(ConfigOptionList list, Map<String, Object> values, String previousPath, Optional<ConfigCategory> category)
+	{
+		for (var entry : values.entrySet())
+		{
+			String path = entry.getKey();
+			if (!previousPath.isEmpty())
+				path = previousPath + "." + path;
+			Object obj = entry.getValue();
+			if (obj instanceof UnmodifiableConfig next)
+			{
+				ConfigCategory nextCategory = list.makeCategory(path, category);
+				buildConfigList(list, next.valueMap(), path, Optional.of(nextCategory));
+			}
+			else if (obj instanceof ForgeConfigSpec.ConfigValue<?> value)
+			{
+				var clazz = value.getDefault().getClass();
+				if (Integer.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, IntegerConfigEntry::new, category);
+				else if (Double.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, DoubleConfigEntry::new, category);
+				else if (Boolean.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, BooleanConfigEntry::new, category);
+				else if (Enum.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, EnumConfigEntry::new, category);
+				//else if (tryToAddListEntry(list, clazz, value)) {}
+				else
+					LOGGER.warn("Unknown config GUI entry for type '{}'", clazz);
+			}
+		}
+	}
+	
+//	
+//	@SuppressWarnings("unchecked")
+//	protected void openConfigMenu(@Nonnull ConfigHolder config)
+//	{
+//		this.minecraft.setScreen(new ConfigScreen(config, list -> 
+//		{
+//			for (var value : config.getValues())
+//			{
+//				if (!config.shouldHideFromGui(value))// && canAddConfigToGui(value))
+//				{
+//					var clazz = ConfigHolder.getValuesClass(value);
+//					if (Integer.class.isAssignableFrom(clazz))
+//						list.addConfigValue((ForgeConfigSpec.ConfigValue<Integer>)value, IntegerConfigEntry::new);
+//					else if (Double.class.isAssignableFrom(clazz))
+//						list.addConfigValue((ForgeConfigSpec.ConfigValue<Double>)value, DoubleConfigEntry::new);
+//					else if (Boolean.class.isAssignableFrom(clazz))
+//						list.addConfigValue((ForgeConfigSpec.ConfigValue<Boolean>)value, BooleanConfigEntry::new);
+//					else if (Enum.class.isAssignableFrom(clazz))
+//						addEnumEntry(list, value);
+//					else if (tryToAddListEntry(list, clazz, value)) {}
+//					else
+//						LOGGER.warn("Unknown config GUI entry for type '{}'", clazz);
+//				}
+//			}
+//		}, this.isWorldLoaded, this.hasSinglePlayerServer, this.previous));
+//	}
+	
+//	@SuppressWarnings("unchecked")
+//	protected static <T extends Enum<T>> void addEnumEntry(ConfigOptionList list, St)
+//	{
+//		list.addConfigValue((ForgeConfigSpec.ConfigValue<T>)value, EnumConfigEntry::new);
+//	}
+	
+	//TODO: Reintroduce
+//	protected static boolean tryToAddListEntry(ConfigOptionList list, Class<?> valueClass, ForgeConfigSpec.ConfigValue<?> value)
+//	{
+//		if (List.class.isAssignableFrom(valueClass))
+//		{
+//			@SuppressWarnings("unchecked")
+//			var cast = (ForgeConfigSpec.ConfigValue<List<?>>)value;
+//			var clazz = ConfigHolder.getValueClassOfListValue(list.getModid(), cast);
+//			if (String.class.isAssignableFrom(clazz))
+//			{
+//				list.addConfigValue((ForgeConfigSpec.ConfigValue<List<?>>)cast, (mc, modid, val, updater) -> {
+//					return new ListConfigEntry(mc, modid, val, updater, s -> s);
+//				});
+//				return true;
+//			}
+//			else
+//			{
+//				return false;
+//			}
+//		}
+//		else
+//		{
+//			return false;
+//		}
+//	}
 	
 	protected void openLink(String link)
 	{
