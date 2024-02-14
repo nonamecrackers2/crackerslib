@@ -61,44 +61,9 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 		}, () -> {
 			this.items.add(category);
 		});
+		this.categories.add(category);
 		return category;
 	}
-	
-	//TODO: Reintroduce
-//	private @Nullable ConfigCategory getOrCreateCategoryFor(String path)
-//	{
-//		List<String> rawPath = value.getPath();
-//		rawPath.remove(rawPath.size() - 1);
-//		String beginning = rawPath.get(0);
-//		rawPath.remove(0);
-//		if (!rawPath.isEmpty())
-//		{
-//			String current = beginning;
-//			ConfigCategory prevCategory = null;
-//			for (int i = 0; i < rawPath.size(); i++)
-//			{
-//				String str = rawPath.get(i);
-//				current += "." + str;
-//				ConfigCategory category = this.getCategoryByPath(current);
-//				if (category == null)
-//				{
-//					category = new ConfigCategory(this.minecraft, this.modid, current, this);
-//					this.categories.add(category);
-//					if (prevCategory == null)
-//						this.items.add(category);
-//					else
-//						prevCategory.addCategory(category);
-//				}
-//				prevCategory = category;
-//			}
-//			return prevCategory;
-//		}
-//		else
-//		{
-//			return null;
-//		}
-//		return null;
-//	}
 	
 	private @Nullable ConfigCategory getCategoryByPath(String path)
 	{
@@ -157,33 +122,19 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 		return true;
 	}
 	
-	public ConfigPreset getMatchingPreset(List<ConfigPreset> presets)
+	public @Nullable ConfigPreset getMatchingPreset(List<ConfigPreset> presets)
 	{
-		ConfigPreset empty = null;
+		main:
 		for (ConfigPreset preset : presets)
 		{
-			if (!preset.getValues().isEmpty())
+			for (ConfigListItem item : this.items)
 			{
-				boolean matches = true;
-				for (ConfigListItem item : this.items)
-				{
-					if (!item.matchesPreset(preset))
-					{
-						matches = false;
-						break;
-					}
-				}
-				if (matches)
-					return preset;
+				if (!item.matchesPreset(preset))
+					continue main;
 			}
-			else
-			{
-				empty = preset;
-			}
+			return preset;
 		}
-		if (empty == null)
-			throw new NullPointerException("This shouldn't happen! Could not find matching preset.");
-		return empty;
+		return null;
 	}
 	
 	public void setFromPreset(ConfigPreset preset)

@@ -1,29 +1,46 @@
 package nonamecrackers2.crackerslib.client.gui;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.google.common.collect.Lists;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.client.ConfigScreenHandler.ConfigScreenFactory;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.config.ModConfig;
-import nonamecrackers2.crackerslib.CrackersLib;
+import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigCategory;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigListItem;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigOptionList;
+import nonamecrackers2.crackerslib.client.gui.widget.config.entry.BooleanConfigEntry;
+import nonamecrackers2.crackerslib.client.gui.widget.config.entry.DoubleConfigEntry;
+import nonamecrackers2.crackerslib.client.gui.widget.config.entry.EnumConfigEntry;
+import nonamecrackers2.crackerslib.client.gui.widget.config.entry.IntegerConfigEntry;
+import nonamecrackers2.crackerslib.client.gui.widget.config.entry.ListConfigEntry;
+import nonamecrackers2.crackerslib.client.gui.widget.config.entry.StringConfigEntry;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
+import nonamecrackers2.crackerslib.common.config.preset.ConfigPresets;
 
 public class ConfigScreen extends Screen
 {
+	private static final Logger LOGGER = LogManager.getLogger("crackerslib/ConfigScreen");
+	private static final Component CUSTOM_PRESET_TITLE = Component.translatable("config.crackerslib.preset.custom.title");
+	private static final Component CUSTOM_PRESET_DESCRIPTION = Component.translatable("config.crackerslib.preset.custom.description").withStyle(ChatFormatting.GRAY);
+	private static final Component HOLD_SHIFT = Component.translatable("gui.crackerslib.button.preset.holdShift").withStyle(ChatFormatting.DARK_GRAY);
 	private static final int TITLE_HEIGHT = 12;
 	private static final int BUTTON_WIDTH = 200;
 	private static final int BUTTON_HEIGHT = 20;
@@ -31,32 +48,110 @@ public class ConfigScreen extends Screen
 	private final String modid;
 	private final ForgeConfigSpec spec;
 	private final Consumer<ConfigOptionList> itemGenerator;
-	//TODO: Reimplement by holding the instance of the home screen
-//	private final boolean isWorldLoaded;
-//	private final boolean hasSinglePlayerServer;
-	private final @Nullable Screen previous;
+	private final Screen homeScreen;
 	private final List<ConfigPreset> presets;
 	private ConfigOptionList list;
 	private Button exit;
 	private Button changePreset;
 	private Button reset;
-	private ConfigPreset preset;
+	private @Nullable ConfigPreset preset;
 	private ConfigListItem currentHovered;
 	private Tooltip currentHoveredTooltip;
 	private EditBox searchBox;
 	
-	public ConfigScreen(String modid, ForgeConfigSpec spec, ModConfig.Type type, Consumer<ConfigOptionList> itemGenerator, @Nullable Screen previous)
+	public ConfigScreen(String modid, ForgeConfigSpec spec, ModConfig.Type type, Consumer<ConfigOptionList> itemGenerator, Screen homeScreen)
 	{
 		super(Component.translatable("gui.crackerslib.screen." + type.extension() + "Options.title"));
 		this.modid = modid;
 		this.spec = spec;
 		this.itemGenerator = itemGenerator;
-//		this.isWorldLoaded = isWorldLoaded;
-//		this.hasSinglePlayerServer = hasSinglePlayerServer;
-		this.previous = previous;
-//		this.presets = this.config.getPresets();
-		//TODO: Reintroduce
-		this.presets = Lists.newArrayList(ConfigPreset.Builder.empty().build(Component.literal("empty"), CrackersLib.id("empty")));
+		this.homeScreen = homeScreen;
+		this.presets = Lists.newArrayList(ConfigPreset.defaultPreset());
+		var presets = ConfigPresets.getPresetsForModId(this.modid);
+		if (presets != null)
+		{
+			for (ConfigPreset preset : presets.get(type))
+				this.presets.add(preset);
+		}
+	}
+	
+	public static ConfigScreen makeScreen(String modid, ForgeConfigSpec spec, ModConfig.Type type, Screen homeScreen)
+	{
+		return new ConfigScreen(modid, spec, type, list -> {
+			buildConfigList(list, spec.getValues().valueMap(), "", Optional.empty());
+		}, homeScreen);
+	}
+	
+	private static void buildConfigList(ConfigOptionList list, Map<String, Object> values, String previousPath, Optional<ConfigCategory> category)
+	{
+		for (var entry : values.entrySet())
+		{
+			String path = entry.getKey();
+			if (!previousPath.isEmpty())
+				path = previousPath + "." + path;
+			Object obj = entry.getValue();
+			if (obj instanceof UnmodifiableConfig next)
+			{
+				ConfigCategory nextCategory = list.makeCategory(path, category);
+				buildConfigList(list, next.valueMap(), path, Optional.of(nextCategory));
+			}
+			else if (obj instanceof ForgeConfigSpec.ConfigValue<?> value)
+			{
+				var clazz = value.getDefault().getClass();
+				if (Integer.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, IntegerConfigEntry::new, category);
+				else if (Double.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, DoubleConfigEntry::new, category);
+				else if (Boolean.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, BooleanConfigEntry::new, category);
+				else if (Enum.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, EnumConfigEntry::new, category);
+				else if (String.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, StringConfigEntry::new, category);
+				else if (tryToAddListEntry(list, clazz, path, value, category)) {}
+				else
+					LOGGER.warn("Unknown config GUI entry for type '{}'", clazz);
+			}
+		}
+	}
+	
+	protected static boolean tryToAddListEntry(ConfigOptionList list, Class<?> valueClass, String path, ForgeConfigSpec.ConfigValue<?> value, Optional<ConfigCategory> category)
+	{
+		if (List.class.isAssignableFrom(valueClass))
+		{
+			List<?> listValue = (List<?>)value.getDefault();
+			if (listValue.size() > 0)
+			{
+				Class<?> clazz = listValue.get(0).getClass();
+				if (String.class.isAssignableFrom(clazz))
+					putListEntry(list, path, category, v -> v);
+				else if (Double.class.isAssignableFrom(clazz))
+					putListEntry(list, path, category, Double::parseDouble);
+				else if (Float.class.isAssignableFrom(clazz))
+					putListEntry(list, path, category, Float::parseFloat);
+				else if (Integer.class.isAssignableFrom(clazz))
+					putListEntry(list, path, category, Integer::parseInt);
+				else
+					return false;
+				return true;
+			}
+			else
+			{
+				LOGGER.info("Could not determine generic type for empty list config value");
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	private static void putListEntry(ConfigOptionList list, String path, Optional<ConfigCategory> category, ListConfigEntry.ValueParser<?> parser)
+	{
+		list.addConfigValue(path, (mc, modid, p, s, r) -> {
+			return new ListConfigEntry(mc, modid, p, s, r, parser);
+		}, category);
 	}
 	
 	@Override
@@ -78,10 +173,10 @@ public class ConfigScreen extends Screen
 		
 		this.preset = this.list.getMatchingPreset(this.presets);
 		
-		this.changePreset = Button.builder(Component.translatable("gui.crackerslib.button.preset.title").append(": " + this.preset.getTranslationName().getString()), button -> this.changePreset())
+		this.changePreset = Button.builder(Component.translatable("gui.crackerslib.button.preset.title").append(": ").append(this.getPresetName()), button -> this.changePreset())
 				.pos(10, this.height - EXIT_BUTTON_OFFSET)
 				.size((int)Math.round(BUTTON_WIDTH / 1.5D), BUTTON_HEIGHT)
-				.tooltip(Tooltip.create(this.preset.getTooltip(false)))
+				.tooltip(Tooltip.create(this.getPresetTooltip(false)))
 				.build();
 		
 		this.reset = Button.builder(Component.translatable("gui.crackerslib.button.reset.title"), button -> this.resetValues())
@@ -109,27 +204,26 @@ public class ConfigScreen extends Screen
 	private void closeMenu()
 	{
 		this.list.onClosed();
-		ModList.get().getModContainerById(this.modid).flatMap(mc -> mc.getCustomExtension(ConfigScreenFactory.class).map(ConfigScreenFactory::screenFunction)).ifPresent(function -> {
-			this.minecraft.setScreen(function.apply(this.minecraft, this.previous));
-		});;
+		this.minecraft.setScreen(this.homeScreen);
 	}
 	
 	private void resetValues()
 	{
 		this.list.resetValues();
 		this.preset = this.list.getMatchingPreset(this.presets);
-		this.changePreset.setMessage(Component.translatable("gui.crackerslib.button.preset.title").append(": " + this.preset.getTranslationName().getString()));
+		this.changePreset.setMessage(Component.translatable("gui.crackerslib.button.preset.title").append(": ").append(this.getPresetName()));
 		this.reset.active = false;
 	}
 	
 	private void changePreset()
 	{
-		int index = this.presets.indexOf(this.preset) + 1;
-		if (index >= this.presets.size())
-			index = 0;
-		this.preset = this.presets.get(index);
-		this.list.setFromPreset(this.preset);
-		this.changePreset.setMessage(Component.translatable("gui.crackerslib.button.preset.title").append(": " + this.preset.getTranslationName().getString()));
+		int next = this.presets.indexOf(this.preset) + 1;
+		if (next >= this.presets.size())
+			next = 0;
+		this.preset = this.presets.get(next);
+		if (this.preset != null)
+			this.list.setFromPreset(this.preset);
+		this.changePreset.setMessage(Component.translatable("gui.crackerslib.button.preset.title").append(": ").append(this.getPresetName()));
 		this.reset.active = !this.list.areValuesReset();
 	}
 	
@@ -138,7 +232,7 @@ public class ConfigScreen extends Screen
 	{
 		super.render(stack, mouseX, mouseY, partialTicks);
 		stack.drawCenteredString(this.font, this.title.getString(), this.width / 2, TITLE_HEIGHT, 0xFFFFFF);
-		this.changePreset.setTooltip(Tooltip.create(this.preset.getTooltip(hasShiftDown())));
+		this.changePreset.setTooltip(Tooltip.create(this.getPresetTooltip(hasShiftDown())));
 		ConfigListItem item = this.list.getItemAt(mouseX, mouseY);
 		if (this.currentHovered != item)
 		{
@@ -155,19 +249,34 @@ public class ConfigScreen extends Screen
 	private void onValueChanged()
 	{
 		this.preset = this.list.getMatchingPreset(this.presets);
-		this.changePreset.setMessage(Component.translatable("gui.crackerslib.button.preset.title").append(": " + this.preset.getTranslationName().getString()));
+		this.changePreset.setMessage(Component.translatable("gui.crackerslib.button.preset.title").append(": ").append(this.getPresetName()));
 		this.reset.active = !this.list.areValuesReset();
 	}
 	
-//	public static boolean canAddConfigToGui(ForgeConfigSpec.ConfigValue<?> value)
-//	{
-//		if (value == WitherStormModConfig.CLIENT.optifineWarning)
-//			return WitherStormModCompat.isOptifineLoaded();
-//		else if (value == WitherStormModConfig.CLIENT.aprilFools)
-//			return WitherStormMod.isAprilFools();
-//		else if (value == WitherStormModConfig.CLIENT.patronCosmetic)
-//			return Contributors.currentPlayerHasCosmetic();
-//		else
-//			return true;
-//	}
+	private Component getPresetTooltip(boolean shiftDown)
+	{
+		if (this.preset != null)
+			return this.preset.getTooltip(shiftDown);
+		else
+			return makeCustomPresetTooltip(shiftDown);
+	}
+	
+	private Component getPresetName()
+	{
+		if (this.preset != null)
+			return this.preset.name();
+		else
+			return CUSTOM_PRESET_TITLE;
+	}
+	
+	private static Component makeCustomPresetTooltip(boolean shiftDown)
+	{
+		MutableComponent component = CUSTOM_PRESET_TITLE.copy();
+		component.append("\n");
+		if (shiftDown)
+			component.append(CUSTOM_PRESET_DESCRIPTION);
+		else
+			component.append(HOLD_SHIFT);
+		return component;
+	}
 }

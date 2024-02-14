@@ -15,9 +15,16 @@ import nonamecrackers2.crackerslib.client.config.ConfigHomeScreenFactory;
 
 public class RegisterConfigScreensEvent extends Event implements IModBusEvent
 {
-	public RegisterConfigScreensEvent.Builder builder(String modid, ConfigHomeScreenFactory factory)
+	private final String modid;
+	
+	public RegisterConfigScreensEvent(String modid)
 	{
-		return new RegisterConfigScreensEvent.Builder(modid, factory);
+		this.modid = modid;
+	}
+	
+	public RegisterConfigScreensEvent.Builder builder(ConfigHomeScreenFactory factory)
+	{
+		return new RegisterConfigScreensEvent.Builder(this.modid, factory);
 	}
 	
 	public class Builder

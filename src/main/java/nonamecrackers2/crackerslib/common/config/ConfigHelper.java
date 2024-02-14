@@ -24,31 +24,41 @@ public abstract class ConfigHelper
 	protected <T> ForgeConfigSpec.ConfigValue<T> createValue(ForgeConfigSpec.Builder builder, T value, String name, ReloadType type, String... description)
 	{
 		String desc = StringUtils.join(description, " ");
-		return builder.comment("DEFAULT=" + value + ". " + desc + ". " + type.toString()).translation("gui." + this.modid + ".config." + name + ".description").define(name, value);
+		if (type != ReloadType.NONE)
+			builder.worldRestart();
+		return builder.comment("DEFAULT=" + value + ". " + desc + ". Requires reload of: " + type.toString()).translation("gui." + this.modid + ".config." + name + ".description").define(name, value);
 	}
 	
 	protected ForgeConfigSpec.ConfigValue<Double> createRangedDoubleValue(ForgeConfigSpec.Builder builder, double value, double min, double max, String name, ReloadType type, String... description)
 	{
 		String desc = StringUtils.join(description, " ");
-		return builder.comment("DEFAULT=" + value + ". " + desc + ". " + type.toString()).translation("gui." + this.modid + ".config." + name + ".description").defineInRange(name, value, min, max);
+		if (type != ReloadType.NONE)
+			builder.worldRestart();
+		return builder.comment("DEFAULT=" + value + ". " + desc + ". Requires reload of: " + type.toString()).translation("gui." + this.modid + ".config." + name + ".description").defineInRange(name, value, min, max);
 	}
 	
 	protected ForgeConfigSpec.ConfigValue<Integer> createRangedIntValue(ForgeConfigSpec.Builder builder, int value, int min, int max, String name, ReloadType type, String... description)
 	{
 		String desc = StringUtils.join(description, " ");
-		return builder.comment("DEFAULT=" + value + ". " + desc + ". " + type.toString()).translation("gui." + this.modid + ".config." + name + ".description").defineInRange(name, value, min, max);
+		if (type != ReloadType.NONE)
+			builder.worldRestart();
+		return builder.comment("DEFAULT=" + value + ". " + desc + ". Requires reload of: " + type.toString()).translation("gui." + this.modid + ".config." + name + ".description").defineInRange(name, value, min, max);
 	}
 	
 	protected <T extends Enum<T>> ForgeConfigSpec.ConfigValue<T> createEnumValue(ForgeConfigSpec.Builder builder, T value, String name, ReloadType type, String... description)
 	{
 		String desc = StringUtils.join(description, " ");
-		return builder.comment("DEFAULT=" + value + ". " + desc + ". " + type.toString()).translation("gui." + this.modid + ".config." + name + ".description").defineEnum(name, value);
+		if (type != ReloadType.NONE)
+			builder.worldRestart();
+		return builder.comment("DEFAULT=" + value + ". " + desc + ". Requires reload of: " + type.toString()).translation("gui." + this.modid + ".config." + name + ".description").defineEnum(name, value);
 	}
 	
 	@SuppressWarnings("unchecked")
 	protected <T> ForgeConfigSpec.ConfigValue<List<? extends T>> createListValue(ForgeConfigSpec.Builder builder, Class<T> valueClass, Supplier<List<? extends T>> value, Predicate<T> validator, String name, ReloadType type, String description)
 	{
-		return builder.comment(description + ". " + type.toString()).translation("gui." + this.modid + ".config." + name + ".description").defineListAllowEmpty(split(name), value, obj -> {
+		if (type != ReloadType.NONE)
+			builder.worldRestart();
+		return builder.comment(description + ". Requires reload of: " + type.toString()).translation("gui." + this.modid + ".config." + name + ".description").defineListAllowEmpty(split(name), value, obj -> {
 			return valueClass.isAssignableFrom(obj.getClass()) && validator.test((T)obj);
 		});
 	}

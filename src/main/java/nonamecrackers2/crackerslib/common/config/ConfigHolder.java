@@ -26,14 +26,12 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import nonamecrackers2.crackerslib.CrackersLib;
-import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
-import nonamecrackers2.crackerslib.common.event.RegisterConfigHoldersEvent;
+import nonamecrackers2.crackerslib.common.config.preset.LegacyConfigPreset;
 import nonamecrackers2.crackerslib.common.util.AttributeModifierSnapshot;
 
+@Deprecated
 public class ConfigHolder
 {
 	private static Multimap<String, ConfigHolder> configsByModid;
@@ -44,17 +42,17 @@ public class ConfigHolder
 	protected final Map<ForgeConfigSpec.ConfigValue<?>, ReloadType> values = Maps.newHashMap();
 	protected final Map<ForgeConfigSpec.ConfigValue<?>, Class<?>> listValueClasses = Maps.newHashMap();
 	protected final List<AttributeModifierSnapshot> attributeModifiers = Lists.newArrayList();
-	protected final List<ConfigPreset> presets = Lists.newArrayList();
+	protected final List<LegacyConfigPreset> presets = Lists.newArrayList();
 	protected final List<ForgeConfigSpec.ConfigValue<?>> presetExcluded = Lists.newArrayList();
 	protected final List<ForgeConfigSpec.ConfigValue<?>> guiHidden = Lists.newArrayList();
 	private final String modid;
-	public final ConfigPreset custom;
+	public final LegacyConfigPreset custom;
 	private final ModConfig.Type type;
 	
 	protected ConfigHolder(ModConfig.Type type, String modid)
 	{
 		this.modid = modid;
-		this.custom = ConfigPreset.Builder.empty().build(Component.translatable("config." + modid + ".preset.custom.title"), CrackersLib.id("custom")).withDescription(Component.translatable("config." + modid + ".preset.custom.description"));
+		this.custom = LegacyConfigPreset.Builder.empty().build(Component.translatable("config." + modid + ".preset.custom.title"), CrackersLib.id("custom")).withDescription(Component.translatable("config." + modid + ".preset.custom.description"));
 		this.putPresets(this.custom);
 		this.type = type;
 	}
@@ -78,13 +76,13 @@ public class ConfigHolder
 		return value;
 	}
 	
-	protected void putPresets(ConfigPreset... presets)
+	protected void putPresets(LegacyConfigPreset... presets)
 	{
 		for (int i = 0; i < presets.length; i++)
 			this.presets.add(presets[i]);
 	}
 	
-	public List<ConfigPreset> getPresets()
+	public List<LegacyConfigPreset> getPresets()
 	{
 		return Lists.newArrayList(this.presets);
 	}
@@ -197,7 +195,7 @@ public class ConfigHolder
 	protected void makeDefaultPreset()
 	{
 		this.putPresets(
-				ConfigPreset.Builder.of(this)
+				LegacyConfigPreset.Builder.of(this)
 				.build(Component.translatable("config.crackerslib.preset.default.title"), CrackersLib.id("default"))
 				.withDescription(Component.translatable("config.crackerslib.preset.default.description"))
 		);
@@ -276,15 +274,15 @@ public class ConfigHolder
     	return Optional.empty();
     }
     
-    public static void initiateConfigHolders()
-    {
-    	if (configsByModid != null)
-    		throw new IllegalStateException("Configs have already been built!");
-    	IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-		var event = new RegisterConfigHoldersEvent();
-		modBus.post(event);
-		configsByModid = event.getConfigs();
-		specsByModId = event.getSpecs();
-		LOGGER.info("Registered {} config wrapper(s)", configsByModid.size());
-    }
+//    public static void initiateConfigHolders()
+//    {
+//    	if (configsByModid != null)
+//    		throw new IllegalStateException("Configs have already been built!");
+//    	IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+//		var event = new RegisterConfigHoldersEvent();
+//		modBus.post(event);
+//		configsByModid = event.getConfigs();
+//		specsByModId = event.getSpecs();
+//		LOGGER.info("Registered {} config wrapper(s)", configsByModid.size());
+//    }
 }

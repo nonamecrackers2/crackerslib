@@ -13,7 +13,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import nonamecrackers2.crackerslib.common.config.ConfigHolder;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 
 public class ConfigCategory implements ConfigListItem
@@ -22,8 +21,10 @@ public class ConfigCategory implements ConfigListItem
 	private final List<ConfigListItem> children = Lists.newArrayList();
 	private final List<ConfigCategory> categories = Lists.newArrayList();
 	private final String path;
-	private final Component name;
 	private final ConfigOptionList list;
+	private final String modid;
+	private final Component name;
+	private Component displayName;
 	private Button expand;
 	private boolean isExpanded;
 	private int x;
@@ -31,9 +32,10 @@ public class ConfigCategory implements ConfigListItem
 	public ConfigCategory(Minecraft mc, String modid, String path, ConfigOptionList list)
 	{
 		this.mc = mc;
+		this.modid = modid;
 		this.path = path;
-		this.name = Component.translatable("gui." + modid + ".config.category." + path + ".title").withStyle(Style.EMPTY.withBold(true).withColor(ChatFormatting.YELLOW));
 		this.list = list;
+		this.name = Component.translatable("gui." + this.modid + ".config.category." + ConfigListItem.extractNameFromPath(path) + ".title").withStyle(Style.EMPTY.withBold(true).withColor(ChatFormatting.YELLOW));
 	}
 	
 	public void addChild(ConfigListItem item)
@@ -45,22 +47,23 @@ public class ConfigCategory implements ConfigListItem
 	@Override
 	public void init(List<AbstractWidget> widgets, int x, int y, int width, int height)
 	{
-		Component text;
+		Component buttonText;
 		if (this.isExpanded)
-			text = Component.literal("-").withStyle(ChatFormatting.RED);
+			buttonText = Component.literal("-").withStyle(ChatFormatting.RED);
 		else
-			text = Component.literal("+").withStyle(ChatFormatting.GREEN);
-		this.expand = Button.builder(text, b -> 
+			buttonText = Component.literal("+").withStyle(ChatFormatting.GREEN);
+		this.expand = Button.builder(buttonText, b -> 
 		{
 			this.isExpanded = !this.isExpanded;
 			this.list.buildList(this.list.getLastSearchingFor());
 		}).bounds(x + 6, y, 20, 20).build();
 		widgets.add(this.expand);
 		Collections.sort(this.children);
-//		this.children.sort((first, second) -> first instanceof ConfigCategory ? 1 : -1);
 		if (!this.isExpanded)
 			this.children.forEach(child -> child.init(Lists.newArrayList(), x + 20, y, width, height));
 		this.x = x;
+		
+		this.displayName = ConfigListItem.shortenText(this.name, width - this.expand.getWidth() - x - 5);
 	}
 
 	@Override
@@ -68,7 +71,7 @@ public class ConfigCategory implements ConfigListItem
 	{
 		this.expand.setY(y + height / 2 - this.expand.getHeight() / 2);
 		this.expand.render(stack, mouseX, mouseY, partialTicks);
-		stack.drawString(this.mc.font, this.name, x + 5 + (this.expand.getX() - x) + this.expand.getWidth(), y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
+		stack.drawString(this.mc.font, this.displayName, x + 5 + (this.expand.getX() - x) + this.expand.getWidth(), y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
 	}
 
 	@Override
@@ -115,6 +118,11 @@ public class ConfigCategory implements ConfigListItem
 	public boolean isExpanded()
 	{
 		return this.isExpanded;
+	}
+	
+	public void setExpanded(boolean flag)
+	{
+		this.isExpanded = flag;
 	}
 	
 	public List<ConfigListItem> getChildren()

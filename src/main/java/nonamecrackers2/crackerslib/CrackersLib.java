@@ -2,15 +2,17 @@ package nonamecrackers2.crackerslib;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import nonamecrackers2.crackerslib.client.event.ExampleEvents;
+import nonamecrackers2.crackerslib.client.event.ExampleClientEvents;
 import nonamecrackers2.crackerslib.client.event.RegisterConfigScreensEvent;
-import nonamecrackers2.crackerslib.common.config.ConfigHolder;
+import nonamecrackers2.crackerslib.common.config.preset.ConfigPresets;
+import nonamecrackers2.crackerslib.common.event.ExampleEvents;
 import nonamecrackers2.crackerslib.common.test.ExampleConfig;
 
 @Mod(CrackersLib.MODID)
@@ -31,14 +33,20 @@ public class CrackersLib
 	public void clientSetup(final FMLClientSetupEvent event)
 	{
 		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-		modBus.addListener(ExampleEvents::registerConfigScreen);
-		modBus.post(new RegisterConfigScreensEvent());
+		modBus.addListener(ExampleClientEvents::registerConfigScreen);
+		event.enqueueWork(() -> {
+			ModLoader.get().runEventGenerator(mod -> {
+				return new RegisterConfigScreensEvent(mod.getModId());
+			});
+		});
 	}
 	
 	public void commonSetup(final FMLCommonSetupEvent event)
 	{
+		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+		modBus.addListener(ExampleEvents::registerPresetsEvent);
 		event.enqueueWork(() -> {
-			ConfigHolder.initiateConfigHolders();
+			ConfigPresets.gatherPresets();
 		});
 	}
 	

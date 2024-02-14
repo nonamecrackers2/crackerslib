@@ -14,7 +14,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraftforge.common.ForgeConfigSpec;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigListItem;
-import nonamecrackers2.crackerslib.common.config.ReloadType;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 
 public abstract class ConfigEntry<T, W extends AbstractWidget> implements ConfigListItem
@@ -25,11 +24,11 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	protected final ForgeConfigSpec.ValueSpec valueSpec;
 	protected final ForgeConfigSpec spec;
 //	protected final T defaultValue;
-	protected final ReloadType reloadType;
+	protected final boolean requiresRestart;
 	protected final String path;
 	protected final Component name;
 	protected final Component description;
-	protected final @Nullable Component reloadTypeText;
+	protected final @Nullable Component restartText;
 	private final Runnable onValueUpdated;
 	protected W widget;
 	protected Component displayName;
@@ -37,27 +36,22 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	public ConfigEntry(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
 	{
 		this.mc = mc;
-		//TODO: Reintroduce
-		this.reloadType = ReloadType.NONE;//config.reloadTypeFor(value);
-		this.path = path;//StringUtils.join(value.getPath(), ".");
+		this.path = path;
 		this.value = spec.getValues().getRaw(path);
 		this.valueSpec = spec.getRaw(path);
+		this.requiresRestart = this.valueSpec.needsWorldRestart();
 		this.spec = spec;
-		String name = path;
-		int index = path.indexOf('.');
-		if (index > 0 && index + 1 < name.length())
-			name = path.substring(index + 1);
-		this.name = Component.translatable("gui." + modid + ".config." + name + ".title");
+		this.name = Component.translatable("gui." + modid + ".config." + ConfigListItem.extractNameFromPath(path) + ".title");
 		String key = this.valueSpec.getTranslationKey();
 		if (key.isEmpty())
 			this.description = Component.literal(this.valueSpec.getComment());
 		else
 			this.description = Component.translatable(key);
 		this.onValueUpdated = onValueUpdated;
-		if (this.reloadType != ReloadType.NONE)
-			this.reloadTypeText = Component.literal("Reload: ").append(Component.literal(this.reloadType.toString()).withStyle(Style.EMPTY.withBold(true).withColor(ChatFormatting.RED))).withStyle(ChatFormatting.DARK_GRAY);
+		if (this.requiresRestart)
+			this.restartText = Component.translatable("gui.crackerslib.screen.config.requiresRestart").withStyle(ChatFormatting.RED);
 		else
-			this.reloadTypeText = null;
+			this.restartText = null;
 	}
 	
 	protected Runnable getValueUpdatedResponder()
@@ -95,8 +89,10 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	@Override
 	public void setFromPreset(ConfigPreset preset)
 	{
-		if (preset.getValues().containsKey(this.value))
-			this.setCurrentValue(preset.getPresetValue(this.value));
+		if (preset.hasValue(this.path))
+			this.setCurrentValue(preset.getValue(this.path));
+		else if (preset.isDefault())
+			this.setCurrentValue(this.value.getDefault());
 	}
 	
 	@Override
@@ -108,7 +104,12 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	@Override
 	public boolean matchesPreset(ConfigPreset preset)
 	{
-		return preset.doesValueMatch(this.value, this.getCurrentValue());
+		if (preset.hasValue(this.path))
+			return preset.getValue(this.path).equals(this.getCurrentValue());
+		else if (preset.isDefault())
+			return this.value.getDefault().equals(this.getCurrentValue());
+		else
+			return true;
 	}
 	
 	@Override
@@ -125,31 +126,10 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		if (this.widget == null)
 			this.widget = this.buildWidget(x, y, width, height);
 		widgets.add(this.widget);
-		
-		String text = this.getName().getString();
-		int currentSize = 0;
-		int allowedWidth = width - this.widget.getWidth() - 25;
-		if (this.reloadTypeText != null)
-			allowedWidth -= this.mc.font.width(this.reloadTypeText) + 10;
-		int lastIndex = -1;
-		for (int i = 0; i < text.length(); i++)
-		{
-			currentSize += this.mc.font.width(String.valueOf(text.charAt(i)));
-			lastIndex = i;
-			if (currentSize > allowedWidth)
-				break;
-		}
-		if (lastIndex > 0)
-		{
-			String newText = text.substring(0, lastIndex + 1);
-			if (currentSize > allowedWidth)
-				newText += "...";
-			this.displayName = Component.literal(newText);
-		}
-		else
-		{
-			this.displayName = this.name;
-		}
+		int allowedWidth = width - this.widget.getWidth() - x - 5;
+		if (this.requiresRestart)
+			allowedWidth -= this.mc.font.width(this.restartText);
+		this.displayName = ConfigListItem.shortenText(this.name, allowedWidth);
 	}
 	
 	@Override
@@ -161,8 +141,8 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		stack.drawString(this.mc.font, component, x + 5 + (this.widget.getX() - x) + this.widget.getWidth(), y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
 		this.widget.setY(y + height / 2 - this.widget.getHeight() / 2);
 		this.widget.render(stack, mouseX, mouseY, partialTicks);
-		if (this.reloadTypeText != null)
-			stack.drawString(this.mc.font, this.reloadTypeText, x + width - this.mc.font.width(this.reloadTypeText) - 5, y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
+		if (this.restartText != null)
+			stack.drawString(this.mc.font, this.restartText, x + width - this.mc.font.width(this.restartText) - 5, y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
 	}
 	
 	@Override
@@ -177,11 +157,11 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		comment.append("\n");
 		comment.append(Component.literal(this.path).withStyle(ChatFormatting.GRAY));
 		String defaultName = "Default: ";
-		Object object;
-		if (!preset.getValues().isEmpty() && !preset.isDefault() && preset.getValues().containsKey(this.value))
+		T object;
+		if (preset != null && !preset.isDefault() && preset.hasValue(this.path))
 		{
-			defaultName = "Default (" + preset.getTranslationName().getString() + "): ";
-			object = preset.getPresetValue(this.value);
+			defaultName = "Default (" + preset.name().getString() + "): ";
+			object = preset.getValue(this.path);
 		}
 		else
 		{
@@ -189,10 +169,10 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		}
 		comment.append("\n");
 		comment.append(Component.literal(defaultName + object).withStyle(ChatFormatting.GREEN));
-		if (this.reloadType != ReloadType.NONE)
+		if (this.requiresRestart)
 		{
 			comment.append("\n");
-			comment.append(Component.literal("Requires reload of " + this.reloadType.toString()).withStyle(ChatFormatting.YELLOW));
+			comment.append(Component.translatable("gui.crackerslib.screen.config.requiresRestart").withStyle(ChatFormatting.YELLOW));
 		}
 		return Tooltip.create(comment);
 	}

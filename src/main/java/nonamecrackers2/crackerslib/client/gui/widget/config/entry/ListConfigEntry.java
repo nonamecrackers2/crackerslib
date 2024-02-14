@@ -12,7 +12,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.ForgeConfigSpec;
-import nonamecrackers2.crackerslib.common.config.ConfigHolder;
 
 public class ListConfigEntry extends ConfigEntry<List<?>, EditBox>
 {
