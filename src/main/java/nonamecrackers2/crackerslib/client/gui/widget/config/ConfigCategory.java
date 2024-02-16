@@ -55,7 +55,7 @@ public class ConfigCategory implements ConfigListItem
 		this.expand = Button.builder(buttonText, b -> 
 		{
 			this.isExpanded = !this.isExpanded;
-			this.list.buildList(this.list.getLastSearchingFor());
+			this.list.rebuildList();
 		}).bounds(x + 6, y, 20, 20).build();
 		widgets.add(this.expand);
 		Collections.sort(this.children);
@@ -125,14 +125,17 @@ public class ConfigCategory implements ConfigListItem
 		this.isExpanded = flag;
 	}
 	
-	public List<ConfigListItem> getChildren()
+	public List<ConfigListItem> gatherChildren(String search, boolean expandOrContractCategories)
 	{
 		List<ConfigListItem> items = Lists.newArrayList();
 		for (ConfigListItem item : this.children)
 		{
-			items.add(item);
-			if (item instanceof ConfigCategory category && category.isExpanded())
-				items.addAll(category.getChildren());
+			if (search.isEmpty() || item.matchesSearch(search))
+			{
+				items.add(item);
+				if (item instanceof ConfigCategory category && category.isExpanded())
+					items.addAll(category.gatherChildren(search, expandOrContractCategories));
+			}
 		}
 		return items;
 	}

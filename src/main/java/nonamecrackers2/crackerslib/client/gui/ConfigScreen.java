@@ -189,7 +189,7 @@ public class ConfigScreen extends Screen
 		this.searchBox = new EditBox(this.font, this.width - this.width / 3 - 5, 5, this.width / 3, 20, searchText);
 		this.searchBox.setHint(searchText);
 		this.searchBox.setResponder(text -> {
-			this.list.buildList(text);
+			this.list.buildList(text, true);
 			this.list.setScrollAmount(0.0D);
 		});
 		this.searchBox.setMaxLength(100);

@@ -77,25 +77,39 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	
 	public void buildList()
 	{
-		this.buildList("");
+		this.buildList("", false);
 	}
 	
-	public void buildList(String text)
+	public void rebuildList()
+	{
+		this.buildList(this.getLastSearchingFor(), false);
+	}
+	
+	public void buildList(String text, boolean expandOrContractCategories)
 	{
 		this.clearEntries();
 		Collections.sort(this.items);
 		List<ConfigListItem> items = Lists.newArrayList();
+		if (expandOrContractCategories)
+		{
+			for (ConfigCategory category : this.categories)
+				category.setExpanded(!text.isBlank());
+		}
 		for (ConfigListItem item : this.items)
 		{
-			items.add(item);
-			if (item instanceof ConfigCategory category && category.isExpanded())
-				items.addAll(category.getChildren());
+			if (text.isEmpty() || item.matchesSearch(text))
+			{
+				items.add(item);
+				if (item instanceof ConfigCategory category && category.isExpanded())
+					items.addAll(category.gatherChildren(text, expandOrContractCategories));
+			}
 		}
 		for (ConfigListItem item : items)
 		{
-			var entry = new ConfigOptionList.Entry(item);
-			if (text.isEmpty() || item.matchesSearch(text))
-				this.addEntry(entry);
+//			var entry = new ConfigOptionList.Entry(item);
+//			if (text.isEmpty() || item.matchesSearch(text))
+//				this.addEntry(entry);
+			this.addEntry(new ConfigOptionList.Entry(item));
 		}
 		this.lastSearch = text;
 	}
