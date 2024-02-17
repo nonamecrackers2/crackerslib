@@ -183,7 +183,7 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		if (item instanceof ConfigEntry<?, ?> entry)
 			return this.path.compareTo(entry.path);
 		else
-			return -1;
+			return 0;
 	}
 	
 	@Override

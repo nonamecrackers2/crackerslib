@@ -9,11 +9,16 @@
 	"gui.crackerslib.button.reset.title": "Reset",
 	"gui.crackerslib.button.exit.title": "Exit",
 	"gui.crackerslib.button.exitAndSave.title": "Save and Exit",
+	"gui.crackerslib.button.sorting.title": "Sorting",
+	"gui.crackerslib.button.sorting.a-z.tooltip": "A-Z",
+	"gui.crackerslib.button.sorting.z-a.tooltip": "Z-A",
+	"gui.crackerslib.button.collapse.title": "Collapse",
+	"gui.crackerslib.button.collapse.description": "Collapse all categories",
 	"gui.crackerslib.screen.config.home.title": "CrackersLib Config",
 	"gui.crackerslib.screen.config.discord": "Discord Server",
 	"gui.crackerslib.screen.config.discord.info": "Join the official Discord server!",
 	"gui.crackerslib.screen.config.patreon": "Patreon",
-	"gui.crackerslib.screen.config.patreon.info": "Support me on Patreon!",
+	"gui.crackerslib.screen.config.patreon.info": "Support us on Patreon!",
 	"gui.crackerslib.screen.config.github": "GitHub",
 	"gui.crackerslib.screen.config.github.info": "Report bugs/provide feedback here!",
 	"gui.crackerslib.screen.config.nazaKofi": "Nazaru's Ko-fi",
@@ -44,5 +49,7 @@
 	"gui.crackerslib.config.exampleListInteger.description": "An example list of integers that must be greater than or equal to 2",
 	"gui.crackerslib.config.exampleListDouble.description": "An example list of doubles",
 	"gui.crackerslib.config.category.list.title": "Lists",
-	"gui.crackerslib.config.category.category_example.title": "Example Category"
+	"gui.crackerslib.config.category.category_example.title": "Example Category",
+	"gui.crackerslib.config.category.numbers.title": "Numbers",
+	"gui.crackerslib.config.category.extra.title": "Extra"
 }

@@ -1,6 +1,5 @@
 package nonamecrackers2.crackerslib.client.gui.widget.config;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +16,7 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.common.ForgeConfigSpec;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.ConfigEntry;
+import nonamecrackers2.crackerslib.client.util.SortType;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 
 public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionList.Entry>
@@ -25,6 +25,7 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	private final List<ConfigListItem> items = Lists.newArrayList();
 	private final List<ConfigCategory> categories = Lists.newArrayList();
 	private String lastSearch = "";
+	private SortType sortType = SortType.A_TO_Z;
 	private final Runnable valuesChangedResponder;
 	private final String modid;
 	private final ForgeConfigSpec spec;
@@ -75,6 +76,18 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 		return null;
 	}
 	
+	public void setSorting(SortType sorting)
+	{
+		this.sortType = sorting;
+	}
+	
+	public void collapseAllCategories()
+	{
+		for (ConfigCategory category : this.categories)
+			category.setExpanded(false);
+		this.rebuildList();
+	}
+	
 	public void buildList()
 	{
 		this.buildList("", false);
@@ -88,11 +101,12 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	public void buildList(String text, boolean expandOrContractCategories)
 	{
 		this.clearEntries();
-		Collections.sort(this.items);
+		this.sortType.sortList(this.items);
 		List<ConfigListItem> items = Lists.newArrayList();
-		if (expandOrContractCategories)
+		for (ConfigCategory category : this.categories)
 		{
-			for (ConfigCategory category : this.categories)
+			category.setSorting(this.sortType);
+			if (expandOrContractCategories)
 				category.setExpanded(!text.isBlank());
 		}
 		for (ConfigListItem item : this.items)

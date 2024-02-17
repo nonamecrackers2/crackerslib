@@ -1,4 +1,4 @@
-package nonamecrackers2.crackerslib.common.test;
+package nonamecrackers2.crackerslib.example.client.event.common.config;
 
 import java.util.List;
 
@@ -47,11 +47,19 @@ public class ExampleConfig
 //			
 			this.exampleBoolean = this.createValue(builder, true, "exampleBoolean", ReloadType.NONE, "A simple boolean config value");
 			
+			builder.comment("Numbers").push("numbers");
+			
 			this.exampleInteger = this.createRangedIntValue(builder, 10, 0, 100, "exampleInteger", ReloadType.WORLD, "A simple ranged integer value");
 			
 			this.exampleDouble = this.createRangedDoubleValue(builder, 0.5D, 0.0D, 1.0D, "exampleDouble", ReloadType.GAME, "A simple ranged value with decimals");
 			
-			this.exampleString =this.createValue(builder, "hello!", "exampleString", ReloadType.NONE, "A simple string value");
+			builder.pop();
+			
+			builder.comment("Extra").push("extra");
+			
+			this.exampleString = this.createValue(builder, "hello!", "exampleString", ReloadType.NONE, "A simple string value");
+			
+			builder.pop();
 			
 			this.exampleEnum = this.createEnumValue(builder, ExampleConfig.ExampleEnum.HEY, "exampleEnum", ReloadType.NONE, "A simple enum config value");
 			

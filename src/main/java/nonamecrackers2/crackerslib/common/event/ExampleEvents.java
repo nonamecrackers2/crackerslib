@@ -5,7 +5,8 @@ import com.google.common.collect.Lists;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.fml.config.ModConfig;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
-import nonamecrackers2.crackerslib.common.test.ExampleConfig;
+import nonamecrackers2.crackerslib.common.event.impl.RegisterConfigPresetsEvent;
+import nonamecrackers2.crackerslib.example.client.event.common.config.ExampleConfig;
 
 public class ExampleEvents
 {

@@ -15,7 +15,7 @@ import com.google.common.collect.Multimap;
 
 import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.config.ModConfig;
-import nonamecrackers2.crackerslib.common.event.RegisterConfigPresetsEvent;
+import nonamecrackers2.crackerslib.common.event.impl.RegisterConfigPresetsEvent;
 
 public class ConfigPresets
 {

@@ -1,4 +1,4 @@
-package nonamecrackers2.crackerslib.client.event;
+package nonamecrackers2.crackerslib.client.event.impl;
 
 import java.util.Map;
 
@@ -8,7 +8,6 @@ import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.IModBusEvent;
 import nonamecrackers2.crackerslib.client.config.ConfigHomeScreenFactory;
@@ -49,8 +48,11 @@ public class RegisterConfigScreensEvent extends Event implements IModBusEvent
 		
 		public void register()
 		{
-			ModList.get().getModContainerById(this.modid).ifPresentOrElse(mod -> {
-				ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, () -> {
+			//I hope you like lambdas
+			ModList.get().getModContainerById(this.modid).ifPresentOrElse(mod -> 
+			{
+				mod.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, () -> 
+				{
 					return new ConfigScreenHandler.ConfigScreenFactory((mc, screen) -> {
 						return this.factory.build(this.modid, this.specsByType, mc.level != null, mc.hasSingleplayerServer(), screen);
 					});

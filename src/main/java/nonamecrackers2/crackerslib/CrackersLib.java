@@ -1,6 +1,7 @@
 package nonamecrackers2.crackerslib;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -9,11 +10,13 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import nonamecrackers2.crackerslib.client.event.ExampleClientEvents;
-import nonamecrackers2.crackerslib.client.event.RegisterConfigScreensEvent;
+import nonamecrackers2.crackerslib.client.event.CrackersLibClientEvents;
+import nonamecrackers2.crackerslib.client.event.impl.RegisterConfigScreensEvent;
+import nonamecrackers2.crackerslib.client.gui.ConfigMenuButtons;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPresets;
 import nonamecrackers2.crackerslib.common.event.ExampleEvents;
-import nonamecrackers2.crackerslib.common.test.ExampleConfig;
+import nonamecrackers2.crackerslib.example.client.event.ExampleClientEvents;
+import nonamecrackers2.crackerslib.example.client.event.common.config.ExampleConfig;
 
 @Mod(CrackersLib.MODID)
 public class CrackersLib
@@ -34,10 +37,15 @@ public class CrackersLib
 	{
 		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 		modBus.addListener(ExampleClientEvents::registerConfigScreen);
+		modBus.addListener(ExampleClientEvents::registerConfigMenuButton);
+		IEventBus forgeBus = MinecraftForge.EVENT_BUS;
+		forgeBus.register(ExampleClientEvents.class);
+		forgeBus.register(CrackersLibClientEvents.class);
 		event.enqueueWork(() -> {
 			ModLoader.get().runEventGenerator(mod -> {
 				return new RegisterConfigScreensEvent(mod.getModId());
 			});
+			ConfigMenuButtons.gatherButtonFactories();
 		});
 	}
 	

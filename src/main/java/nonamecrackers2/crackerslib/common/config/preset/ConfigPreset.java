@@ -4,7 +4,6 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
@@ -12,11 +11,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.common.ForgeConfigSpec;
+import nonamecrackers2.crackerslib.common.config.ConfigHelper;
 
 public record ConfigPreset(Map<String, Object> values, Component name, @Nullable Component description)
 {
-	private static final Joiner JOINER = Joiner.on('.');
-	
 	public boolean hasValue(String path)
 	{
 		return this.values.containsKey(path);
@@ -88,7 +86,7 @@ public record ConfigPreset(Map<String, Object> values, Component name, @Nullable
 		
 		public <T> Builder setPreset(ForgeConfigSpec.ConfigValue<T> config, T value)
 		{
-			return this.setPreset(JOINER.join(config.getPath()), value);
+			return this.setPreset(ConfigHelper.DOT_JOINER.join(config.getPath()), value);
 		}
 		
 		public Builder setPreset(String path, Object value)

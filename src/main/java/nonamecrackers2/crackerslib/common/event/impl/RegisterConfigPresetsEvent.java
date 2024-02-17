@@ -1,4 +1,4 @@
-package nonamecrackers2.crackerslib.common.event;
+package nonamecrackers2.crackerslib.common.event.impl;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;

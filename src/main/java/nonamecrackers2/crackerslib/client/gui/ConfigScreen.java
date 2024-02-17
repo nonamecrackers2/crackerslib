@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -18,11 +19,17 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.layouts.FrameLayout;
+import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.config.ModConfig;
+import nonamecrackers2.crackerslib.client.event.impl.AddConfigEntryToMenuEvent;
+import nonamecrackers2.crackerslib.client.gui.widget.CollapseButton;
+import nonamecrackers2.crackerslib.client.gui.widget.SortButton;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigCategory;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigListItem;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigOptionList;
@@ -54,6 +61,8 @@ public class ConfigScreen extends Screen
 	private Button exit;
 	private Button changePreset;
 	private Button reset;
+	private SortButton sort;
+	private CollapseButton collapse;
 	private @Nullable ConfigPreset preset;
 	private ConfigListItem currentHovered;
 	private Tooltip currentHoveredTooltip;
@@ -78,39 +87,56 @@ public class ConfigScreen extends Screen
 	public static ConfigScreen makeScreen(String modid, ForgeConfigSpec spec, ModConfig.Type type, Screen homeScreen)
 	{
 		return new ConfigScreen(modid, spec, type, list -> {
-			buildConfigList(list, spec.getValues().valueMap(), "", Optional.empty());
+			buildConfigList(modid, type, list, filterValues(modid, type, "", spec.getValues().valueMap()), "", Optional.empty());
 		}, homeScreen);
 	}
 	
-	private static void buildConfigList(ConfigOptionList list, Map<String, Object> values, String previousPath, Optional<ConfigCategory> category)
+	private static Map<String, Object> filterValues(String modid, ModConfig.Type type, String previousPath, Map<String, Object> values)
+	{
+		return values.entrySet().stream().map(entry -> {
+			var path = entry.getKey();
+			if (!previousPath.isEmpty())
+				path = previousPath + "." + path;
+			return Map.entry(path, entry.getValue());
+		}).filter(entry -> {
+			return !MinecraftForge.EVENT_BUS.post(new AddConfigEntryToMenuEvent(modid, type, entry.getKey()));
+		}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+	}
+	
+	private static void buildConfigList(String modid, ModConfig.Type type, ConfigOptionList list, Map<String, Object> values, String previousPath, Optional<ConfigCategory> category)
 	{
 		for (var entry : values.entrySet())
 		{
 			String path = entry.getKey();
-			if (!previousPath.isEmpty())
-				path = previousPath + "." + path;
 			Object obj = entry.getValue();
 			if (obj instanceof UnmodifiableConfig next)
 			{
-				ConfigCategory nextCategory = list.makeCategory(path, category);
-				buildConfigList(list, next.valueMap(), path, Optional.of(nextCategory));
+				var nextValues = filterValues(modid, type, path, next.valueMap());
+				if (!nextValues.isEmpty())
+				{
+					ConfigCategory nextCategory = list.makeCategory(path, category);
+					buildConfigList(modid, type, list, nextValues, path, Optional.of(nextCategory));
+				}
 			}
 			else if (obj instanceof ForgeConfigSpec.ConfigValue<?> value)
 			{
-				var clazz = value.getDefault().getClass();
-				if (Integer.class.isAssignableFrom(clazz))
-					list.addConfigValue(path, IntegerConfigEntry::new, category);
-				else if (Double.class.isAssignableFrom(clazz))
-					list.addConfigValue(path, DoubleConfigEntry::new, category);
-				else if (Boolean.class.isAssignableFrom(clazz))
-					list.addConfigValue(path, BooleanConfigEntry::new, category);
-				else if (Enum.class.isAssignableFrom(clazz))
-					list.addConfigValue(path, EnumConfigEntry::new, category);
-				else if (String.class.isAssignableFrom(clazz))
-					list.addConfigValue(path, StringConfigEntry::new, category);
-				else if (tryToAddListEntry(list, clazz, path, value, category)) {}
-				else
-					LOGGER.warn("Unknown config GUI entry for type '{}'", clazz);
+				if (!MinecraftForge.EVENT_BUS.post(new AddConfigEntryToMenuEvent(modid, type, entry.getKey())))
+				{
+					var clazz = value.getDefault().getClass();
+					if (Integer.class.isAssignableFrom(clazz))
+						list.addConfigValue(path, IntegerConfigEntry::new, category);
+					else if (Double.class.isAssignableFrom(clazz))
+						list.addConfigValue(path, DoubleConfigEntry::new, category);
+					else if (Boolean.class.isAssignableFrom(clazz))
+						list.addConfigValue(path, BooleanConfigEntry::new, category);
+					else if (Enum.class.isAssignableFrom(clazz))
+						list.addConfigValue(path, EnumConfigEntry::new, category);
+					else if (String.class.isAssignableFrom(clazz))
+						list.addConfigValue(path, StringConfigEntry::new, category);
+					else if (tryToAddListEntry(list, clazz, path, value, category)) {}
+					else
+						LOGGER.warn("Unknown config GUI entry for type '{}'", clazz);
+				}
 			}
 		}
 	}
@@ -184,6 +210,22 @@ public class ConfigScreen extends Screen
 				.size((int)Math.round(BUTTON_WIDTH / 1.5D), BUTTON_HEIGHT)
 				.build();
 		this.reset.active = false;
+		
+		GridLayout layout = new GridLayout().columnSpacing(5);
+		GridLayout.RowHelper rows = layout.createRowHelper(2);
+		
+		this.sort = rows.addChild(new SortButton(0, 0, type -> {
+			this.list.setSorting(type);
+			this.list.rebuildList();
+		}));
+		
+		this.collapse = rows.addChild(new CollapseButton(0, 0, () -> {
+			this.list.collapseAllCategories();
+		}));
+		
+		layout.arrangeElements();
+		FrameLayout.alignInRectangle(layout, 5, 0, this.width - 5, 30, 0.0F, 0.5F);
+		layout.visitWidgets(this::addRenderableWidget);
 		
 		Component searchText = Component.translatable("gui.crackerslib.screen.config.search");
 		this.searchBox = new EditBox(this.font, this.width - this.width / 3 - 5, 5, this.width / 3, 20, searchText);

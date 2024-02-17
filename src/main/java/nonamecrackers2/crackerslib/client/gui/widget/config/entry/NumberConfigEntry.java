@@ -5,7 +5,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraftforge.common.ForgeConfigSpec;
-import nonamecrackers2.crackerslib.common.config.ConfigHolder;
 
 public abstract class NumberConfigEntry<T extends Number> extends ConfigEntry<T, EditBox>
 {

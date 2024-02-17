@@ -1,6 +1,5 @@
 package nonamecrackers2.crackerslib.client.gui.widget.config;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -13,6 +12,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import nonamecrackers2.crackerslib.client.util.SortType;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 
 public class ConfigCategory implements ConfigListItem
@@ -28,6 +28,7 @@ public class ConfigCategory implements ConfigListItem
 	private Button expand;
 	private boolean isExpanded;
 	private int x;
+	private SortType sortType = SortType.A_TO_Z;
 	
 	public ConfigCategory(Minecraft mc, String modid, String path, ConfigOptionList list)
 	{
@@ -36,6 +37,11 @@ public class ConfigCategory implements ConfigListItem
 		this.path = path;
 		this.list = list;
 		this.name = Component.translatable("gui." + this.modid + ".config.category." + ConfigListItem.extractNameFromPath(path) + ".title").withStyle(Style.EMPTY.withBold(true).withColor(ChatFormatting.YELLOW));
+	}
+	
+	public void setSorting(SortType sorting)
+	{
+		this.sortType = sorting;
 	}
 	
 	public void addChild(ConfigListItem item)
@@ -58,7 +64,7 @@ public class ConfigCategory implements ConfigListItem
 			this.list.rebuildList();
 		}).bounds(x + 6, y, 20, 20).build();
 		widgets.add(this.expand);
-		Collections.sort(this.children);
+//		this.sortType.sortList(this.children);
 		if (!this.isExpanded)
 			this.children.forEach(child -> child.init(Lists.newArrayList(), x + 20, y, width, height));
 		this.x = x;
@@ -127,6 +133,7 @@ public class ConfigCategory implements ConfigListItem
 	
 	public List<ConfigListItem> gatherChildren(String search, boolean expandOrContractCategories)
 	{
+		this.sortType.sortList(this.children);
 		List<ConfigListItem> items = Lists.newArrayList();
 		for (ConfigListItem item : this.children)
 		{
@@ -153,7 +160,10 @@ public class ConfigCategory implements ConfigListItem
 	@Override
 	public int compareTo(ConfigListItem item)
 	{
-		return 1;
+		if (item instanceof ConfigCategory category)
+			return this.path.compareTo(category.path);
+		else
+			return 0;
 	}
 	
 	@Override

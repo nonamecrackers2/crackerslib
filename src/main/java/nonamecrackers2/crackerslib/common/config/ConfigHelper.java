@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
@@ -13,7 +14,8 @@ import net.minecraftforge.common.ForgeConfigSpec;
 
 public abstract class ConfigHelper
 {
-	private static final Splitter DOT_SPLITTER = Splitter.on(".");
+	public static final Splitter DOT_SPLITTER = Splitter.on(".");
+	public static final Joiner DOT_JOINER = Joiner.on('.');
 	protected final String modid;
 
 	protected ConfigHelper(String modid)
