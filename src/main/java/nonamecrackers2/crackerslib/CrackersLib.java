@@ -34,7 +34,7 @@ public class CrackersLib
 	{
 		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 		modBus.addListener(CrackersLibClientEvents::registerConfigScreen);
-		modBus.addListener(CrackersLibClientEvents::registerConfigMenuButton);
+//		modBus.addListener(CrackersLibClientEvents::registerConfigMenuButton);
 		IEventBus forgeBus = MinecraftForge.EVENT_BUS;
 		forgeBus.register(CrackersLibClientEvents.class);
 		event.enqueueWork(() -> {
