@@ -43,7 +43,7 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		this.spec = spec;
 		this.name = Component.translatable("gui." + modid + ".config." + ConfigListItem.extractNameFromPath(path) + ".title");
 		String key = this.valueSpec.getTranslationKey();
-		if (key.isEmpty())
+		if (key == null || key.isEmpty())
 			this.description = Component.literal(this.valueSpec.getComment());
 		else
 			this.description = Component.translatable(key);

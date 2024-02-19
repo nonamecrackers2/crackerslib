@@ -23,11 +23,6 @@ public class ExampleConfig
 		CLIENT_SPEC = clientPair.getRight();
 	}
 	
-//	public static void registerConfig(RegisterConfigHoldersEvent event)
-//	{
-//		event.registerConfig(CrackersLib.MODID, CLIENT_SPEC, CLIENT);
-//	}
-	
 	public static class ClientConfig extends ConfigHelper
 	{
 		public final ForgeConfigSpec.ConfigValue<Boolean> exampleBoolean;
@@ -43,8 +38,6 @@ public class ExampleConfig
 		{
 			super(CrackersLib.MODID);
 			
-//			builder.comment("Example Client Config").push("client");
-//			
 			this.exampleBoolean = this.createValue(builder, true, "exampleBoolean", ReloadType.NONE, "A simple boolean config value");
 			
 			builder.comment("Numbers").push("numbers");
@@ -86,18 +79,6 @@ public class ExampleConfig
 			builder.pop();
 			
 			builder.pop();
-			
-//			builder.pop();
-//			
-//			ConfigPreset examplePreset = ConfigPreset.Builder.of(this)
-//					.setConfigPreset(this.exampleEnum, ExampleConfig.ExampleEnum.GOING)
-//					.setConfigPreset(this.exampleDouble, 1.0D)
-//					.setConfigPreset(this.exampleBoolean, true)
-//					.build(Component.literal("Example Preset"), CrackersLib.id("example"))
-//					.withDescription(Component.literal("A simple example preset"));
-//			this.putPresets(examplePreset);
-//			
-//			this.makeDefaultPreset();
 		}
 	}
 	

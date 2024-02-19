@@ -141,15 +141,6 @@ public class ConfigHomeScreen extends Screen
 		if (spec != null)
 			this.minecraft.setScreen(ConfigScreen.makeScreen(this.modid, spec, type, this));
 	}
-//	
-//	protected void openLink(String link)
-//	{
-//		this.minecraft.setScreen(new ConfirmLinkScreen(b -> {
-//			if (b)
-//				Util.getPlatform().openUri(link);
-//			this.minecraft.setScreen(this);
-//		}, link, true));
-//	}
 	
 	public static ConfigHomeScreen.Builder builder(TitleLogo title)
 	{
@@ -158,12 +149,21 @@ public class ConfigHomeScreen extends Screen
 	
 	public static class Builder
 	{
+		private static final int MAX_WIDTH = 200;
+		private static final int COLUMN_SPACING = 4;
 		private final List<Supplier<AbstractButton>> extraButtons = Lists.newArrayList();
 		private final TitleLogo title;
+		private int totalColumns = 2;
 		
 		private Builder(TitleLogo title)
 		{
 			this.title = title;
+		}
+		
+		public Builder totalColumns(int columns)
+		{
+			this.totalColumns = columns;
+			return this;
 		}
 		
 		public Builder addExtraButton(Supplier<AbstractButton> supplier)
@@ -172,33 +172,41 @@ public class ConfigHomeScreen extends Screen
 			return this;
 		}
 		
-		public Builder addLinkButton(Component title, String link, boolean fullSize, @Nullable Tooltip tooltip)
+		public Builder addLinkButton(Component title, String link, @Nullable Tooltip tooltip)
 		{
 			return this.addExtraButton(() -> 
 			{
 				return Button.builder(title, button -> GUIUtils.openLink(link))
-						.size(fullSize ? 200 : 98, 20)
+						.size(200, 20)
 						.tooltip(tooltip)
 						.build();
 			});
 		}
 		
-		public Builder addLinkButton(Component title, String link, boolean fullSize)
+		public Builder addLinkButton(Component title, String link)
 		{
-			return this.addLinkButton(title, link, fullSize, null);
+			return this.addLinkButton(title, link, null);
 		}
 		
-		public Builder standardLinks(String discordLink, String patreonLink, String githubLink)
+		public Builder standardLinks(@Nullable String discordLink, @Nullable String patreonLink, @Nullable String githubLink)
 		{
-			this.addLinkButton(Component.translatable("gui.crackerslib.screen.config.discord").withStyle(Style.EMPTY.withColor(0xFF5865F2)), discordLink, false, Tooltip.create(Component.translatable("gui.crackerslib.screen.config.discord.info")));
-			this.addLinkButton(Component.translatable("gui.crackerslib.screen.config.github").withStyle(Style.EMPTY.withColor(0xFFababab)), githubLink, false, Tooltip.create(Component.translatable("gui.crackerslib.screen.config.github.info")));
-			this.addLinkButton(Component.translatable("gui.crackerslib.screen.config.patreon").withStyle(ChatFormatting.RED), patreonLink, true, Tooltip.create(Component.translatable("gui.crackerslib.screen.config.patreon.info")));
+			if (discordLink != null)
+				this.addLinkButton(Component.translatable("gui.crackerslib.screen.config.discord").withStyle(Style.EMPTY.withColor(0xFF5865F2)), discordLink, Tooltip.create(Component.translatable("gui.crackerslib.screen.config.discord.info")));
+			if (githubLink != null)
+				this.addLinkButton(Component.translatable("gui.crackerslib.screen.config.github").withStyle(Style.EMPTY.withColor(0xFFababab)), githubLink, Tooltip.create(Component.translatable("gui.crackerslib.screen.config.github.info")));
+			if (patreonLink != null)
+				this.addLinkButton(Component.translatable("gui.crackerslib.screen.config.patreon").withStyle(ChatFormatting.RED), patreonLink, Tooltip.create(Component.translatable("gui.crackerslib.screen.config.patreon.info")));
 			return this;
 		}
 		
-		public Builder crackersDefault(String github)
+		public Builder crackersDefault(@Nullable String github)
 		{
 			return this.standardLinks("https://discord.com/invite/cracker-s-modded-community-987817685293355028", "https://www.patreon.com/nonamecrackers2", github);
+		}
+		
+		public Builder crackersDefault()
+		{
+			return this.crackersDefault(null);
 		}
 		
 		public ConfigHomeScreenFactory build()
@@ -212,16 +220,28 @@ public class ConfigHomeScreen extends Screen
 					{
 						if (!Builder.this.extraButtons.isEmpty())
 						{
-							GridLayout extraButtons = main.addChild(new GridLayout().rowSpacing(6).columnSpacing(4));
-							GridLayout.RowHelper extraButtonsRowHelper = extraButtons.createRowHelper(2);
+							int totalButtons = Builder.this.extraButtons.size();
+							int totalColumns = Math.min(totalButtons, Builder.this.totalColumns);
 							
-							for (var supplier : Builder.this.extraButtons)
+							GridLayout extraButtons = main.addChild(new GridLayout().rowSpacing(6).columnSpacing(COLUMN_SPACING));
+							GridLayout.RowHelper extraButtonsRowHelper = extraButtons.createRowHelper(totalColumns);
+							
+							int currentRow = 0;
+							for (int i = 0; i < totalButtons; i += totalColumns)
 							{
-								var button = supplier.get();
-								int occupiedColumns = 1;
-								if (button.getWidth() > 100)
-									occupiedColumns++;
-								extraButtonsRowHelper.addChild(button, occupiedColumns);
+								currentRow++;
+								int totalButtonsInRow = totalColumns;
+								if (currentRow * totalColumns >= totalButtons)
+									totalButtonsInRow -= currentRow * totalColumns - totalButtons;
+								int occupiedColumns = totalColumns / totalButtonsInRow;
+								int widthPerButton = (MAX_WIDTH - COLUMN_SPACING * (totalButtonsInRow - 1)) / totalButtonsInRow; 
+								for (int j = 0; j < totalButtonsInRow; j++)
+								{
+									int index = i + j;
+									var button = Builder.this.extraButtons.get(index).get();
+									button.setWidth(widthPerButton);
+									extraButtonsRowHelper.addChild(button, occupiedColumns);
+								}
 							}
 						}
 					}

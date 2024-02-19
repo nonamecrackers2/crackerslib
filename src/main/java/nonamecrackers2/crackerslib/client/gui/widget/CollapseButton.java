@@ -37,9 +37,7 @@ public class CollapseButton extends AbstractButton
 	}
 	
 	@Override
-	public void renderString(GuiGraphics pGuiGraphics, Font pFont, int pColor)
-	{
-	}
+	public void renderString(GuiGraphics pGuiGraphics, Font pFont, int pColor) {}
 
 	@Override
 	protected void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput)

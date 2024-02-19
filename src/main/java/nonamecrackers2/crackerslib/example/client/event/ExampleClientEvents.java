@@ -29,12 +29,12 @@ public class ExampleClientEvents
 	{
 		if (event.getModId().equals(CrackersLib.MODID) && event.getType() == ModConfig.Type.CLIENT)
 		{
-//			if (event.isValue(ExampleConfig.CLIENT.exampleString))
-//				event.setCanceled(true);
-//			else if (event.isValue(ExampleConfig.CLIENT.exampleDouble))
-//				event.setCanceled(true);
-//			else if (event.isValue(ExampleConfig.CLIENT.exampleEnum))
-//				event.setCanceled(true);
+			if (event.isValue(ExampleConfig.CLIENT.exampleString))
+				event.setCanceled(true);
+			else if (event.isValue(ExampleConfig.CLIENT.exampleDouble))
+				event.setCanceled(true);
+			else if (event.isValue(ExampleConfig.CLIENT.exampleEnum))
+				event.setCanceled(true);
 		}
 	}
 }

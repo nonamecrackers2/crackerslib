@@ -119,12 +119,7 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 			}
 		}
 		for (ConfigListItem item : items)
-		{
-//			var entry = new ConfigOptionList.Entry(item);
-//			if (text.isEmpty() || item.matchesSearch(text))
-//				this.addEntry(entry);
 			this.addEntry(new ConfigOptionList.Entry(item));
-		}
 		this.lastSearch = text;
 	}
 

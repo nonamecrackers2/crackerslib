@@ -13,10 +13,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import nonamecrackers2.crackerslib.client.event.CrackersLibClientEvents;
 import nonamecrackers2.crackerslib.client.event.impl.RegisterConfigScreensEvent;
 import nonamecrackers2.crackerslib.client.gui.ConfigMenuButtons;
+import nonamecrackers2.crackerslib.common.config.CrackersLibConfig;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPresets;
-import nonamecrackers2.crackerslib.common.event.ExampleEvents;
-import nonamecrackers2.crackerslib.example.client.event.ExampleClientEvents;
-import nonamecrackers2.crackerslib.example.client.event.common.config.ExampleConfig;
 
 @Mod(CrackersLib.MODID)
 public class CrackersLib
@@ -26,20 +24,18 @@ public class CrackersLib
 	public CrackersLib()
 	{
 		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-//		modBus.addListener(ExampleConfig::registerConfig);
 		modBus.addListener(this::commonSetup);
 		modBus.addListener(this::clientSetup);
 		ModLoadingContext context = ModLoadingContext.get();
-		context.registerConfig(ModConfig.Type.CLIENT, ExampleConfig.CLIENT_SPEC);
+		context.registerConfig(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC);
 	}
 	
 	public void clientSetup(final FMLClientSetupEvent event)
 	{
 		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-		modBus.addListener(ExampleClientEvents::registerConfigScreen);
-		modBus.addListener(ExampleClientEvents::registerConfigMenuButton);
+		modBus.addListener(CrackersLibClientEvents::registerConfigScreen);
+		modBus.addListener(CrackersLibClientEvents::registerConfigMenuButton);
 		IEventBus forgeBus = MinecraftForge.EVENT_BUS;
-		forgeBus.register(ExampleClientEvents.class);
 		forgeBus.register(CrackersLibClientEvents.class);
 		event.enqueueWork(() -> {
 			ModLoader.get().runEventGenerator(mod -> {
@@ -51,8 +47,6 @@ public class CrackersLib
 	
 	public void commonSetup(final FMLCommonSetupEvent event)
 	{
-		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-		modBus.addListener(ExampleEvents::registerPresetsEvent);
 		event.enqueueWork(() -> {
 			ConfigPresets.gatherPresets();
 		});

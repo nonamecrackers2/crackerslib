@@ -61,8 +61,6 @@ public class ConfigScreen extends Screen
 	private Button exit;
 	private Button changePreset;
 	private Button reset;
-	private SortButton sort;
-	private CollapseButton collapse;
 	private @Nullable ConfigPreset preset;
 	private ConfigListItem currentHovered;
 	private Tooltip currentHoveredTooltip;
@@ -214,12 +212,12 @@ public class ConfigScreen extends Screen
 		GridLayout layout = new GridLayout().columnSpacing(5);
 		GridLayout.RowHelper rows = layout.createRowHelper(2);
 		
-		this.sort = rows.addChild(new SortButton(0, 0, type -> {
+		rows.addChild(new SortButton(0, 0, type -> {
 			this.list.setSorting(type);
 			this.list.rebuildList();
 		}));
 		
-		this.collapse = rows.addChild(new CollapseButton(0, 0, () -> {
+		rows.addChild(new CollapseButton(0, 0, () -> {
 			this.list.collapseAllCategories();
 		}));
 		
