@@ -1,0 +1,89 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "nonamecrackers2",
+    "module": "crackerslib-forge",
+    "version": "1.19.4-0.2",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.1.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "files": [
+        {
+          "name": "crackerslib-forge-1.19.4-0.2.jar",
+          "url": "crackerslib-forge-1.19.4-0.2.jar",
+          "size": 410620,
+          "sha512": "a5ca5f2217f6e697dcbe814f6a3c8f2a3f904229e271eef6b2ca729555a63bd59efde3591576dde249561e7968a9a594ed1571b561309108dea9438f446218a2",
+          "sha256": "6f581da0d18d3ae34bef4991dada44fe41c9b051c60e8984ee4b59691f92fb77",
+          "sha1": "8bf466fd3b057b86172e3f0de51124c088f0da83",
+          "md5": "0969233e143ae94d691e83b5dc92b654"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "net.minecraftforge",
+          "module": "forge",
+          "version": {
+            "requires": "1.19.4-45.2.0_mapped_official_1.19.4"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "crackerslib-forge-1.19.4-0.2.jar",
+          "url": "crackerslib-forge-1.19.4-0.2.jar",
+          "size": 410620,
+          "sha512": "a5ca5f2217f6e697dcbe814f6a3c8f2a3f904229e271eef6b2ca729555a63bd59efde3591576dde249561e7968a9a594ed1571b561309108dea9438f446218a2",
+          "sha256": "6f581da0d18d3ae34bef4991dada44fe41c9b051c60e8984ee4b59691f92fb77",
+          "sha1": "8bf466fd3b057b86172e3f0de51124c088f0da83",
+          "md5": "0969233e143ae94d691e83b5dc92b654"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "crackerslib-forge-1.19.4-0.2-sources.jar",
+          "url": "crackerslib-forge-1.19.4-0.2-sources.jar",
+          "size": 346810,
+          "sha512": "fd0def44ad849130cb94fb9633e1b5cf193074fce6f27e3b3b85f51c5fce80244ecf36efc85535982112b0fd9af2414163730a8918a267d65bd87f2a39534fa5",
+          "sha256": "f2034a8f005067418215d648aff8f6031a5f9166eed5b69cc25b2e3b02e88c60",
+          "sha1": "7e5b0ba88c80a65730a100327c5a9a954dfeb0ed",
+          "md5": "445c625c113c503799c438dbc697eaed"
+        }
+      ]
+    }
+  ]
+}
