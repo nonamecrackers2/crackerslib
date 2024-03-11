@@ -18,8 +18,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.layouts.FrameLayout;
+import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.config.ModConfig;
@@ -35,7 +39,6 @@ import nonamecrackers2.crackerslib.client.gui.widget.config.entry.EnumConfigEntr
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.IntegerConfigEntry;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.ListConfigEntry;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.StringConfigEntry;
-import nonamecrackers2.crackerslib.client.util.EditBoxAccessor;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPresets;
 
@@ -60,7 +63,7 @@ public class ConfigScreen extends Screen
 	private Button reset;
 	private @Nullable ConfigPreset preset;
 	private ConfigListItem currentHovered;
-	private @Nullable List<Component> currentHoveredTooltip;
+	private Tooltip currentHoveredTooltip;
 	private EditBox searchBox;
 	
 	public ConfigScreen(String modid, ForgeConfigSpec spec, ModConfig.Type type, Consumer<ConfigOptionList> itemGenerator, Screen homeScreen)
@@ -187,29 +190,44 @@ public class ConfigScreen extends Screen
 		this.list.updateSize(this.width, this.height, 30, this.height - 30);
 		this.addRenderableWidget(this.list);
 		
-		this.exit = new Button((this.width - BUTTON_WIDTH / 2) / 2, this.height - EXIT_BUTTON_OFFSET, BUTTON_WIDTH / 2, BUTTON_HEIGHT, Component.translatable("gui.crackerslib.button.exitAndSave.title"), button -> this.closeMenu());
+		this.exit = Button.builder(Component.translatable("gui.crackerslib.button.exitAndSave.title"), button -> this.closeMenu())
+				.pos((this.width - BUTTON_WIDTH / 2) / 2, this.height - EXIT_BUTTON_OFFSET)
+				.size(BUTTON_WIDTH / 2, BUTTON_HEIGHT)
+				.build();
 		
 		this.preset = this.list.getMatchingPreset(this.presets);
 		
-		this.changePreset = new Button(10, this.height - EXIT_BUTTON_OFFSET, (int)Math.round(BUTTON_WIDTH / 1.5D), BUTTON_HEIGHT, Component.translatable("gui.crackerslib.button.preset.title").append(": ").append(this.getPresetName()), button -> this.changePreset(), (b, p, x, y) -> {
-			this.renderComponentTooltip(p, this.getPresetTooltip(hasShiftDown()), x, y);
-		});
+		this.changePreset = Button.builder(Component.translatable("gui.crackerslib.button.preset.title").append(": ").append(this.getPresetName()), button -> this.changePreset())
+				.pos(10, this.height - EXIT_BUTTON_OFFSET)
+				.size((int)Math.round(BUTTON_WIDTH / 1.5D), BUTTON_HEIGHT)
+				.tooltip(Tooltip.create(this.getPresetTooltip(false)))
+				.build();
 		
-		this.reset = new Button(this.width - (int)(BUTTON_WIDTH / 1.5D) - 10, this.height - EXIT_BUTTON_OFFSET, (int)Math.round(BUTTON_WIDTH / 1.5D), BUTTON_HEIGHT, Component.translatable("gui.crackerslib.button.reset.title"), button -> this.resetValues());
+		this.reset = Button.builder(Component.translatable("gui.crackerslib.button.reset.title"), button -> this.resetValues())
+				.pos(this.width - (int)(BUTTON_WIDTH / 1.5D) - 10, this.height - EXIT_BUTTON_OFFSET)
+				.size((int)Math.round(BUTTON_WIDTH / 1.5D), BUTTON_HEIGHT)
+				.build();
 		this.reset.active = false;
 		
-		this.addRenderableWidget(new SortButton(5, 5, type -> {
+		GridLayout layout = new GridLayout().columnSpacing(5);
+		GridLayout.RowHelper rows = layout.createRowHelper(2);
+		
+		rows.addChild(new SortButton(0, 0, type -> {
 			this.list.setSorting(type);
 			this.list.rebuildList();
 		}));
 		
-		this.addRenderableWidget(new CollapseButton(30, 5, () -> {
+		rows.addChild(new CollapseButton(0, 0, () -> {
 			this.list.collapseAllCategories();
 		}));
 		
-		Component searchText = Component.translatable("gui.crackerslib.screen.config.search").withStyle(ChatFormatting.DARK_GRAY);
+		layout.arrangeElements();
+		FrameLayout.alignInRectangle(layout, 5, 0, this.width - 5, 30, 0.0F, 0.5F);
+		layout.visitWidgets(this::addRenderableWidget);
+		
+		Component searchText = Component.translatable("gui.crackerslib.screen.config.search");
 		this.searchBox = new EditBox(this.font, this.width - this.width / 3 - 5, 5, this.width / 3, 20, searchText);
-		((EditBoxAccessor)this.searchBox).setHint(searchText);
+		this.searchBox.setHint(searchText);
 		this.searchBox.setResponder(text -> {
 			this.list.buildList(text, true);
 			this.list.setScrollAmount(0.0D);
@@ -254,6 +272,7 @@ public class ConfigScreen extends Screen
 	{
 		super.render(stack, mouseX, mouseY, partialTicks);
 		drawCenteredString(stack, this.font, this.title.getString(), this.width / 2, TITLE_HEIGHT, 0xFFFFFF);
+		this.changePreset.setTooltip(Tooltip.create(this.getPresetTooltip(hasShiftDown())));
 		ConfigListItem item = this.list.getItemAt(mouseX, mouseY);
 		if (this.currentHovered != item)
 		{
@@ -263,9 +282,8 @@ public class ConfigScreen extends Screen
 			else
 				this.currentHoveredTooltip = null;
 		}
-		//TODO: Test tooltip width
 		if (!this.children().stream().anyMatch(c -> !c.equals(this.list) && c.isMouseOver((double)mouseX, (double)mouseY)) && this.currentHoveredTooltip != null)
-			this.renderComponentTooltip(stack, this.currentHoveredTooltip, mouseX, mouseY);
+			this.renderTooltip(stack, this.currentHoveredTooltip.toCharSequence(this.minecraft), mouseX, mouseY);
 	}
 	
 	private void onValueChanged()
@@ -275,7 +293,7 @@ public class ConfigScreen extends Screen
 		this.reset.active = !this.list.areValuesReset();
 	}
 	
-	private List<Component> getPresetTooltip(boolean shiftDown)
+	private Component getPresetTooltip(boolean shiftDown)
 	{
 		if (this.preset != null)
 			return this.preset.getTooltip(shiftDown);
@@ -291,14 +309,14 @@ public class ConfigScreen extends Screen
 			return CUSTOM_PRESET_TITLE;
 	}
 	
-	private static List<Component> makeCustomPresetTooltip(boolean shiftDown)
+	private static Component makeCustomPresetTooltip(boolean shiftDown)
 	{
-		List<Component> text = Lists.newArrayList();
-		text.add(CUSTOM_PRESET_TITLE);
+		MutableComponent component = CUSTOM_PRESET_TITLE.copy();
+		component.append("\n");
 		if (shiftDown)
-			text.add(CUSTOM_PRESET_DESCRIPTION);
+			component.append(CUSTOM_PRESET_DESCRIPTION);
 		else
-			text.add(HOLD_SHIFT);
-		return text;
+			component.append(HOLD_SHIFT);
+		return component;
 	}
 }

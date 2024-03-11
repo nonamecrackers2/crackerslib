@@ -10,13 +10,14 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.layouts.FrameLayout;
+import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.config.ModConfig;
@@ -30,11 +31,6 @@ public class ConfigHomeScreen extends Screen
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int EXIT_BUTTON_OFFSET = 6;
 	private static final int TITLE_PADDING = 20;
-	
-	private static final Component CLIENT_OPTIONS_TOOLTIP = Component.translatable("gui.crackerslib.screen.clientOptions.info");
-	private static final Component COMMON_OPTIONS_TOOLTIP = Component.translatable("gui.crackerslib.screen.commonOptions.info");
-	private static final Component WORLD_OPTIONS_NOT_IN_WORLD_TOOLTIP = Component.translatable("gui.crackerslib.screen.serverOptions.notInWorld.info");
-	private static final Component WORLD_OPTIONS_IN_WORLD_TOOLTIP = Component.translatable("gui.crackerslib.screen.serverOptions.inWorld.info");
 	
 	private final String modid;
 	private final Map<ModConfig.Type, ForgeConfigSpec> specs;
@@ -62,52 +58,49 @@ public class ConfigHomeScreen extends Screen
 	@Override
 	protected void init()
 	{
-		this.exit = new Button((this.width - BUTTON_WIDTH) / 2, this.height - EXIT_BUTTON_OFFSET - 20, BUTTON_WIDTH, BUTTON_HEIGHT, Component.translatable("gui.crackerslib.button.exit.title"), button -> this.onClose());
-		
-		int top = TITLE_PADDING + this.title.getHeight();
-		int padding = EXIT_BUTTON_OFFSET * 2 + this.exit.getHeight();
-		int startY = Math.max(padding, top);
-		int maxHeight = this.height - top - padding;
-		int y = startY;
-		int x = this.width / 2 - BUTTON_WIDTH / 2;
-		
-		int totalHeight = 0;
+		GridLayout layout = new GridLayout().rowSpacing(6);
+		GridLayout.RowHelper rowHelper = layout.createRowHelper(1);
 		
 		if (this.specs.containsKey(ModConfig.Type.CLIENT))
 		{
-			this.addRenderableWidget(new Button(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, Component.translatable("gui.crackerslib.screen.clientOptions.title"), button -> this.openConfigMenu(ModConfig.Type.CLIENT), (b, p, tx, ty) -> {
-				this.renderComponentTooltip(p, GUIUtils.wrapTooltip(CLIENT_OPTIONS_TOOLTIP, this.font, this.width / 2), tx, ty, this.font);
-			}));
-			y += 26;
-			totalHeight += 26;
+			rowHelper.addChild(Button.builder(Component.translatable("gui.crackerslib.screen.clientOptions.title"), button -> this.openConfigMenu(ModConfig.Type.CLIENT))
+					.size(BUTTON_WIDTH, BUTTON_HEIGHT)
+					.tooltip(Tooltip.create(Component.translatable("gui.crackerslib.screen.clientOptions.info")))
+					.build());
 		}
 		
 		if (this.specs.containsKey(ModConfig.Type.COMMON))
 		{
-			this.commonButton = this.addRenderableWidget(new Button(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, Component.translatable("gui.crackerslib.screen.commonOptions.title"), button -> this.openConfigMenu(ModConfig.Type.COMMON), (b, p, tx, ty) -> {
-				this.renderComponentTooltip(p, GUIUtils.wrapTooltip(COMMON_OPTIONS_TOOLTIP, this.font, this.width / 2), tx, ty, this.font);
-			}));
-			y += 26;
-			totalHeight += 26;
+			this.commonButton = rowHelper.addChild(Button.builder(Component.translatable("gui.crackerslib.screen.commonOptions.title"), button -> this.openConfigMenu(ModConfig.Type.COMMON))
+					.size(BUTTON_WIDTH, BUTTON_HEIGHT)
+					.tooltip(Tooltip.create(Component.translatable("gui.crackerslib.screen.commonOptions.info")))
+					.build());
 		}
 		
 		if (this.specs.containsKey(ModConfig.Type.SERVER))
 		{
-			this.worldButton = this.addRenderableWidget(new Button(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, Component.translatable("gui.crackerslib.screen.serverOptions.title"), button -> this.openConfigMenu(ModConfig.Type.SERVER), (b, p, tx, ty) -> {
-				this.renderComponentTooltip(p, GUIUtils.wrapTooltip(this.isWorldLoaded ? WORLD_OPTIONS_IN_WORLD_TOOLTIP : WORLD_OPTIONS_NOT_IN_WORLD_TOOLTIP, this.font, this.width / 2), tx, ty, this.font);
-			}));
-			y += 26;
-			totalHeight += 26;
+			this.worldButton = rowHelper.addChild(Button.builder(Component.translatable("gui.crackerslib.screen.serverOptions.title"), button -> this.openConfigMenu(ModConfig.Type.SERVER))
+					.size(BUTTON_WIDTH, BUTTON_HEIGHT)
+					.build());
 		}
 		
-		totalHeight += this.initExtraButtons(x, y, maxHeight, this.width);
+		this.initExtraButtons(rowHelper);
 		
-		int offset = totalHeight / 2 - maxHeight / 2;
-		for (Widget widget : this.renderables)
-		{
-			if (widget instanceof AbstractWidget w)
-				w.y -= offset;
-		}
+//		extraButtonsRowHelper.addChild(Button.builder(Component.translatable("gui.crackerslib.screen.config.nazaKofi").withStyle(ChatFormatting.GREEN), button -> this.openLink("https://ko-fi.com/nazaru"))
+//				.size(98, 20)
+//				.tooltip(Tooltip.create(Component.translatable("gui.crackerslib.screen.config.nazaKofi.info")))
+//				.build());
+		
+		this.exit = Button.builder(Component.translatable("gui.crackerslib.button.exit.title"), button -> this.onClose())
+				.pos((this.width - BUTTON_WIDTH) / 2, this.height - EXIT_BUTTON_OFFSET - 20)
+				.size(BUTTON_WIDTH, BUTTON_HEIGHT)
+				.build();
+		
+		layout.arrangeElements();
+		int top = TITLE_PADDING + this.title.getHeight();
+		int padding = EXIT_BUTTON_OFFSET * 2 + this.exit.getHeight();
+		FrameLayout.centerInRectangle(layout, 0, Math.max(padding, top), this.width, this.height - top - padding);
+		layout.visitWidgets(this::addRenderableWidget);
 		
 		if (this.commonButton != null)
 			this.commonButton.active = (this.isWorldLoaded && this.hasSinglePlayerServer) || !this.isWorldLoaded;
@@ -116,14 +109,16 @@ public class ConfigHomeScreen extends Screen
 		this.addRenderableWidget(this.exit);
 	}
 	
-	protected int initExtraButtons(int x, int y, int width, int height)
-	{
-		return 0;
-	}
+	protected void initExtraButtons(GridLayout.RowHelper main) {}
 	
 	@Override
 	public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks)
 	{
+		MutableComponent worldDesc = Component.translatable("gui.crackerslib.screen.serverOptions.notInWorld.info");
+		if (this.isWorldLoaded)
+			worldDesc = Component.translatable("gui.crackerslib.screen.serverOptions.inWorld.info");
+		if (this.worldButton != null)
+			this.worldButton.setTooltip(Tooltip.create(worldDesc));
 		this.renderBackground(stack);
 		int titleX = this.width / 2;
 		int titleY = TITLE_PADDING + this.title.getHeight() / 2;
@@ -177,14 +172,14 @@ public class ConfigHomeScreen extends Screen
 			return this;
 		}
 		
-		public Builder addLinkButton(Component title, String link, @Nullable Component tooltip)
+		public Builder addLinkButton(Component title, String link, @Nullable Tooltip tooltip)
 		{
 			return this.addExtraButton(() -> 
 			{
-				return new Button(0, 0, 200, 20, title, button -> GUIUtils.openLink(link), (b, p, x, y) -> {
-					if (tooltip != null)
-						Minecraft.getInstance().screen.renderTooltip(p, tooltip, x, y);
-				});
+				return Button.builder(title, button -> GUIUtils.openLink(link))
+						.size(200, 20)
+						.tooltip(tooltip)
+						.build();
 			});
 		}
 		
@@ -196,11 +191,11 @@ public class ConfigHomeScreen extends Screen
 		public Builder standardLinks(@Nullable String discordLink, @Nullable String patreonLink, @Nullable String githubLink)
 		{
 			if (discordLink != null)
-				this.addLinkButton(Component.translatable("gui.crackerslib.screen.config.discord").withStyle(Style.EMPTY.withColor(0xFF5865F2)), discordLink, Component.translatable("gui.crackerslib.screen.config.discord.info"));
+				this.addLinkButton(Component.translatable("gui.crackerslib.screen.config.discord").withStyle(Style.EMPTY.withColor(0xFF5865F2)), discordLink, Tooltip.create(Component.translatable("gui.crackerslib.screen.config.discord.info")));
 			if (githubLink != null)
-				this.addLinkButton(Component.translatable("gui.crackerslib.screen.config.github").withStyle(Style.EMPTY.withColor(0xFFababab)), githubLink, Component.translatable("gui.crackerslib.screen.config.github.info"));
+				this.addLinkButton(Component.translatable("gui.crackerslib.screen.config.github").withStyle(Style.EMPTY.withColor(0xFFababab)), githubLink, Tooltip.create(Component.translatable("gui.crackerslib.screen.config.github.info")));
 			if (patreonLink != null)
-				this.addLinkButton(Component.translatable("gui.crackerslib.screen.config.patreon").withStyle(ChatFormatting.RED), patreonLink, Component.translatable("gui.crackerslib.screen.config.patreon.info"));
+				this.addLinkButton(Component.translatable("gui.crackerslib.screen.config.patreon").withStyle(ChatFormatting.RED), patreonLink, Tooltip.create(Component.translatable("gui.crackerslib.screen.config.patreon.info")));
 			return this;
 		}
 		
@@ -221,17 +216,16 @@ public class ConfigHomeScreen extends Screen
 				return new ConfigHomeScreen(modid, specs, this.title, isWorldLoaded, hasSinglePlayerServer, previous)
 				{
 					@Override
-					protected int initExtraButtons(int x, int y, int width, int height)
+					protected void initExtraButtons(GridLayout.RowHelper main)
 					{
 						if (!Builder.this.extraButtons.isEmpty())
 						{
 							int totalButtons = Builder.this.extraButtons.size();
 							int totalColumns = Math.min(totalButtons, Builder.this.totalColumns);
 							
-							//GridLayout extraButtons = main.addChild(new GridLayout().rowSpacing(6).columnSpacing(COLUMN_SPACING));
-							//GridLayout.RowHelper extraButtonsRowHelper = extraButtons.createRowHelper(totalColumns);
+							GridLayout extraButtons = main.addChild(new GridLayout().rowSpacing(6).columnSpacing(COLUMN_SPACING));
+							GridLayout.RowHelper extraButtonsRowHelper = extraButtons.createRowHelper(totalColumns);
 							
-							int currentY = y;
 							int currentRow = 0;
 							for (int i = 0; i < totalButtons; i += totalColumns)
 							{
@@ -239,25 +233,16 @@ public class ConfigHomeScreen extends Screen
 								int totalButtonsInRow = totalColumns;
 								if (currentRow * totalColumns >= totalButtons)
 									totalButtonsInRow -= currentRow * totalColumns - totalButtons;
-								//int occupiedColumns = totalColumns / totalButtonsInRow;
+								int occupiedColumns = totalColumns / totalButtonsInRow;
 								int widthPerButton = (MAX_WIDTH - COLUMN_SPACING * (totalButtonsInRow - 1)) / totalButtonsInRow; 
 								for (int j = 0; j < totalButtonsInRow; j++)
 								{
 									int index = i + j;
 									var button = Builder.this.extraButtons.get(index).get();
-									button.y = currentY;
-									button.x = x + j * (widthPerButton + COLUMN_SPACING);
 									button.setWidth(widthPerButton);
-									this.addRenderableWidget(button);
-									//extraButtonsRowHelper.addChild(button, occupiedColumns);
+									extraButtonsRowHelper.addChild(button, occupiedColumns);
 								}
-								currentY += 26;
 							}
-							return currentRow * 26;
-						}
-						else
-						{
-							return 0;
 						}
 					}
 				};

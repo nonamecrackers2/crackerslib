@@ -12,7 +12,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.ForgeConfigSpec;
-import nonamecrackers2.crackerslib.client.util.EditBoxAccessor;
 
 public class ListConfigEntry extends ConfigEntry<List<?>, EditBox>
 {
@@ -32,7 +31,7 @@ public class ListConfigEntry extends ConfigEntry<List<?>, EditBox>
 	{
 		EditBox box = new EditBox(this.mc.font, x + 6, y + height / 2 - 10, 200, 20, CommonComponents.EMPTY);
 		if (this.value.getDefault().size() > 0)
-			((EditBoxAccessor)box).setHint(Component.literal(String.valueOf(this.value.getDefault().get(0))).withStyle(ChatFormatting.DARK_GRAY));
+			box.setHint(Component.literal(String.valueOf(this.value.getDefault().get(0))).withStyle(ChatFormatting.DARK_GRAY));
 		box.setMaxLength(500);
 		box.setValue(this.compileListToString(this.value.get()));
 		box.setResponder(value -> {
