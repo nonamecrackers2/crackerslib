@@ -1,7 +1,9 @@
 package nonamecrackers2.crackerslib.client.gui.title;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraftforge.fml.ModList;
@@ -21,10 +23,10 @@ public record TextTitle(Component title) implements TitleLogo
 	}
 	
 	@Override
-	public void blit(GuiGraphics stack, int x, int y, float partialTicks)
+	public void blit(PoseStack stack, int x, int y, float partialTicks)
 	{
 		Minecraft mc = Minecraft.getInstance();
-		stack.drawCenteredString(mc.font, this.title, x, y, 0xFFFFFFFF);
+		GuiComponent.drawCenteredString(stack, mc.font, this.title, x, y, 0xFFFFFFFF);
 	}
 
 	@Override

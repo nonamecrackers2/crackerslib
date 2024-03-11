@@ -2,8 +2,10 @@ package nonamecrackers2.crackerslib.client.gui.widget;
 
 import java.util.function.Consumer;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -38,17 +40,18 @@ public class SortButton extends AbstractButton
 	}
 	
 	@Override
-	protected void renderWidget(GuiGraphics stack, int mouseX, int mouseY, float partialTick)
+	public void renderWidget(PoseStack stack, int mouseX, int mouseY, float partialTick)
 	{
 		super.renderWidget(stack, mouseX, mouseY, partialTick);
 		float texY = 0.0F;
 		if (this.type == SortType.Z_TO_A)
 			texY = 20.0F;
-		stack.blit(SORT_ICONS, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 0.0F, texY, this.getWidth(), this.getHeight(), 256, 256);
+		RenderSystem.setShaderTexture(0, SORT_ICONS);
+		blit(stack, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 0.0F, texY, this.getWidth(), this.getHeight(), 256, 256);
 	}
 	
 	@Override
-	public void renderString(GuiGraphics pGuiGraphics, Font pFont, int pColor) {}
+	public void renderString(PoseStack stack, Font pFont, int pColor) {}
 
 	@Override
 	protected void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput)

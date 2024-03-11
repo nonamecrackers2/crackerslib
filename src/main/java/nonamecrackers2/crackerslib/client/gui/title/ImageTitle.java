@@ -1,6 +1,9 @@
 package nonamecrackers2.crackerslib.client.gui.title;
 
-import net.minecraft.client.gui.GuiGraphics;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
@@ -20,11 +23,12 @@ public record ImageTitle(ResourceLocation location, int imageWidth, int imageHei
 	}
 	
 	@Override
-	public void blit(GuiGraphics stack, int x, int y, float partialTicks)
+	public void blit(PoseStack stack, int x, int y, float partialTicks)
 	{
 		int startX = x - this.width / 2;
 		int startY = y - this.height / 2;
-		stack.blit(this.location, startX, startY, this.width, this.height, 0.0F, 0.0F, this.width, this.height, this.imageWidth, this.imageHeight);
+		RenderSystem.setShaderTexture(0, this.location);
+		GuiComponent.blit(stack, startX, startY, this.width, this.height, 0.0F, 0.0F, this.width, this.height, this.imageWidth, this.imageHeight);
 	}
 
 	@Override
