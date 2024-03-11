@@ -198,22 +198,33 @@ tasks.named('jar', Jar).configure {
     finalizedBy 'reobfJar'
 }
 
+java {
+	withSourcesJar()
+}
+
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing:
 // tasks.named('publish').configure {
 //     dependsOn 'reobfJar'
 // }
 
-// Example configuration to allow publishing using the maven-publish plugin
 publishing {
     publications {
-        register('mavenJava', MavenPublication) {
-            artifact jar
+        mavenJava(MavenPublication) {
+        	group = "nonamecrackers2"
+            artifactId = "crackerslib-forge"
+            version = "${minecraft_version}-${mod_version}"
+            from components.java
         }
     }
     repositories {
         maven {
-            url "file://${project.projectDir}/mcmodsrepo"
-        }
+		    name "nonamecrackers2Maven"
+		    url "https://maven.nonamecrackers2.dev/${maven_dir}"
+		    credentials(PasswordCredentials)
+		    authentication {
+		    	basic(BasicAuthentication)
+		    }
+		}
     }
 }
 
