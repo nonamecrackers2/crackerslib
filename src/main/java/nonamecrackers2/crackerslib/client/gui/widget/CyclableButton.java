@@ -18,7 +18,7 @@ public class CyclableButton<T> extends Button
 	
 	public CyclableButton(int x, int y, int width, List<T> values, T current, Function<T, Component> messageGetter)
 	{
-		super(x, y, width, 20, messageGetter.apply(current), b -> {}, Button.DEFAULT_NARRATION);
+		super(x, y, width, 20, messageGetter.apply(current), b -> {});
 		this.messageGetter = messageGetter;
 		this.values = values;
 		this.setValue(current);

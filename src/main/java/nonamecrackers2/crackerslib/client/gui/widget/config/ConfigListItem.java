@@ -8,7 +8,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
@@ -30,7 +29,7 @@ public interface ConfigListItem extends Comparable<ConfigListItem>
 	
 	void setFromPreset(ConfigPreset preset);
 	
-	@Nullable Tooltip getTooltip(@Nullable ConfigPreset preset);
+	@Nullable List<Component> getTooltip(@Nullable ConfigPreset preset);
 	
 	boolean matchesSearch(String text);
 	

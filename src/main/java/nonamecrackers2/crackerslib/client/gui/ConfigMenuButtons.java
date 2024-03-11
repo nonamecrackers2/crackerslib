@@ -50,6 +50,6 @@ public class ConfigMenuButtons
 	@FunctionalInterface
 	public static interface Factory
 	{
-		AbstractButton makeButton(Button.OnPress onButtonPress);
+		AbstractButton makeButton(Button.OnPress onButtonPress, Button.OnTooltip tooltip);
 	}
 }

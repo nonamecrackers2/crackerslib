@@ -1,13 +1,16 @@
 package nonamecrackers2.crackerslib.common.config.preset;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -32,13 +35,13 @@ public record ConfigPreset(Map<String, Object> values, Component name, @Nullable
 		return this.values.isEmpty();
 	}
 	
-	public Component getTooltip(boolean hasShiftDown)
+	public List<Component> getTooltip(boolean hasShiftDown)
 	{
-		MutableComponent tooltip = Component.literal(this.name().getString());
+		List<Component> text = Lists.newArrayList();
+		text.add(Component.literal(this.name().getString()));
 		if (!hasShiftDown)
 		{
-			tooltip.append("\n");
-			tooltip.append(Component.translatable("gui.crackerslib.button.preset.holdShift").withStyle(ChatFormatting.DARK_GRAY));
+			text.add(Component.translatable("gui.crackerslib.button.preset.holdShift").withStyle(ChatFormatting.DARK_GRAY));
 		}
 		else
 		{
@@ -46,15 +49,11 @@ public record ConfigPreset(Map<String, Object> values, Component name, @Nullable
 			{
 				String[] components = this.description().getString().split("\n");
 				for (int i = 0; i < components.length; i++)
-				{
-					tooltip.append("\n");
-					tooltip.append(Component.literal(components[i].trim()).withStyle(ChatFormatting.GRAY));
-				}
+					text.add(Component.literal(components[i].trim()).withStyle(ChatFormatting.GRAY));
 			}
-			tooltip.append("\n");
-			tooltip.append(Component.translatable("config.crackerslib.preset.note").withStyle(ChatFormatting.GRAY));
+			text.add(Component.translatable("config.crackerslib.preset.note").withStyle(ChatFormatting.GRAY));
 		}
-		return tooltip;
+		return text;
 	}
 	
 	public static ConfigPreset.Builder builder(Component name)

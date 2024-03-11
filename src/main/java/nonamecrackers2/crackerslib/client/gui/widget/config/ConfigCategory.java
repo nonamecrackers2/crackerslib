@@ -10,7 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import nonamecrackers2.crackerslib.client.util.SortType;
@@ -59,13 +58,11 @@ public class ConfigCategory implements ConfigListItem
 			buttonText = Component.literal("-").withStyle(ChatFormatting.RED);
 		else
 			buttonText = Component.literal("+").withStyle(ChatFormatting.GREEN);
-		this.expand = Button.builder(buttonText, b -> 
-		{
+		this.expand = new Button(x + 6, y, 20, 20, buttonText, b -> {
 			this.isExpanded = !this.isExpanded;
 			this.list.rebuildList();
-		}).bounds(x + 6, y, 20, 20).build();
+		});
 		widgets.add(this.expand);
-//		this.sortType.sortList(this.children);
 		if (!this.isExpanded)
 			this.children.forEach(child -> child.init(Lists.newArrayList(), x + 20, y, width, height));
 		this.x = x;
@@ -76,9 +73,9 @@ public class ConfigCategory implements ConfigListItem
 	@Override
 	public void render(PoseStack stack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks)
 	{
-		this.expand.setY(y + height / 2 - this.expand.getHeight() / 2);
+		this.expand.y = y + height / 2 - this.expand.getHeight() / 2;
 		this.expand.render(stack, mouseX, mouseY, partialTicks);
-		GuiComponent.drawString(stack, this.mc.font, this.displayName, x + 5 + (this.expand.getX() - x) + this.expand.getWidth(), y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
+		GuiComponent.drawString(stack, this.mc.font, this.displayName, x + 5 + (this.expand.x - x) + this.expand.getWidth(), y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
 	}
 
 	@Override
@@ -112,7 +109,7 @@ public class ConfigCategory implements ConfigListItem
 	}
 
 	@Override
-	public Tooltip getTooltip(ConfigPreset preset)
+	public List<Component> getTooltip(ConfigPreset preset)
 	{
 		return null;
 	}

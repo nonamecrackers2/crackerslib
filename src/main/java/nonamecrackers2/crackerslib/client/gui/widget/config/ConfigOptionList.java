@@ -17,8 +17,10 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.common.ForgeConfigSpec;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.ConfigEntry;
+import nonamecrackers2.crackerslib.client.util.GUIUtils;
 import nonamecrackers2.crackerslib.client.util.SortType;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
+import nonamecrackers2.crackerslib.mixin.MixinAbstractWidget;
 
 public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionList.Entry>
 {
@@ -198,7 +200,8 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	public @Nullable ConfigListItem getItemAt(int mouseX, int mouseY)
 	{
 		var entry = this.getEntryAtPosition((double)mouseX, (double)mouseY);
-		if (entry != null && entry.children.stream().anyMatch(w -> !w.isHovered()))
+		//TODO: Test isHoveredOrFocused
+		if (entry != null && entry.children.stream().anyMatch(w -> !((MixinAbstractWidget)w).crackerslib$getIsHovered()))
 			return entry.item;
 		else
 			return null;
@@ -251,7 +254,7 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 		@Override
 		public void render(PoseStack stack, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean selected, float partialTicks)
 		{
-			renderOutline(stack, this.x, top, width - (this.x - left), height, 0xAAFFFFFF);
+			GUIUtils.renderOutline(stack, this.x, top, width - (this.x - left), height, 0xAAFFFFFF);
 			if (this.x > left)
 			{
 				fill(stack, this.x - 20, top + height / 2, this.x - 4, top + height / 2 + 1, 0x55FFFFFF);

@@ -4,15 +4,14 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraftforge.common.ForgeConfigSpec;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigListItem;
@@ -140,24 +139,24 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		Component component = this.displayName;
 		if (this.widget.isFocused())
 			component = component.copy().withStyle(Style.EMPTY.withBold(true).withColor(ChatFormatting.YELLOW));
-		GuiComponent.drawString(stack, this.mc.font, component, x + 5 + (this.widget.getX() - x) + this.widget.getWidth(), y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
-		this.widget.setY(y + height / 2 - this.widget.getHeight() / 2);
+		GuiComponent.drawString(stack, this.mc.font, component, x + 5 + (this.widget.x - x) + this.widget.getWidth(), y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
+		this.widget.y = y + height / 2 - this.widget.getHeight() / 2;
 		this.widget.render(stack, mouseX, mouseY, partialTicks);
 		if (this.restartText != null)
 			GuiComponent.drawString(stack, this.mc.font, this.restartText, x + width - this.mc.font.width(this.restartText) - 5, y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
 	}
 	
 	@Override
-	public @Nullable Tooltip getTooltip(ConfigPreset preset)
+	public @Nullable List<Component> getTooltip(ConfigPreset preset)
 	{
 		return this.createConfigTooltip(preset);
 	}
 	
-	protected Tooltip createConfigTooltip(ConfigPreset preset)
+	protected List<Component> createConfigTooltip(ConfigPreset preset)
 	{ 
-		MutableComponent comment = this.description.copy();
-		comment.append("\n");
-		comment.append(Component.literal(this.path).withStyle(ChatFormatting.GRAY));
+		List<Component> text = Lists.newArrayList();
+		text.add(this.description);
+		text.add(Component.literal(this.path).withStyle(ChatFormatting.GRAY));
 		String defaultName = "Default: ";
 		T object;
 		if (preset != null && !preset.isDefault() && preset.hasValue(this.path))
@@ -169,14 +168,10 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		{
 			object = this.value.getDefault();
 		}
-		comment.append("\n");
-		comment.append(Component.literal(defaultName + object).withStyle(ChatFormatting.GREEN));
+		text.add(Component.literal(defaultName + object).withStyle(ChatFormatting.GREEN));
 		if (this.requiresRestart)
-		{
-			comment.append("\n");
-			comment.append(Component.translatable("gui.crackerslib.screen.config.requiresRestart").withStyle(ChatFormatting.YELLOW));
-		}
-		return Tooltip.create(comment);
+			text.add(Component.translatable("gui.crackerslib.screen.config.requiresRestart").withStyle(ChatFormatting.YELLOW));
+		return text;
 	}
 	
 	@Override
