@@ -9,13 +9,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.config.ModConfig;
 import nonamecrackers2.crackerslib.CrackersLib;
-import nonamecrackers2.crackerslib.client.event.impl.ConfigMenuButtonEvent;
 import nonamecrackers2.crackerslib.client.event.impl.RegisterConfigScreensEvent;
 import nonamecrackers2.crackerslib.client.gui.ConfigHomeScreen;
 import nonamecrackers2.crackerslib.client.gui.ConfigMenuButtons;
 import nonamecrackers2.crackerslib.client.gui.title.TextTitle;
 import nonamecrackers2.crackerslib.common.config.CrackersLibConfig;
-import nonamecrackers2.crackerslib.example.client.event.common.config.ExampleConfig;
 
 public class CrackersLibClientEvents
 {
@@ -26,10 +24,10 @@ public class CrackersLibClientEvents
 		).addSpec(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC).register();
 	}
 	
-	public static void registerConfigMenuButton(ConfigMenuButtonEvent event)
-	{
-		event.defaultButtonWithSingleCharacter('C', 0xFFF5D442);
-	}
+//	public static void registerConfigMenuButton(ConfigMenuButtonEvent event)
+//	{
+//		event.defaultButtonWithSingleCharacter('C', 0xFFF5D442);
+//	}
 	
 	@SubscribeEvent
 	public static void initGui(ScreenEvent.Init.Post event)

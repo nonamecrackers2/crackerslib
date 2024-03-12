@@ -15,7 +15,6 @@ import nonamecrackers2.crackerslib.client.event.impl.RegisterConfigScreensEvent;
 import nonamecrackers2.crackerslib.client.gui.ConfigMenuButtons;
 import nonamecrackers2.crackerslib.common.config.CrackersLibConfig;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPresets;
-import nonamecrackers2.crackerslib.example.client.event.common.config.ExampleConfig;
 
 @Mod(CrackersLib.MODID)
 public class CrackersLib
@@ -35,7 +34,6 @@ public class CrackersLib
 	{
 		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 		modBus.addListener(CrackersLibClientEvents::registerConfigScreen);
-		modBus.addListener(CrackersLibClientEvents::registerConfigMenuButton);
 //		modBus.addListener(CrackersLibClientEvents::registerConfigMenuButton);
 		IEventBus forgeBus = MinecraftForge.EVENT_BUS;
 		forgeBus.register(CrackersLibClientEvents.class);
