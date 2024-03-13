@@ -19,6 +19,8 @@ dependencies {
 }
 ```
 
+For a full list of versions, please refer to the [maven](https://maven.nonamecrackers2.dev/)
+
 Feel free to use Jar-in-Jar to package CrackersLib with your mod (when publishing your mod, make sure to use the jar tagged with ``-all``).
 
 Jar-in-Jar example:
