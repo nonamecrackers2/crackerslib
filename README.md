@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-  implementation "nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}"
+  implementation fg.deobf("nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}")
 }
 ```
 
@@ -28,6 +28,6 @@ dependencies {
   jarJar("nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}") {
     jarJar.ranged(it, "[${minecraft_version}-${crackerslib_version},)")
   }
-  implementation "nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}"
+  implementation fg.deobf("nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}")
 }
 ```
