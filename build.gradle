@@ -195,7 +195,7 @@ tasks.named('jar', Jar).configure {
     }
 
     // This is the preferred method to reobfuscate your jar file
-    //finalizedBy 'reobfJar'
+    finalizedBy 'reobfJar'
 }
 
 java {
@@ -213,7 +213,8 @@ publishing {
         	group = "nonamecrackers2"
             artifactId = "crackerslib-forge"
             version = "${minecraft_version}-${mod_version}"
-            from components.java
+            artifact jar
+            artifact sourcesJar
         }
     }
     repositories {
