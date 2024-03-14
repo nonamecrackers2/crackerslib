@@ -8,14 +8,14 @@ To use in your own mod, include the following in your in your ``build.gradle`` f
 
 ```gradle
 repositories {
-  maven {
-    name "nonamecrackers2Maven"
-    url "https://maven.nonamecrackers2.dev/releases"
-  }
+    maven {
+        name "nonamecrackers2Maven"
+        url "https://maven.nonamecrackers2.dev/releases"
+    }
 }
 
 dependencies {
-  implementation fg.deobf("nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}")
+    implementation fg.deobf("nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}")
 }
 ```
 
@@ -27,9 +27,10 @@ Jar-in-Jar example:
 
 ```gradle
 dependencies {
-  jarJar("nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}") {
-    jarJar.ranged(it, "[${minecraft_version}-${crackerslib_version},)")
-  }
-  implementation fg.deobf("nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}")
+    jarJar("nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}") {
+    	jarJar.ranged(it, "${crackerslib_version_range}")
+    }
+    
+    implementation fg.deobf("nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}")
 }
 ```
