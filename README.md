@@ -8,16 +8,18 @@ To use in your own mod, include the following in your in your ``build.gradle`` f
 
 ```gradle
 repositories {
-  maven {
-    name "nonamecrackers2Maven"
-    url "https://maven.nonamecrackers2.dev/releases"
-  }
+    maven {
+        name "nonamecrackers2Maven"
+        url "https://maven.nonamecrackers2.dev/releases"
+    }
 }
 
 dependencies {
-  implementation "nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}"
+    implementation fg.deobf("nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}")
 }
 ```
+
+For a full list of versions, please refer to the [maven](https://maven.nonamecrackers2.dev/)
 
 Feel free to use Jar-in-Jar to package CrackersLib with your mod (when publishing your mod, make sure to use the jar tagged with ``-all``).
 
@@ -25,9 +27,10 @@ Jar-in-Jar example:
 
 ```gradle
 dependencies {
-  jarJar("nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}") {
-    jarJar.ranged(it, "[${minecraft_version}-${crackerslib_version},)")
-  }
-  implementation "nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}"
+    jarJar("nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}") {
+    	jarJar.ranged(it, "${crackerslib_version_range}")
+    }
+    
+    implementation fg.deobf("nonamecrackers2:crackerslib-forge:${minecraft_version}-${crackerslib_version}")
 }
 ```

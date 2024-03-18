@@ -10,11 +10,13 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.ForgeConfigSpec;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.ConfigEntry;
 import nonamecrackers2.crackerslib.client.util.SortType;
@@ -22,6 +24,7 @@ import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 
 public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionList.Entry>
 {
+	private static final Component NO_CONFIG_OPTIONS = Component.translatable("gui.crackerslib.config.noAvailableOptions");
 	private static final int ROW_HEIGHT = 30;
 	private final List<ConfigListItem> items = Lists.newArrayList();
 	private final List<ConfigCategory> categories = Lists.newArrayList();
@@ -193,6 +196,14 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 			blit(stack, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, 32, 32);
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		}
+	}
+	
+	@Override
+	public void render(PoseStack stack, int mouseX, int mouseY, float partialTick)
+	{
+		super.render(stack, mouseX, mouseY, partialTick);
+		if (this.children().isEmpty())
+			GuiComponent.drawCenteredString(stack, this.minecraft.font, NO_CONFIG_OPTIONS, this.width / 2, this.height / 2, 0xFFFFFFFF);
 	}
 
 	public @Nullable ConfigListItem getItemAt(int mouseX, int mouseY)
