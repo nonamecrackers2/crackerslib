@@ -5,6 +5,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import nonamecrackers2.crackerslib.CrackersLib;
 import nonamecrackers2.crackerslib.client.event.impl.AddConfigEntryToMenuEvent;
 import nonamecrackers2.crackerslib.client.event.impl.ConfigMenuButtonEvent;
+import nonamecrackers2.crackerslib.client.event.impl.OnConfigScreenOpened;
 import nonamecrackers2.crackerslib.client.event.impl.RegisterConfigScreensEvent;
 import nonamecrackers2.crackerslib.client.gui.ConfigHomeScreen;
 import nonamecrackers2.crackerslib.client.gui.title.TextTitle;
@@ -22,6 +23,13 @@ public class ExampleClientEvents
 	public static void registerConfigMenuButton(ConfigMenuButtonEvent event)
 	{
 		event.defaultButtonWithSingleCharacter('C', 0xFFF5D442);
+	}
+	
+	@SubscribeEvent
+	public static void onConfigScreenOpened(OnConfigScreenOpened event)
+	{
+		if (event.getModId().equals(CrackersLib.MODID) && event.getType() == ModConfig.Type.CLIENT)
+			event.setInitialPath("list.category_example");
 	}
 	
 	@SubscribeEvent

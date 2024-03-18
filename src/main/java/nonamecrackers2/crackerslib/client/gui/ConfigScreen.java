@@ -27,6 +27,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import nonamecrackers2.crackerslib.client.event.impl.AddConfigEntryToMenuEvent;
 import nonamecrackers2.crackerslib.client.gui.widget.CollapseButton;
 import nonamecrackers2.crackerslib.client.gui.widget.SortButton;
@@ -82,10 +83,26 @@ public class ConfigScreen extends Screen
 		}
 	}
 	
-	public static ConfigScreen makeScreen(String modid, ForgeConfigSpec spec, ModConfig.Type type, Screen homeScreen)
+	public static ConfigScreen makeScreen(String modid, ForgeConfigSpec spec, ModConfig.Type type, Screen homeScreen, String startingPath)
 	{
-		return new ConfigScreen(modid, spec, type, list -> {
-			buildConfigList(modid, type, list, filterValues(modid, type, "", spec.getValues().valueMap()), "", Optional.empty());
+		return new ConfigScreen(modid, spec, type, list -> 
+		{
+			if (spec.isLoaded())
+			{
+				Map<String, Object> values;
+				if (startingPath.isEmpty())
+					values = spec.getValues().valueMap();
+				else
+					values = spec.getValues().<UnmodifiableConfig>get(startingPath).valueMap();
+				buildConfigList(modid, type, list, filterValues(modid, type, startingPath, values), startingPath, Optional.empty());
+			}
+			else
+			{
+				if (!FMLEnvironment.production)
+					throw new IllegalStateException("Config spec " + type + " is not loaded! Have you registered it?");
+				else
+					LOGGER.error("Config spec {} is not loaded for mod {}", type, modid);
+			}
 		}, homeScreen);
 	}
 	
@@ -118,23 +135,20 @@ public class ConfigScreen extends Screen
 			}
 			else if (obj instanceof ForgeConfigSpec.ConfigValue<?> value)
 			{
-				if (!MinecraftForge.EVENT_BUS.post(new AddConfigEntryToMenuEvent(modid, type, entry.getKey())))
-				{
-					var clazz = value.getDefault().getClass();
-					if (Integer.class.isAssignableFrom(clazz))
-						list.addConfigValue(path, IntegerConfigEntry::new, category);
-					else if (Double.class.isAssignableFrom(clazz))
-						list.addConfigValue(path, DoubleConfigEntry::new, category);
-					else if (Boolean.class.isAssignableFrom(clazz))
-						list.addConfigValue(path, BooleanConfigEntry::new, category);
-					else if (Enum.class.isAssignableFrom(clazz))
-						list.addConfigValue(path, EnumConfigEntry::new, category);
-					else if (String.class.isAssignableFrom(clazz))
-						list.addConfigValue(path, StringConfigEntry::new, category);
-					else if (tryToAddListEntry(list, clazz, path, value, category)) {}
-					else
-						LOGGER.warn("Unknown config GUI entry for type '{}'", clazz);
-				}
+				var clazz = value.getDefault().getClass();
+				if (Integer.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, IntegerConfigEntry::new, category);
+				else if (Double.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, DoubleConfigEntry::new, category);
+				else if (Boolean.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, BooleanConfigEntry::new, category);
+				else if (Enum.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, EnumConfigEntry::new, category);
+				else if (String.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, StringConfigEntry::new, category);
+				else if (tryToAddListEntry(list, clazz, path, value, category)) {}
+				else
+					LOGGER.warn("Unknown config GUI entry for type '{}'", clazz);
 			}
 		}
 	}

@@ -21,7 +21,7 @@ public class RegisterConfigPresetsEvent extends Event implements IModBusEvent
 		this.modid = modid;
 	}
 	
-	public void register(ModConfig.Type type, ConfigPreset preset)
+	public void registerPreset(ModConfig.Type type, ConfigPreset preset)
 	{
 		this.presets.put(type, preset);
 	}

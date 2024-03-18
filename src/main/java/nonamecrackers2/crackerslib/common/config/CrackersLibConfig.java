@@ -31,7 +31,7 @@ public class CrackersLibConfig
 				return Lists.newArrayList("example_mod_id");
 			}, v -> {
 				return true;
-			}, "hiddenConfigMenuButtons", ReloadType.NONE, "A list of mod ids that cannot have their registered config menu buttons appear in the options screen");
+			}, "hiddenConfigMenuButtons", false, "A list of mod ids that cannot have their registered config menu buttons appear in the options screen");
 		}
 	}
 }

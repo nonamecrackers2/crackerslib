@@ -20,8 +20,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.config.ModConfig;
 import nonamecrackers2.crackerslib.client.config.ConfigHomeScreenFactory;
+import nonamecrackers2.crackerslib.client.event.impl.OnConfigScreenOpened;
 import nonamecrackers2.crackerslib.client.gui.title.TitleLogo;
 import nonamecrackers2.crackerslib.client.util.GUIUtils;
 
@@ -139,7 +141,11 @@ public class ConfigHomeScreen extends Screen
 	{
 		ForgeConfigSpec spec = this.specs.get(type);
 		if (spec != null)
-			this.minecraft.setScreen(ConfigScreen.makeScreen(this.modid, spec, type, this));
+		{
+			OnConfigScreenOpened event = new OnConfigScreenOpened(this.modid, type);
+			if (!MinecraftForge.EVENT_BUS.post(event))
+				this.minecraft.setScreen(ConfigScreen.makeScreen(this.modid, spec, type, this, event.getInitialPath() != null ? event.getInitialPath() : ""));
+		}
 	}
 	
 	public static ConfigHomeScreen.Builder builder(TitleLogo title)

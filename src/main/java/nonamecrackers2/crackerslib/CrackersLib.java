@@ -15,6 +15,8 @@ import nonamecrackers2.crackerslib.client.event.impl.RegisterConfigScreensEvent;
 import nonamecrackers2.crackerslib.client.gui.ConfigMenuButtons;
 import nonamecrackers2.crackerslib.common.config.CrackersLibConfig;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPresets;
+import nonamecrackers2.crackerslib.common.event.CrackersLibDataEvents;
+import nonamecrackers2.crackerslib.common.init.CrackersLibCommandArguments;
 
 @Mod(CrackersLib.MODID)
 public class CrackersLib
@@ -26,8 +28,11 @@ public class CrackersLib
 		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 		modBus.addListener(this::commonSetup);
 		modBus.addListener(this::clientSetup);
+		modBus.addListener(CrackersLibDataEvents::gatherData);
 		ModLoadingContext context = ModLoadingContext.get();
 		context.registerConfig(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC);
+//		context.registerConfig(ModConfig.Type.COMMON, ExampleConfig.CLIENT_SPEC);
+		CrackersLibCommandArguments.register(modBus);
 	}
 	
 	public void clientSetup(final FMLClientSetupEvent event)
