@@ -16,7 +16,7 @@ public class CrackersLibLangProvider extends LanguageProvider
 	@Override
 	protected void addTranslations()
 	{
-		ConfigLangGeneratorHelper.langForSpec(CrackersLib.MODID, CrackersLibConfig.CLIENT_SPEC, this, true);
+		ConfigLangGeneratorHelper.langForSpec(CrackersLib.MODID, CrackersLibConfig.CLIENT_SPEC, this, ConfigLangGeneratorHelper.Info.ONLY_RANGE);
 		this.add("config.crackerslib.preset.note", "NOTE: Changing the preset may override other values, make backups!");
 		this.add("config.crackerslib.preset.custom.title", "Custom");
 		this.add("config.crackerslib.preset.default.title", "Default");
