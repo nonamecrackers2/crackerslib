@@ -31,7 +31,7 @@ public class CrackersLib
 		modBus.addListener(CrackersLibDataEvents::gatherData);
 		ModLoadingContext context = ModLoadingContext.get();
 		context.registerConfig(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC);
-//		context.registerConfig(ModConfig.Type.COMMON, ExampleConfig.CLIENT_SPEC);
+//		context.registerConfig(ModConfig.Type.SERVER, ExampleConfig.CLIENT_SPEC);
 		CrackersLibCommandArguments.register(modBus);
 	}
 	
@@ -52,6 +52,8 @@ public class CrackersLib
 	
 	public void commonSetup(final FMLCommonSetupEvent event)
 	{
+//		IEventBus forgeBus = MinecraftForge.EVENT_BUS;
+//		forgeBus.register(ExampleEvents.class);
 		event.enqueueWork(() -> {
 			ConfigPresets.gatherPresets();
 		});

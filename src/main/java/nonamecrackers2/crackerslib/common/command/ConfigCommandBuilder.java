@@ -25,12 +25,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.server.command.EnumArgument;
 import nonamecrackers2.crackerslib.common.command.argument.ConfigArgument;
 import nonamecrackers2.crackerslib.common.config.ConfigHelper;
 
+/**
+ * Creates config commands for modifying config options in game
+ */
 public class ConfigCommandBuilder
 {
 	private static final Logger LOGGER = LogManager.getLogger("crackerslib/ConfigCommandBuilder");
@@ -44,6 +49,14 @@ public class ConfigCommandBuilder
 		this.dispatcher = dispatcher;
 	}
 	
+	/**
+	 * NOTE: Do not call from {@link RegisterCommandsEvent}, since not all config specs are loaded at the point when the {@link Commands} class is
+	 * instantiated. Please use {@link ServerStartedEvent} or something similiar.
+	 * 
+	 * @param dispatcher
+	 * @param rootName
+	 * @return
+	 */
 	public static ConfigCommandBuilder builder(CommandDispatcher<CommandSourceStack> dispatcher, String rootName)
 	{
 		return new ConfigCommandBuilder(Commands.literal(rootName).requires(src -> src.hasPermission(2)), dispatcher);
@@ -55,7 +68,7 @@ public class ConfigCommandBuilder
 		{
 			if (FMLEnvironment.dist == Dist.CLIENT || type != ModConfig.Type.CLIENT)
 			{
-				throw new IllegalStateException("Config is not loaded for spec '" + type + "'. Is it registered?");
+				throw new IllegalStateException("Config is not loaded for spec '" + type + "'. Make sure it is registered and you are creating these commands from ServerStartedEvent or something similiar.");
 			}
 			else
 			{
