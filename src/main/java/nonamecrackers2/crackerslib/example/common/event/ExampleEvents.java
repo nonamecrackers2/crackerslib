@@ -3,11 +3,10 @@ package nonamecrackers2.crackerslib.example.common.event;
 import com.google.common.collect.Lists;
 
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.config.ModConfig;
 import nonamecrackers2.crackerslib.common.command.ConfigCommandBuilder;
-import nonamecrackers2.crackerslib.common.config.CrackersLibConfig;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 import nonamecrackers2.crackerslib.common.event.impl.RegisterConfigPresetsEvent;
 import nonamecrackers2.crackerslib.example.client.event.common.config.ExampleConfig;
@@ -28,8 +27,8 @@ public class ExampleEvents
 	}
 	
 	@SubscribeEvent
-	public static void reigsterCommandsEvent(RegisterCommandsEvent event)
+	public static void onServerStarted(ServerStartedEvent event)
 	{
-		ConfigCommandBuilder.builder(event.getDispatcher(), "crackerslib").addSpec(ModConfig.Type.COMMON, ExampleConfig.CLIENT_SPEC).addSpec(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC).register();
+		ConfigCommandBuilder.builder(event.getServer().getCommands().getDispatcher(), "crackerslib").addSpec(ModConfig.Type.SERVER, ExampleConfig.CLIENT_SPEC).register();
 	}
 }

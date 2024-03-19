@@ -35,11 +35,11 @@ public class ConfigLangGeneratorHelper
 			if (entry.getValue() instanceof ValueSpec spec)
 			{
 				String properTitle = StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(name), " "));
-				provider.add("gui." + modid + ".config." + name + ".title", properTitle);
+				tryAdd("gui." + modid + ".config." + name + ".title", properTitle, provider);
 				String desc = spec.getComment();
 				if (removeDefaultInfo)
 					desc = desc.replaceFirst("\\n.*?(?=\\n)", "");
-				provider.add(spec.getTranslationKey(), desc);
+				tryAdd(spec.getTranslationKey(), desc, provider);
 			}
 			else if (entry.getValue() instanceof UnmodifiableConfig category)
 			{
@@ -47,9 +47,16 @@ public class ConfigLangGeneratorHelper
 				for (int i = 0; i < split.length; i++)
 					split[i] = StringUtils.capitalize(split[i]);
 				String properTitle = StringUtils.join(split, " ");
-				provider.add("gui." + modid + ".config.category." + name + ".title", properTitle);
+				tryAdd("gui." + modid + ".config.category." + name + ".title", properTitle, provider);
 				forValues(modid, category.valueMap(), provider, removeDefaultInfo);
 			}
 		}
+	}
+	
+	private static void tryAdd(String key, String entry, LanguageProvider provider)
+	{
+		try {
+			provider.add(key, entry);
+		} catch (IllegalStateException e) {}
 	}
 }
