@@ -2,6 +2,7 @@ package nonamecrackers2.crackerslib.client.gui.widget.config;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
@@ -149,14 +150,14 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 		return true;
 	}
 	
-	public @Nullable ConfigPreset getMatchingPreset(List<ConfigPreset> presets)
+	public @Nullable ConfigPreset getMatchingPreset(List<ConfigPreset> presets, Predicate<String> excluded)
 	{
 		main:
 		for (ConfigPreset preset : presets)
 		{
 			for (ConfigListItem item : this.items)
 			{
-				if (!item.matchesPreset(preset))
+				if (!item.matchesPreset(preset, excluded))
 					continue main;
 			}
 			return preset;
@@ -164,10 +165,10 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 		return null;
 	}
 	
-	public void setFromPreset(ConfigPreset preset)
+	public void setFromPreset(ConfigPreset preset, Predicate<String> excluded)
 	{
 		for (ConfigListItem item : this.items)
-			item.setFromPreset(preset);
+			item.setFromPreset(preset, excluded);
 	}
 	
 	@Override

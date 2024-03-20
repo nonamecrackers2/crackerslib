@@ -81,7 +81,7 @@ public class ExampleConfig
 		}
 	}
 	
-	private static enum ExampleEnum
+	public static enum ExampleEnum
 	{
 		HEY,
 		HOWS,

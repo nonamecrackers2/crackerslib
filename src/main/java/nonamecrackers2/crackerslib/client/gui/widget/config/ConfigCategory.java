@@ -1,6 +1,7 @@
 package nonamecrackers2.crackerslib.client.gui.widget.config;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -100,15 +101,15 @@ public class ConfigCategory implements ConfigListItem
 	}
 
 	@Override
-	public boolean matchesPreset(ConfigPreset preset)
+	public boolean matchesPreset(ConfigPreset preset, Predicate<String> excluded)
 	{
-		return this.children.stream().allMatch(child -> child.matchesPreset(preset));
+		return this.children.stream().allMatch(child -> child.matchesPreset(preset, excluded));
 	}
 
 	@Override
-	public void setFromPreset(ConfigPreset preset)
+	public void setFromPreset(ConfigPreset preset, Predicate<String> excluded)
 	{
-		this.children.forEach(child -> child.setFromPreset(preset));
+		this.children.forEach(child -> child.setFromPreset(preset, excluded));
 	}
 
 	@Override

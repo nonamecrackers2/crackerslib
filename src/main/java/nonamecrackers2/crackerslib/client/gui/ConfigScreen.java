@@ -1,5 +1,6 @@
 package nonamecrackers2.crackerslib.client.gui;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -58,6 +60,7 @@ public class ConfigScreen extends Screen
 	private final Consumer<ConfigOptionList> itemGenerator;
 	private final Screen homeScreen;
 	private final List<ConfigPreset> presets;
+	private Collection<String> presetExcluded = ImmutableList.of();
 	private ConfigOptionList list;
 	private Button exit;
 	private Button changePreset;
@@ -75,10 +78,11 @@ public class ConfigScreen extends Screen
 		this.itemGenerator = itemGenerator;
 		this.homeScreen = homeScreen;
 		this.presets = Lists.newArrayList(ConfigPreset.defaultPreset());
-		var presets = ConfigPresets.getPresetsForModId(this.modid);
+		ConfigPresets.Presets presets = ConfigPresets.getPresetsForModId(this.modid);
 		if (presets != null)
 		{
-			for (ConfigPreset preset : presets.get(type))
+			this.presetExcluded = presets.getExcludedConfigOptions();
+			for (ConfigPreset preset : presets.getPresetsForType(type))
 				this.presets.add(preset);
 		}
 	}
@@ -209,7 +213,7 @@ public class ConfigScreen extends Screen
 				.size(BUTTON_WIDTH / 2, BUTTON_HEIGHT)
 				.build();
 		
-		this.preset = this.list.getMatchingPreset(this.presets);
+		this.preset = this.list.getMatchingPreset(this.presets, this.presetExcluded::contains);
 		
 		this.changePreset = Button.builder(Component.translatable("gui.crackerslib.button.preset.title").append(": ").append(this.getPresetName()), button -> this.changePreset())
 				.pos(10, this.height - EXIT_BUTTON_OFFSET)
@@ -264,7 +268,7 @@ public class ConfigScreen extends Screen
 	private void resetValues()
 	{
 		this.list.resetValues();
-		this.preset = this.list.getMatchingPreset(this.presets);
+		this.preset = this.list.getMatchingPreset(this.presets, this.presetExcluded::contains);
 		this.changePreset.setMessage(Component.translatable("gui.crackerslib.button.preset.title").append(": ").append(this.getPresetName()));
 		this.reset.active = false;
 	}
@@ -276,7 +280,7 @@ public class ConfigScreen extends Screen
 			next = 0;
 		this.preset = this.presets.get(next);
 		if (this.preset != null)
-			this.list.setFromPreset(this.preset);
+			this.list.setFromPreset(this.preset, this.presetExcluded::contains);
 		this.changePreset.setMessage(Component.translatable("gui.crackerslib.button.preset.title").append(": ").append(this.getPresetName()));
 		this.reset.active = !this.list.areValuesReset();
 	}
@@ -302,7 +306,7 @@ public class ConfigScreen extends Screen
 	
 	private void onValueChanged()
 	{
-		this.preset = this.list.getMatchingPreset(this.presets);
+		this.preset = this.list.getMatchingPreset(this.presets, this.presetExcluded::contains);
 		this.changePreset.setMessage(Component.translatable("gui.crackerslib.button.preset.title").append(": ").append(this.getPresetName()));
 		this.reset.active = !this.list.areValuesReset();
 	}

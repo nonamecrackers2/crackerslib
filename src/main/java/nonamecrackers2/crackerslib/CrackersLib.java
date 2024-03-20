@@ -54,6 +54,8 @@ public class CrackersLib
 	{
 //		IEventBus forgeBus = MinecraftForge.EVENT_BUS;
 //		forgeBus.register(ExampleEvents.class);
+//		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+//		modBus.addListener(ExampleEvents::registerPresetsEvent);
 		event.enqueueWork(() -> {
 			ConfigPresets.gatherPresets();
 		});

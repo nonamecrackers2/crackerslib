@@ -1,6 +1,7 @@
 package nonamecrackers2.crackerslib.client.gui.widget.config.entry;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
@@ -89,12 +90,15 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	}
 	
 	@Override
-	public void setFromPreset(ConfigPreset preset)
+	public void setFromPreset(ConfigPreset preset, Predicate<String> excluded)
 	{
-		if (preset.hasValue(this.path))
-			this.setCurrentValue(preset.getValue(this.path));
-		else if (preset.isDefault())
-			this.setCurrentValue(this.value.getDefault());
+		if (!excluded.test(this.path))
+		{
+			if (preset.hasValue(this.path))
+				this.setCurrentValue(preset.getValue(this.path));
+			else
+				this.setCurrentValue(this.value.getDefault());
+		}
 	}
 	
 	@Override
@@ -104,14 +108,19 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	}
 	
 	@Override
-	public boolean matchesPreset(ConfigPreset preset)
+	public boolean matchesPreset(ConfigPreset preset, Predicate<String> excluded)
 	{
-		if (preset.hasValue(this.path))
-			return preset.getValue(this.path).equals(this.getCurrentValue());
-		else if (preset.isDefault())
-			return this.value.getDefault().equals(this.getCurrentValue());
+		if (!excluded.test(this.path))
+		{
+			if (preset.hasValue(this.path))
+				return preset.getValue(this.path).equals(this.getCurrentValue());
+			else
+				return this.value.getDefault().equals(this.getCurrentValue());
+		}
 		else
+		{
 			return true;
+		}
 	}
 	
 	@Override

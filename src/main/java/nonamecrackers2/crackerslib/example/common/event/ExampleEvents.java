@@ -8,15 +8,21 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.config.ModConfig;
 import nonamecrackers2.crackerslib.common.command.ConfigCommandBuilder;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
-import nonamecrackers2.crackerslib.common.event.impl.RegisterConfigPresetsEvent;
+import nonamecrackers2.crackerslib.common.config.preset.RegisterConfigPresetsEvent;
 import nonamecrackers2.crackerslib.example.client.event.common.config.ExampleConfig;
 
 public class ExampleEvents
 {
 	public static void registerPresetsEvent(RegisterConfigPresetsEvent event)
 	{
-		event.registerPreset(ModConfig.Type.CLIENT, ConfigPreset.builder(Component.literal("Test"))
-				.setDescription(Component.literal("Just a test preset"))
+		event.exclude(ExampleConfig.CLIENT.exampleListInteger);
+		event.registerPreset(ModConfig.Type.SERVER, ConfigPreset.builder(Component.literal("Another Example"))
+				.setDescription(Component.literal("Just another epic example preset"))
+				.setPreset(ExampleConfig.CLIENT.exampleEnum, ExampleConfig.ExampleEnum.GOING)
+				.build()
+		);
+		event.registerPreset(ModConfig.Type.SERVER, ConfigPreset.builder(Component.literal("Example"))
+				.setDescription(Component.literal("Just an example preset"))
 				.setPreset(ExampleConfig.CLIENT.exampleBoolean, false)
 				.setPreset(ExampleConfig.CLIENT.exampleDouble, 0.5D)
 				.setPreset(ExampleConfig.CLIENT.exampleInteger, 90)

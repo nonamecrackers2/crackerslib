@@ -32,21 +32,23 @@ public class ConfigHomeScreen extends Screen
 	private static final int BUTTON_WIDTH = 200;
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int EXIT_BUTTON_OFFSET = 6;
-	private static final int TITLE_PADDING = 20;
-	
+	private static final int MAX_WIDTH = 200;
+	private static final int COLUMN_SPACING = 4;
 	private final String modid;
 	private final Map<ModConfig.Type, ForgeConfigSpec> specs;
 	private final TitleLogo title;
-	
 	private final boolean isWorldLoaded;
 	private final boolean hasSinglePlayerServer;
 	private final @Nullable Screen previous;
-	
+	private final List<Supplier<AbstractButton>> extraButtons;
+	private final int totalColumns;
 	private @Nullable Button commonButton;
 	private @Nullable Button worldButton;
 	private Button exit;
 	
-	public ConfigHomeScreen(String modid, Map<ModConfig.Type, ForgeConfigSpec> specs, TitleLogo title, boolean isWorldLoaded, boolean hasSinglePlayerServer, @Nullable Screen previous)
+	private int elementSpacing;
+	
+	public ConfigHomeScreen(String modid, Map<ModConfig.Type, ForgeConfigSpec> specs, TitleLogo title, boolean isWorldLoaded, boolean hasSinglePlayerServer, @Nullable Screen previous, List<Supplier<AbstractButton>> extraButtons, int totalColumns)
 	{
 		super(Component.translatable("gui." + modid + ".screen.config.home.title"));
 		this.title = title;
@@ -55,6 +57,8 @@ public class ConfigHomeScreen extends Screen
 		this.isWorldLoaded = isWorldLoaded;
 		this.hasSinglePlayerServer = hasSinglePlayerServer;
 		this.previous = previous;
+		this.extraButtons = extraButtons;
+		this.totalColumns = totalColumns;
 	}
 	
 	@Override
@@ -98,10 +102,22 @@ public class ConfigHomeScreen extends Screen
 				.size(BUTTON_WIDTH, BUTTON_HEIGHT)
 				.build();
 		
+		int exitButtonSpaceTaken = this.exit.getHeight() + 20;
+		int availableScreenHeight = this.height - exitButtonSpaceTaken;
+		
 		layout.arrangeElements();
-		int top = TITLE_PADDING + this.title.getHeight();
-		int padding = EXIT_BUTTON_OFFSET * 2 + this.exit.getHeight();
-		FrameLayout.centerInRectangle(layout, 0, Math.max(padding, top), this.width, this.height - top - padding);
+		
+		int layoutHeight = layout.getHeight();
+		int totalHeightTaken = layoutHeight + this.title.getHeight();
+		int heightRemaining = availableScreenHeight - totalHeightTaken;
+		this.elementSpacing = heightRemaining / 4;
+		
+		System.out.println("Element spacing: " + this.elementSpacing);
+		System.out.println("Available screen height: " + availableScreenHeight);
+		System.out.println("Total height taken: " + totalHeightTaken);
+		
+		int top = this.elementSpacing * 2 + this.title.getHeight();
+		FrameLayout.centerInRectangle(layout, 0, top, this.width, availableScreenHeight - top - this.elementSpacing);
 		layout.visitWidgets(this::addRenderableWidget);
 		
 		if (this.commonButton != null)
@@ -111,7 +127,35 @@ public class ConfigHomeScreen extends Screen
 		this.addRenderableWidget(this.exit);
 	}
 	
-	protected void initExtraButtons(GridLayout.RowHelper main) {}
+	protected void initExtraButtons(GridLayout.RowHelper main)
+	{
+		if (!this.extraButtons.isEmpty())
+		{
+			int totalButtons = this.extraButtons.size();
+			int totalColumns = Math.min(totalButtons, this.totalColumns);
+			
+			GridLayout extraButtons = main.addChild(new GridLayout().rowSpacing(6).columnSpacing(COLUMN_SPACING));
+			GridLayout.RowHelper extraButtonsRowHelper = extraButtons.createRowHelper(totalColumns);
+			
+			int currentRow = 0;
+			for (int i = 0; i < totalButtons; i += totalColumns)
+			{
+				currentRow++;
+				int totalButtonsInRow = totalColumns;
+				if (currentRow * totalColumns >= totalButtons)
+					totalButtonsInRow -= currentRow * totalColumns - totalButtons;
+				int occupiedColumns = totalColumns / totalButtonsInRow;
+				int widthPerButton = (MAX_WIDTH - COLUMN_SPACING * (totalButtonsInRow - 1)) / totalButtonsInRow; 
+				for (int j = 0; j < totalButtonsInRow; j++)
+				{
+					int index = i + j;
+					var button = this.extraButtons.get(index).get();
+					button.setWidth(widthPerButton);
+					extraButtonsRowHelper.addChild(button, occupiedColumns);
+				}
+			}
+		}
+	}
 	
 	@Override
 	public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks)
@@ -122,8 +166,8 @@ public class ConfigHomeScreen extends Screen
 		if (this.worldButton != null)
 			this.worldButton.setTooltip(Tooltip.create(worldDesc));
 		this.renderBackground(stack);
-		int titleX = this.width / 2;
-		int titleY = TITLE_PADDING + this.title.getHeight() / 2;
+		int titleX = this.width / 2 - this.title.getWidth() / 2;
+		int titleY = this.elementSpacing;
 		this.title.blit(stack, titleX, titleY, partialTicks);
 		super.render(stack, mouseX, mouseY, partialTicks); 
 	}
@@ -155,8 +199,6 @@ public class ConfigHomeScreen extends Screen
 	
 	public static class Builder
 	{
-		private static final int MAX_WIDTH = 200;
-		private static final int COLUMN_SPACING = 4;
 		private final List<Supplier<AbstractButton>> extraButtons = Lists.newArrayList();
 		private final TitleLogo title;
 		private int totalColumns = 2;
@@ -217,42 +259,20 @@ public class ConfigHomeScreen extends Screen
 		
 		public ConfigHomeScreenFactory build()
 		{
-			return (modid, specs, isWorldLoaded, hasSinglePlayerServer, previous) -> 
-			{
-				return new ConfigHomeScreen(modid, specs, this.title, isWorldLoaded, hasSinglePlayerServer, previous)
-				{
-					@Override
-					protected void initExtraButtons(GridLayout.RowHelper main)
-					{
-						if (!Builder.this.extraButtons.isEmpty())
-						{
-							int totalButtons = Builder.this.extraButtons.size();
-							int totalColumns = Math.min(totalButtons, Builder.this.totalColumns);
-							
-							GridLayout extraButtons = main.addChild(new GridLayout().rowSpacing(6).columnSpacing(COLUMN_SPACING));
-							GridLayout.RowHelper extraButtonsRowHelper = extraButtons.createRowHelper(totalColumns);
-							
-							int currentRow = 0;
-							for (int i = 0; i < totalButtons; i += totalColumns)
-							{
-								currentRow++;
-								int totalButtonsInRow = totalColumns;
-								if (currentRow * totalColumns >= totalButtons)
-									totalButtonsInRow -= currentRow * totalColumns - totalButtons;
-								int occupiedColumns = totalColumns / totalButtonsInRow;
-								int widthPerButton = (MAX_WIDTH - COLUMN_SPACING * (totalButtonsInRow - 1)) / totalButtonsInRow; 
-								for (int j = 0; j < totalButtonsInRow; j++)
-								{
-									int index = i + j;
-									var button = Builder.this.extraButtons.get(index).get();
-									button.setWidth(widthPerButton);
-									extraButtonsRowHelper.addChild(button, occupiedColumns);
-								}
-							}
-						}
-					}
-				};
+			return this.build(ConfigHomeScreen::new);
+		}
+		
+		public ConfigHomeScreenFactory build(ConfigHomeScreen.Builder.CustomHomeScreen constructor)
+		{
+			return (modid, specs, isWorldLoaded, hasSinglePlayerServer, previous) -> {
+				return constructor.build(modid, specs, this.title, isWorldLoaded, hasSinglePlayerServer, previous, this.extraButtons, this.totalColumns);
 			};
+		}
+		
+		@FunctionalInterface
+		public static interface CustomHomeScreen
+		{
+			public ConfigHomeScreen build(String modid, Map<ModConfig.Type, ForgeConfigSpec> specs, TitleLogo title, boolean isWorldLoaded, boolean hasSinglePlayerServer, @Nullable Screen previous, List<Supplier<AbstractButton>> extraButtons, int totalColumns);
 		}
 	}
 }

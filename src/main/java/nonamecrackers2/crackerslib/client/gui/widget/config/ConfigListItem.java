@@ -1,6 +1,7 @@
 package nonamecrackers2.crackerslib.client.gui.widget.config;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
@@ -26,9 +27,9 @@ public interface ConfigListItem extends Comparable<ConfigListItem>
 	
 	boolean isValueReset();
 	
-	boolean matchesPreset(ConfigPreset preset);
+	boolean matchesPreset(ConfigPreset preset, Predicate<String> excluded);
 	
-	void setFromPreset(ConfigPreset preset);
+	void setFromPreset(ConfigPreset preset, Predicate<String> excluded);
 	
 	@Nullable Tooltip getTooltip(@Nullable ConfigPreset preset);
 	
