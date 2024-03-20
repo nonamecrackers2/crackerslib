@@ -8,9 +8,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
-
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -23,86 +20,58 @@ public abstract class ConfigHelper
 {
 	public static final Splitter DOT_SPLITTER = Splitter.on(".");
 	public static final Joiner DOT_JOINER = Joiner.on('.');
+	protected final ForgeConfigSpec.Builder builder;
 	protected final String modid;
 
-	protected ConfigHelper(String modid)
+	protected ConfigHelper(ForgeConfigSpec.Builder builder, String modid)
 	{
+		this.builder = builder;
 		this.modid = modid;
 	}
 	
-	@Deprecated
-	@ScheduledForRemoval
-	protected <T> ForgeConfigSpec.ConfigValue<T> createValue(ForgeConfigSpec.Builder builder, T value, String name, ReloadType type, String... description)
+	protected <T> ForgeConfigSpec.ConfigValue<T> createValue(T value, String name, boolean restart, String description)
 	{
-		return this.createValue(builder, value, name, type != ReloadType.NONE, StringUtils.join(description, " "));
+		return this.defaultProperties(name, description, restart, value).define(name, value);
 	}
 	
-	protected <T> ForgeConfigSpec.ConfigValue<T> createValue(ForgeConfigSpec.Builder builder, T value, String name, boolean restart, String description)
+	protected ForgeConfigSpec.ConfigValue<Double> createRangedDoubleValue(double value, double min, double max, String name, boolean restart, String description)
 	{
-		return this.defaultProperties(builder, name, description, restart, value).define(name, value);
+		return this.defaultProperties(name, description, restart, value).defineInRange(name, value, min, max);
 	}
 	
-	@Deprecated
-	@ScheduledForRemoval
-	protected ForgeConfigSpec.ConfigValue<Double> createRangedDoubleValue(ForgeConfigSpec.Builder builder, double value, double min, double max, String name, ReloadType type, String... description)
+	protected ForgeConfigSpec.ConfigValue<Integer> createRangedIntValue(int value, int min, int max, String name, boolean restart, String description)
 	{
-		return this.createRangedDoubleValue(builder, value, min, max, name, type != ReloadType.NONE, StringUtils.join(description, " "));
+		return this.defaultProperties(name, description, restart, value).defineInRange(name, value, min, max);
 	}
 	
-	protected ForgeConfigSpec.ConfigValue<Double> createRangedDoubleValue(ForgeConfigSpec.Builder builder, double value, double min, double max, String name, boolean restart, String description)
+	protected <T extends Enum<T>> ForgeConfigSpec.ConfigValue<T> createEnumValue(T value, String name, boolean restart, String description)
 	{
-		return this.defaultProperties(builder, name, description, restart, value).defineInRange(name, value, min, max);
-	}
-	
-	@Deprecated
-	@ScheduledForRemoval
-	protected ForgeConfigSpec.ConfigValue<Integer> createRangedIntValue(ForgeConfigSpec.Builder builder, int value, int min, int max, String name, ReloadType type, String... description)
-	{
-		return this.createRangedIntValue(builder, value, min, max, name, type != ReloadType.NONE, StringUtils.join(description, " "));
-	}
-	
-	protected ForgeConfigSpec.ConfigValue<Integer> createRangedIntValue(ForgeConfigSpec.Builder builder, int value, int min, int max, String name, boolean restart, String description)
-	{
-		return this.defaultProperties(builder, name, description, restart, value).defineInRange(name, value, min, max);
-	}
-	
-	@Deprecated
-	@ScheduledForRemoval
-	protected <T extends Enum<T>> ForgeConfigSpec.ConfigValue<T> createEnumValue(ForgeConfigSpec.Builder builder, T value, String name, ReloadType type, String... description)
-	{
-		return this.createEnumValue(builder, value, name, type != ReloadType.NONE, StringUtils.join(description, " "));
-	}
-	
-	protected <T extends Enum<T>> ForgeConfigSpec.ConfigValue<T> createEnumValue(ForgeConfigSpec.Builder builder, T value, String name, boolean restart, String description)
-	{
-		return this.defaultProperties(builder, name, description, restart, value).defineEnum(name, value);
-	}
-	
-	@Deprecated
-	@ScheduledForRemoval
-	protected <T> ForgeConfigSpec.ConfigValue<List<? extends T>> createListValue(ForgeConfigSpec.Builder builder, Class<T> valueClass, Supplier<List<? extends T>> value, Predicate<T> validator, String name, ReloadType type, String description)
-	{
-		return this.createListValue(builder, valueClass, value, validator, name, type != ReloadType.NONE, description);
+		return this.defaultProperties(name, description, restart, value).defineEnum(name, value);
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected <T> ForgeConfigSpec.ConfigValue<List<? extends T>> createListValue(ForgeConfigSpec.Builder builder, Class<T> valueClass, Supplier<List<? extends T>> value, Predicate<T> validator, String name, boolean restart, String description)
+	protected <T> ForgeConfigSpec.ConfigValue<List<? extends T>> createListValue(Class<T> valueClass, Supplier<List<? extends T>> value, Predicate<T> validator, String name, boolean restart, String description)
 	{
-		return this.defaultProperties(builder, name, description, restart, null).defineListAllowEmpty(split(name), value, obj -> {
+		return this.defaultProperties(name, description, restart, null).defineListAllowEmpty(split(name), value, obj -> {
 			return valueClass.isAssignableFrom(obj.getClass()) && validator.test((T)obj);
 		});
 	}
 	
-	protected <T> ForgeConfigSpec.Builder defaultProperties(ForgeConfigSpec.Builder builder, String name, String desc, boolean restart, @Nullable T defaultValue)
+	protected <T> ForgeConfigSpec.Builder defaultProperties(String name, String desc, boolean restart, @Nullable T defaultValue)
 	{
 		if (restart)
-			builder.worldRestart().comment(desc + ". Requires restart.");
+		{
+			this.builder.worldRestart().comment(desc);
+			this.builder.comment("Requires restart.");
+		}
 		else
-			builder.comment(desc + ".");
+		{
+			this.builder.comment(desc + ".");
+		}
 		if (defaultValue != null)
-			builder.comment("Default: " + defaultValue.toString());
-		builder.translation("gui." + this.modid + ".config." + name + ".description");
-		return builder;
+			this.builder.comment("Default: " + defaultValue.toString());
+		this.builder.translation("gui." + this.modid + ".config." + name + ".description");
+		return this.builder;
 	}
 	
 	private static List<String> split(String path)
