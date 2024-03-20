@@ -25,9 +25,9 @@ public class CrackersLibConfig
 		
 		public ClientConfig(ForgeConfigSpec.Builder builder)
 		{
-			super(CrackersLib.MODID);
+			super(builder, CrackersLib.MODID);
 			
-			this.hiddenConfigMenuButtons = this.createListValue(builder, String.class, () -> {
+			this.hiddenConfigMenuButtons = this.createListValue(String.class, () -> {
 				return Lists.newArrayList("example_mod_id");
 			}, v -> {
 				return true;

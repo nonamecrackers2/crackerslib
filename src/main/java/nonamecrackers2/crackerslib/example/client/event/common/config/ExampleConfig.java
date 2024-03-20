@@ -35,35 +35,35 @@ public class ExampleConfig
 		
 		public ClientConfig(ForgeConfigSpec.Builder builder)
 		{
-			super(CrackersLib.MODID);
+			super(builder, CrackersLib.MODID);
 			
-			this.exampleBoolean = this.createValue(builder, true, "exampleBoolean", false, "A simple boolean config value");
+			this.exampleBoolean = this.createValue(true, "exampleBoolean", false, "A simple boolean config value");
 			
 			builder.comment("Numbers").push("numbers");
 			
-			this.exampleInteger = this.createRangedIntValue(builder, 10, 0, 100, "exampleInteger", true, "A simple ranged integer value");
+			this.exampleInteger = this.createRangedIntValue(10, 0, 100, "exampleInteger", true, "A simple ranged integer value");
 			
-			this.exampleDouble = this.createRangedDoubleValue(builder, 0.5D, 0.0D, 1.0D, "exampleDouble", true, "A simple ranged value with decimals");
+			this.exampleDouble = this.createRangedDoubleValue(0.5D, 0.0D, 1.0D, "exampleDouble", true, "A simple ranged value with decimals");
 			
 			builder.pop();
 			
 			builder.comment("Extra").push("extra");
 			
-			this.exampleString = this.createValue(builder, "hello!", "exampleString", false, "A simple string value");
+			this.exampleString = this.createValue("hello!", "exampleString", false, "A simple string value");
 			
 			builder.pop();
 			
-			this.exampleEnum = this.createEnumValue(builder, ExampleConfig.ExampleEnum.HEY, "exampleEnum", false, "A simple enum config value");
+			this.exampleEnum = this.createEnumValue(ExampleConfig.ExampleEnum.HEY, "exampleEnum", false, "A simple enum config value");
 			
 			builder.comment("Lists").push("list");
 			
-			this.exampleListString = this.createListValue(builder, String.class, () -> {
+			this.exampleListString = this.createListValue(String.class, () -> {
 				return Lists.newArrayList("heres", "some", "default", "values");
 			}, val -> {
 				return StringUtils.isAllLowerCase(val); //Example value validator
 			}, "exampleListString", false, "An example list of strings that must all be lowercase");
 			
-			this.exampleListInteger = this.createListValue(builder, Integer.class, () -> {
+			this.exampleListInteger = this.createListValue(Integer.class, () -> {
 				return Lists.newArrayList(2, 3, 4, 5);
 			}, val -> {
 				return val >= 2;
@@ -71,7 +71,7 @@ public class ExampleConfig
 			
 			builder.comment("Category Example").push("category_example");
 			
-			this.exampleListDouble = this.createListValue(builder, Double.class, () -> {
+			this.exampleListDouble = this.createListValue(Double.class, () -> {
 				return Lists.newArrayList(0.0, 1.0, 2.0, 3.0);
 			}, val -> true, "exampleListDouble", false, "An example list of doubles");
 			
