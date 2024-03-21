@@ -112,10 +112,6 @@ public class ConfigHomeScreen extends Screen
 		int heightRemaining = availableScreenHeight - totalHeightTaken;
 		this.elementSpacing = heightRemaining / 4;
 		
-		System.out.println("Element spacing: " + this.elementSpacing);
-		System.out.println("Available screen height: " + availableScreenHeight);
-		System.out.println("Total height taken: " + totalHeightTaken);
-		
 		int top = this.elementSpacing * 2 + this.title.getHeight();
 		FrameLayout.centerInRectangle(layout, 0, top, this.width, availableScreenHeight - top - this.elementSpacing);
 		layout.visitWidgets(this::addRenderableWidget);

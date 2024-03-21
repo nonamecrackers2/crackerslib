@@ -15,11 +15,34 @@ import net.minecraftforge.common.data.LanguageProvider;
 
 public class ConfigLangGeneratorHelper
 {
+	/**
+	 * Generates lang entries for config values, using its <b>camel case</b> name and config comment defined using a
+	 * {@link ForgeConfigSpec.Builder} for use in the config menu system.
+	 * 
+	 * Use in conjunction with {@link LanguageProvider}
+	 * 
+	 * @param modid
+	 * @param spec
+	 * @param provider
+	 * @param infoType Used to control what extra information will appear in the configs description. Typically, Forge appends
+	 * extra info such as a config values range, allowed values, etc. as new lines on to a config comment, 
+	 * which typically isn't always wanted in the description.
+	 */
 	public static void langForSpec(String modid, ForgeConfigSpec spec, LanguageProvider provider, ConfigLangGeneratorHelper.Info infoType)
 	{
 		forValues(modid, spec.getSpec().valueMap(), provider, infoType);
 	}
 	
+	/**
+	 * Generates lang entries for config values, using its <b>camel case</b> name and config comment defined using a
+	 * {@link ForgeConfigSpec.Builder} for use in the config menu system.
+	 * 
+	 * Use in conjunction with {@link LanguageProvider}
+	 * 
+	 * @param modid
+	 * @param spec
+	 * @param provider
+	 */
 	public static void langForSpec(String modid, ForgeConfigSpec spec, LanguageProvider provider)
 	{
 		langForSpec(modid, spec, provider, ConfigLangGeneratorHelper.Info.ALL);
