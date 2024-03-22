@@ -1,10 +1,10 @@
 package nonamecrackers2.crackerslib.client.gui.title;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 
 public interface TitleLogo
 {
-	void blit(PoseStack stack, int x, int y, float partialTicks);
+	void blit(GuiGraphics stack, int x, int y, float partialTicks);
 	
 	int getWidth();
 	

@@ -5,9 +5,8 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.CommonComponents;
@@ -19,7 +18,7 @@ public interface ConfigListItem extends Comparable<ConfigListItem>
 {
 	void init(List<AbstractWidget> widgets, int x, int y, int width, int height);
 	
-	void render(PoseStack stack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks);
+	void render(GuiGraphics stack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks);
 	
 	void onSavedAndClosed();
 	

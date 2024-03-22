@@ -15,9 +15,9 @@ import org.apache.logging.log4j.Logger;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
@@ -286,10 +286,10 @@ public class ConfigScreen extends Screen
 	}
 	
 	@Override
-	public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks)
+	public void render(GuiGraphics stack, int mouseX, int mouseY, float partialTicks)
 	{
 		super.render(stack, mouseX, mouseY, partialTicks);
-		drawCenteredString(stack, this.font, this.title.getString(), this.width / 2, TITLE_HEIGHT, 0xFFFFFF);
+		stack.drawCenteredString(this.font, this.title.getString(), this.width / 2, TITLE_HEIGHT, 0xFFFFFF);
 		this.changePreset.setTooltip(Tooltip.create(this.getPresetTooltip(hasShiftDown())));
 		ConfigListItem item = this.list.getItemAt(mouseX, mouseY);
 		if (this.currentHovered != item)
@@ -301,7 +301,7 @@ public class ConfigScreen extends Screen
 				this.currentHoveredTooltip = null;
 		}
 		if (!this.children().stream().anyMatch(c -> !c.equals(this.list) && c.isMouseOver((double)mouseX, (double)mouseY)) && this.currentHoveredTooltip != null)
-			this.renderTooltip(stack, this.currentHoveredTooltip.toCharSequence(this.minecraft), mouseX, mouseY);
+			stack.renderTooltip(this.font, this.currentHoveredTooltip.toCharSequence(this.minecraft), mouseX, mouseY);
 	}
 	
 	private void onValueChanged()

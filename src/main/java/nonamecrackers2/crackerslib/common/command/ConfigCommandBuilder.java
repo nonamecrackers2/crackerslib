@@ -194,10 +194,10 @@ public class ConfigCommandBuilder
 		{
 			config.set(value);
 			String joinedPath = ConfigHelper.DOT_JOINER.join(config.getPath());
-			source.sendSuccess(Component.translatable("commands.crackerslib.setConfig.set.success", joinedPath, value), true);
+			source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.success", joinedPath, value), true);
 			if (valueSpec.needsWorldRestart())
 			{
-				source.sendSuccess(Component.translatable("commands.crackerslib.setConfig.set.note", joinedPath).withStyle(ChatFormatting.GRAY), false);
+				source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.note", joinedPath).withStyle(ChatFormatting.GRAY), false);
 				return 2;
 			}
 			else
@@ -216,7 +216,7 @@ public class ConfigCommandBuilder
 	{
 		ForgeConfigSpec.ConfigValue<Object> config = ConfigArgument.get(context, "value", spec);
 		Object val = config.get();
-		context.getSource().sendSuccess(Component.translatable("commands.crackerslib.getConfig.get", ConfigHelper.DOT_JOINER.join(config.getPath()), config.get()), false);
+		context.getSource().sendSuccess(() -> Component.translatable("commands.crackerslib.getConfig.get", ConfigHelper.DOT_JOINER.join(config.getPath()), config.get()), false);
 		if (val instanceof Integer integer)
 			return integer;
 		else if (val instanceof Boolean bool)
@@ -238,10 +238,10 @@ public class ConfigCommandBuilder
 		{
 			config.set(config.getDefault());
 			String name = ConfigHelper.DOT_JOINER.join(config.getPath());
-			source.sendSuccess(Component.translatable("commands.crackerslib.setDefault.success", name, config.get()), true);
+			source.sendSuccess(() -> Component.translatable("commands.crackerslib.setDefault.success", name, config.get()), true);
 			if (valueSpec.needsWorldRestart())
 			{
-				source.sendSuccess(Component.translatable("commands.crackerslib.setConfig.set.note", name).withStyle(ChatFormatting.GRAY), false);
+				source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.note", name).withStyle(ChatFormatting.GRAY), false);
 				return 2;
 			}
 			else

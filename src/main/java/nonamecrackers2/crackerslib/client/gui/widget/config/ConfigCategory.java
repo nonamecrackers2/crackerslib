@@ -4,11 +4,10 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -75,11 +74,11 @@ public class ConfigCategory implements ConfigListItem
 	}
 
 	@Override
-	public void render(PoseStack stack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks)
+	public void render(GuiGraphics stack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks)
 	{
 		this.expand.setY(y + height / 2 - this.expand.getHeight() / 2);
 		this.expand.render(stack, mouseX, mouseY, partialTicks);
-		GuiComponent.drawString(stack, this.mc.font, this.displayName, x + 5 + (this.expand.getX() - x) + this.expand.getWidth(), y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
+		stack.drawString(this.mc.font, this.displayName, x + 5 + (this.expand.getX() - x) + this.expand.getWidth(), y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
 	}
 
 	@Override

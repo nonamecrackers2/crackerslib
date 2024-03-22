@@ -5,11 +5,9 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
@@ -144,16 +142,16 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	}
 	
 	@Override
-	public void render(PoseStack stack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks)
+	public void render(GuiGraphics stack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks)
 	{
 		Component component = this.displayName;
 		if (this.widget.isFocused())
 			component = component.copy().withStyle(Style.EMPTY.withBold(true).withColor(ChatFormatting.YELLOW));
-		GuiComponent.drawString(stack, this.mc.font, component, x + 5 + (this.widget.getX() - x) + this.widget.getWidth(), y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
+		stack.drawString(this.mc.font, component, x + 5 + (this.widget.getX() - x) + this.widget.getWidth(), y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
 		this.widget.setY(y + height / 2 - this.widget.getHeight() / 2);
 		this.widget.render(stack, mouseX, mouseY, partialTicks);
 		if (this.restartText != null)
-			GuiComponent.drawString(stack, this.mc.font, this.restartText, x + width - this.mc.font.width(this.restartText) - 5, y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
+			stack.drawString(this.mc.font, this.restartText, x + width - this.mc.font.width(this.restartText) - 5, y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
 	}
 	
 	@Override

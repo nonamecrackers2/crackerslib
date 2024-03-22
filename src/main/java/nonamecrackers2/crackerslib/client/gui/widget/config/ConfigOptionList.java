@@ -8,10 +8,9 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -184,27 +183,26 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	}
 	
 	@Override
-	protected void renderBackground(PoseStack stack)
+	protected void renderBackground(GuiGraphics stack)
 	{
 		if (this.minecraft.level != null)
 		{
-			 fillGradient(stack, 0, 0, this.width, this.height, -1072689136, -804253680);
+			 stack.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
 		}
 		else
 		{
 			RenderSystem.setShaderColor(0.15F, 0.15F, 0.15F, 1.0F);
-			RenderSystem.setShaderTexture(0, Screen.BACKGROUND_LOCATION);
-			blit(stack, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, 32, 32);
+			stack.blit(Screen.BACKGROUND_LOCATION, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, 32, 32);
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		}
 	}
 	
 	@Override
-	public void render(PoseStack stack, int mouseX, int mouseY, float partialTick)
+	public void render(GuiGraphics stack, int mouseX, int mouseY, float partialTick)
 	{
 		super.render(stack, mouseX, mouseY, partialTick);
 		if (this.children().isEmpty())
-			GuiComponent.drawCenteredString(stack, this.minecraft.font, NO_CONFIG_OPTIONS, this.width / 2, this.height / 2, 0xFFFFFFFF);
+			stack.drawCenteredString(this.minecraft.font, NO_CONFIG_OPTIONS, this.width / 2, this.height / 2, 0xFFFFFFFF);
 	}
 
 	public @Nullable ConfigListItem getItemAt(int mouseX, int mouseY)
@@ -261,13 +259,13 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 		}
 
 		@Override
-		public void render(PoseStack stack, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean selected, float partialTicks)
+		public void render(GuiGraphics stack, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean selected, float partialTicks)
 		{
-			renderOutline(stack, this.x, top, width - (this.x - left), height, 0xAAFFFFFF);
+			stack.renderOutline(this.x, top, width - (this.x - left), height, 0xAAFFFFFF);
 			if (this.x > left)
 			{
-				fill(stack, this.x - 20, top + height / 2, this.x - 4, top + height / 2 + 1, 0x55FFFFFF);
-				fill(stack, this.x - 20, top - height / 2 - 3, this.x - 19, top + height / 2, 0x55FFFFFF);
+				stack.fill(this.x - 20, top + height / 2, this.x - 4, top + height / 2 + 1, 0x55FFFFFF);
+				stack.fill(this.x - 20, top - height / 2 - 3, this.x - 19, top + height / 2, 0x55FFFFFF);
 			}
 			this.item.render(stack, left, top, width, height, mouseX, mouseY, partialTicks);
 		}
