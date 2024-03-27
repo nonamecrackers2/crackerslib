@@ -4,9 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.brigadier.CommandDispatcher;
@@ -22,13 +19,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.server.command.EnumArgument;
 import nonamecrackers2.crackerslib.common.command.argument.ConfigArgument;
 import nonamecrackers2.crackerslib.common.config.ConfigHelper;
@@ -38,7 +31,6 @@ import nonamecrackers2.crackerslib.common.config.ConfigHelper;
  */
 public class ConfigCommandBuilder
 {
-	private static final Logger LOGGER = LogManager.getLogger("crackerslib/ConfigCommandBuilder");
 	private final Map<ModConfig.Type, ForgeConfigSpec> specs = Maps.newEnumMap(ModConfig.Type.class);
 	private final LiteralArgumentBuilder<CommandSourceStack> argumentBuilder;
 	private final CommandDispatcher<CommandSourceStack> dispatcher;
@@ -49,14 +41,6 @@ public class ConfigCommandBuilder
 		this.dispatcher = dispatcher;
 	}
 	
-	/**
-	 * NOTE: Do not call from {@link RegisterCommandsEvent}, since not all config specs are loaded at the point when the {@link Commands} class is
-	 * instantiated. Please use {@link ServerStartedEvent} or something similiar.
-	 * 
-	 * @param dispatcher
-	 * @param rootName
-	 * @return
-	 */
 	public static ConfigCommandBuilder builder(CommandDispatcher<CommandSourceStack> dispatcher, String rootName)
 	{
 		return new ConfigCommandBuilder(Commands.literal(rootName).requires(src -> src.hasPermission(2)), dispatcher);
@@ -64,18 +48,6 @@ public class ConfigCommandBuilder
 	
 	public ConfigCommandBuilder addSpec(ModConfig.Type type, ForgeConfigSpec spec)
 	{
-		if (!spec.isLoaded())
-		{
-			if (FMLEnvironment.dist == Dist.CLIENT || type != ModConfig.Type.CLIENT)
-			{
-				throw new IllegalStateException("Config is not loaded for spec '" + type + "'. Make sure it is registered and you are creating these commands from ServerStartedEvent or something similiar.");
-			}
-			else
-			{
-				LOGGER.info("Ignoring client config, we're on the dedicated server");
-				return this;
-			}
-		}
 		if (this.specs.containsKey(type))
 			throw new IllegalArgumentException("Spec '" + type + "' already registered.");
 		this.specs.put(type, spec);
@@ -99,7 +71,7 @@ public class ConfigCommandBuilder
 	
 	private static void addArgumentsForSpec(ForgeConfigSpec spec, LiteralArgumentBuilder<CommandSourceStack> specArgument)
 	{
-		Map<String, ForgeConfigSpec.ConfigValue<?>> allValues = ConfigHelper.getAllValues(spec);
+		Map<String, ForgeConfigSpec.ValueSpec> allValues = ConfigHelper.getAllSpecs(spec);
 		var setArg = Commands.literal("set")
 				.then(
 						Commands.argument("double", ConfigArgument.arg(allValues, Double.class))
@@ -172,12 +144,12 @@ public class ConfigCommandBuilder
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static List<Class<Enum>> gatherEnumValueClasses(Map<String, ForgeConfigSpec.ConfigValue<?>> allValues)
+	private static List<Class<Enum>> gatherEnumValueClasses(Map<String, ForgeConfigSpec.ValueSpec> allValues)
 	{
 		List<Class<Enum>> list = Lists.newArrayList();
 		for (var value : allValues.values())
 		{
-			Object obj = value.get();
+			Object obj = value.getDefault();
 			if (obj instanceof Enum enu && !list.contains(enu.getDeclaringClass()))
 				list.add(enu.getDeclaringClass());
 		}

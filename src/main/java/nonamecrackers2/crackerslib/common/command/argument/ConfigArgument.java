@@ -63,14 +63,14 @@ public class ConfigArgument implements ArgumentType<String>
 		return spec.getValues().get(path);
 	}
 	
-	public static ConfigArgument arg(Map<String, ForgeConfigSpec.ConfigValue<?>> allValues, Class<?> arg)
+	public static ConfigArgument arg(Map<String, ForgeConfigSpec.ValueSpec> allValues, Class<?> arg)
 	{
 		return new ConfigArgument(allValues.entrySet().stream().filter(e -> {
-			return e.getValue().get() instanceof Enum<?> enub ? enub.getDeclaringClass().isAssignableFrom(arg) : e.getValue().get().getClass().isAssignableFrom(arg);
+			return e.getValue().getDefault() instanceof Enum<?> enub ? enub.getDeclaringClass().isAssignableFrom(arg) : e.getValue().getDefault().getClass().isAssignableFrom(arg);
 		}).map(Map.Entry::getKey).toList());
 	}
 	
-	public static ConfigArgument any(Map<String, ForgeConfigSpec.ConfigValue<?>> allValues)
+	public static ConfigArgument any(Map<String, ForgeConfigSpec.ValueSpec> allValues)
 	{
 		return new ConfigArgument(allValues.entrySet().stream().map(Map.Entry::getKey).toList());
 	}
