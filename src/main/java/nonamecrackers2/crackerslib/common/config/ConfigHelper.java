@@ -15,6 +15,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
 
 public abstract class ConfigHelper
 {
@@ -83,6 +84,13 @@ public abstract class ConfigHelper
 	{
 		return searchForValues("", spec.getValues().valueMap()).entrySet().stream().map(e -> {
 			return Map.entry(e.getKey(), (ForgeConfigSpec.ConfigValue<?>)e.getValue());
+		}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+	}
+	
+	public static Map<String, ForgeConfigSpec.ValueSpec> getAllSpecs(ForgeConfigSpec spec)
+	{
+		return searchForValues("", spec.getSpec().valueMap()).entrySet().stream().map(e -> {
+			return Map.entry(e.getKey(), (ValueSpec)e.getValue());
 		}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 	
