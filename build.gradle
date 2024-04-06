@@ -211,7 +211,6 @@ publishing {
         mavenJava(MavenPublication) {
         	group = "nonamecrackers2"
             artifactId = "crackerslib-forge"
-            version = "${minecraft_version}-${mod_version}"
             artifact jar
             artifact sourcesJar
         }
