@@ -13,6 +13,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import nonamecrackers2.crackerslib.client.event.CrackersLibClientEvents;
 import nonamecrackers2.crackerslib.client.event.impl.RegisterConfigScreensEvent;
 import nonamecrackers2.crackerslib.client.gui.ConfigMenuButtons;
+import nonamecrackers2.crackerslib.common.compat.CompatHelper;
 import nonamecrackers2.crackerslib.common.config.CrackersLibConfig;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPresets;
 import nonamecrackers2.crackerslib.common.event.CrackersLibDataEvents;
@@ -58,6 +59,7 @@ public class CrackersLib
 //		modBus.addListener(ExampleEvents::registerPresetsEvent);
 		event.enqueueWork(() -> {
 			ConfigPresets.gatherPresets();
+			CompatHelper.checkForLoaded();
 		});
 	}
 	

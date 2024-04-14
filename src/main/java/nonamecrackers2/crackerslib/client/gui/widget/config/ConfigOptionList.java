@@ -11,7 +11,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -204,7 +203,7 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	{
 		super.render(stack, mouseX, mouseY, partialTick);
 		if (this.children().isEmpty())
-			GuiComponent.drawCenteredString(stack, this.minecraft.font, NO_CONFIG_OPTIONS, this.width / 2, this.height / 2, 0xFFFFFFFF);
+			drawCenteredString(stack, this.minecraft.font, NO_CONFIG_OPTIONS, this.width / 2, this.height / 2, 0xFFFFFFFF);
 	}
 
 	public @Nullable ConfigListItem getItemAt(int mouseX, int mouseY)
