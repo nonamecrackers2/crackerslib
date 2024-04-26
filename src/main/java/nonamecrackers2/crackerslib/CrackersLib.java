@@ -60,7 +60,6 @@ public class CrackersLib
 		event.enqueueWork(() -> {
 			ConfigPresets.gatherPresets();
 			CompatHelper.checkForLoaded();
-			System.out.println(CompatHelper.isVrActive());
 		});
 	}
 	
