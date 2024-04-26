@@ -120,6 +120,12 @@ repositories {
     // flatDir {
     //     dir 'libs'
     // }
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
 }
 
 dependencies {
@@ -131,6 +137,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    
+    runtimeOnly fg.deobf("curse.maven:vivecraft-667903:5144672")
 
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime

@@ -1,18 +1,21 @@
 package nonamecrackers2.crackerslib.common.compat;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.google.common.collect.Lists;
 
 import net.minecraftforge.fml.ModList;
 
 public class CompatHelper
 {
 	private static final Logger LOGGER = LogManager.getLogger("crackerslib/CompatHelper");
-	private static boolean OPTIFINE_LOADED;
-	private static boolean VIVECRAFT_LOADED;
-	private static boolean hasErrored;
+	private static final List<String> COMPAT_ERRORS = Lists.newArrayList();
+	private static boolean optifineLoaded;
+	private static boolean vivecraftStandaloneLoaded;
 	
 	public static void checkForLoaded()
 	{
@@ -20,7 +23,7 @@ public class CompatHelper
 		{
 			//Funny way to check if OptiFine is present. If the Config class exists, then OptiFine is loaded
 			Class.forName("net.optifine.Config");
-			OPTIFINE_LOADED = true;
+			optifineLoaded = true;
 		}
 		catch (ClassNotFoundException e)
 		{
@@ -29,14 +32,14 @@ public class CompatHelper
 		try
 		{
 			Class.forName("org.vivecraft.settings.VRSettings");
-			VIVECRAFT_LOADED = true;
+			vivecraftStandaloneLoaded = true;
 		}
 		catch (ClassNotFoundException e)
 		{
 		}
 	}
 	
-	public static boolean isShadersRunning()
+	public static boolean areShadersRunning()
 	{
 		try
 		{
@@ -60,19 +63,40 @@ public class CompatHelper
 		}
 		catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException | NoSuchMethodException | SecurityException e)
 		{
-			if (!hasErrored)
-			{
-				LOGGER.error("Failed to check if shaders are running:");
+			doErrorFor("shaders", () -> {
+				LOGGER.error("Failed to check if shaders are enabled:");
 				e.printStackTrace();
-				hasErrored = true;
-			}
+			});
 			return false;
 		}
 	}
 	
+	public static boolean isVrActive()
+	{
+		if (ModList.get().isLoaded("vivecraft"))
+		{
+			try
+			{
+				var clazz = Class.forName("org.vivecraft.api_beta.client.VivecraftClientAPI");
+				var instanceGetter = clazz.getMethod("getInstance");
+				var vivecraftApi = instanceGetter.invoke(null);
+				return (boolean)vivecraftApi.getClass().getMethod("isVrActive").invoke(vivecraftApi);
+			}
+			catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException | NoSuchMethodException | SecurityException e)
+			{
+				doErrorFor("vr", () -> {
+					LOGGER.error("Failed to check if VR is active:");
+					e.printStackTrace();
+				});
+				return false;
+			}
+		}
+		return vivecraftStandaloneLoaded;
+	}
+	
 	public static boolean isVivecraftLoaded()
 	{
-		return VIVECRAFT_LOADED || ModList.get().isLoaded("vivecraft");
+		return vivecraftStandaloneLoaded || ModList.get().isLoaded("vivecraft");
 	}
 	
 	public static boolean isOculusLoaded()
@@ -82,11 +106,20 @@ public class CompatHelper
 	
 	public static boolean isOptifineLoaded()
 	{
-		return OPTIFINE_LOADED;
+		return optifineLoaded;
 	}
 	
 	public static boolean isSodiumLoaded()
 	{
 		return ModList.get().isLoaded("rubidium");
+	}
+	
+	private static final void doErrorFor(String mod, Runnable runnable)
+	{
+		if (!COMPAT_ERRORS.contains(mod))
+		{
+			runnable.run();
+			COMPAT_ERRORS.add(mod);
+		}
 	}
 }
