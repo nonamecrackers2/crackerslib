@@ -1,6 +1,8 @@
 package nonamecrackers2.crackerslib;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoader;
@@ -17,6 +19,7 @@ import nonamecrackers2.crackerslib.common.compat.CompatHelper;
 import nonamecrackers2.crackerslib.common.config.CrackersLibConfig;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPresets;
 import nonamecrackers2.crackerslib.common.event.CrackersLibDataEvents;
+import nonamecrackers2.crackerslib.common.extending.BlockEntityTypeExtender;
 import nonamecrackers2.crackerslib.common.init.CrackersLibCommandArguments;
 
 @Mod(CrackersLib.MODID)
@@ -60,6 +63,7 @@ public class CrackersLib
 		event.enqueueWork(() -> {
 			ConfigPresets.gatherPresets();
 			CompatHelper.checkForLoaded();
+			BlockEntityTypeExtender.addToBlockEntityType(BlockEntityType.BEACON, Blocks.BARREL);
 		});
 	}
 	
