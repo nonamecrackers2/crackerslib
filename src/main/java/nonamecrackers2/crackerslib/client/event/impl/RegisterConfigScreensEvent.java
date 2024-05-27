@@ -4,12 +4,12 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-import net.minecraftforge.client.ConfigScreenHandler;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.IModBusEvent;
+import net.neoforged.bus.api.Event;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.IModBusEvent;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import nonamecrackers2.crackerslib.client.config.ConfigHomeScreenFactory;
 
 public class RegisterConfigScreensEvent extends Event implements IModBusEvent
@@ -28,7 +28,7 @@ public class RegisterConfigScreensEvent extends Event implements IModBusEvent
 	
 	public class Builder
 	{
-		private final Map<ModConfig.Type, ForgeConfigSpec> specsByType = Maps.newEnumMap(ModConfig.Type.class);
+		private final Map<ModConfig.Type, ModConfigSpec> specsByType = Maps.newEnumMap(ModConfig.Type.class);
 		private final String modid;
 		private final ConfigHomeScreenFactory factory;
 		
@@ -38,7 +38,7 @@ public class RegisterConfigScreensEvent extends Event implements IModBusEvent
 			this.factory = factory;
 		}
 		
-		public Builder addSpec(ModConfig.Type type, ForgeConfigSpec spec)
+		public Builder addSpec(ModConfig.Type type, ModConfigSpec spec)
 		{
 			if (this.specsByType.containsKey(type))
 				throw new IllegalArgumentException("Type is already registered");
@@ -51,11 +51,8 @@ public class RegisterConfigScreensEvent extends Event implements IModBusEvent
 			//I hope you like lambdas
 			ModList.get().getModContainerById(this.modid).ifPresentOrElse(mod -> 
 			{
-				mod.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, () -> 
-				{
-					return new ConfigScreenHandler.ConfigScreenFactory((mc, screen) -> {
-						return this.factory.build(this.modid, this.specsByType, mc.level != null, mc.hasSingleplayerServer(), screen);
-					});
+				mod.registerExtensionPoint(IConfigScreenFactory.class, (mc, screen) -> {
+					return this.factory.build(this.modid, this.specsByType, mc.level != null, mc.hasSingleplayerServer(), screen);
 				});
 			}, () -> {
 				throw new IllegalArgumentException("Unknown mod with id '" + this.modid + "'");

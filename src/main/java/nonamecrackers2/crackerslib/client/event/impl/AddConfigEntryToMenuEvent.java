@@ -1,13 +1,12 @@
 package nonamecrackers2.crackerslib.client.event.impl;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.config.ModConfig;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.ICancellableEvent;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import nonamecrackers2.crackerslib.common.config.ConfigHelper;
 
-@Cancelable
-public class AddConfigEntryToMenuEvent extends Event
+public class AddConfigEntryToMenuEvent extends Event implements ICancellableEvent
 {
 	private final String modid;
 	private final ModConfig.Type type;
@@ -35,7 +34,7 @@ public class AddConfigEntryToMenuEvent extends Event
 		return this.path;
 	}
 	
-	public boolean isValue(ForgeConfigSpec.ConfigValue<?> value)
+	public boolean isValue(ModConfigSpec.ConfigValue<?> value)
 	{
 		return this.path.equals(ConfigHelper.DOT_JOINER.join(value.getPath()));
 	}

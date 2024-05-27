@@ -4,8 +4,8 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.event.IModBusEvent;
+import net.neoforged.bus.api.Event;
+import net.neoforged.fml.event.IModBusEvent;
 import nonamecrackers2.crackerslib.client.gui.ConfigMenuButtons;
 
 public class ConfigMenuButtonEvent extends Event implements IModBusEvent

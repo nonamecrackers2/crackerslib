@@ -26,10 +26,10 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.common.NeoForge;
 import nonamecrackers2.crackerslib.client.event.impl.AddConfigEntryToMenuEvent;
 import nonamecrackers2.crackerslib.client.gui.widget.CollapseButton;
 import nonamecrackers2.crackerslib.client.gui.widget.SortButton;
@@ -55,8 +55,9 @@ public class ConfigScreen extends Screen
 	private static final int BUTTON_WIDTH = 200;
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int EXIT_BUTTON_OFFSET = 26;
+	private static final int HEADER_HEIGHT = 30;
 	private final String modid;
-	private final ForgeConfigSpec spec;
+	private final ModConfigSpec spec;
 	private final Consumer<ConfigOptionList> itemGenerator;
 	private final Screen homeScreen;
 	private final List<ConfigPreset> presets;
@@ -70,7 +71,7 @@ public class ConfigScreen extends Screen
 	private Tooltip currentHoveredTooltip;
 	private EditBox searchBox;
 	
-	public ConfigScreen(String modid, ForgeConfigSpec spec, ModConfig.Type type, Consumer<ConfigOptionList> itemGenerator, Screen homeScreen)
+	public ConfigScreen(String modid, ModConfigSpec spec, ModConfig.Type type, Consumer<ConfigOptionList> itemGenerator, Screen homeScreen)
 	{
 		super(Component.translatable("gui.crackerslib.screen." + type.extension() + "Options.title"));
 		this.modid = modid;
@@ -87,7 +88,7 @@ public class ConfigScreen extends Screen
 		}
 	}
 	
-	public static ConfigScreen makeScreen(String modid, ForgeConfigSpec spec, ModConfig.Type type, Screen homeScreen, String startingPath)
+	public static ConfigScreen makeScreen(String modid, ModConfigSpec spec, ModConfig.Type type, Screen homeScreen, String startingPath)
 	{
 		return new ConfigScreen(modid, spec, type, list -> 
 		{
@@ -118,7 +119,8 @@ public class ConfigScreen extends Screen
 				path = previousPath + "." + path;
 			return Map.entry(path, entry.getValue());
 		}).filter(entry -> {
-			return !MinecraftForge.EVENT_BUS.post(new AddConfigEntryToMenuEvent(modid, type, entry.getKey()));
+			//TODO: Test
+			return !NeoForge.EVENT_BUS.post(new AddConfigEntryToMenuEvent(modid, type, entry.getKey())).isCanceled();
 		}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 	
@@ -137,7 +139,7 @@ public class ConfigScreen extends Screen
 					buildConfigList(modid, type, list, nextValues, path, Optional.of(nextCategory));
 				}
 			}
-			else if (obj instanceof ForgeConfigSpec.ConfigValue<?> value)
+			else if (obj instanceof ModConfigSpec.ConfigValue<?> value)
 			{
 				var clazz = value.getDefault().getClass();
 				if (Integer.class.isAssignableFrom(clazz))
@@ -157,7 +159,7 @@ public class ConfigScreen extends Screen
 		}
 	}
 	
-	protected static boolean tryToAddListEntry(ConfigOptionList list, Class<?> valueClass, String path, ForgeConfigSpec.ConfigValue<?> value, Optional<ConfigCategory> category)
+	protected static boolean tryToAddListEntry(ConfigOptionList list, Class<?> valueClass, String path, ModConfigSpec.ConfigValue<?> value, Optional<ConfigCategory> category)
 	{
 		if (List.class.isAssignableFrom(valueClass))
 		{
@@ -201,11 +203,11 @@ public class ConfigScreen extends Screen
 	{
 		if (this.list == null)
 		{
-			this.list = new ConfigOptionList(this.minecraft, this.modid, this.spec,  this.width, this.height, 30, this.height - 30, this::onValueChanged);
+			this.list = new ConfigOptionList(this.minecraft, this.modid, this.spec, this.width, this.height, HEADER_HEIGHT, this::onValueChanged);
 			this.itemGenerator.accept(this.list);
 		}
+		this.list.updateSizeAndPosition(this.width, this.height, HEADER_HEIGHT);
 		this.list.buildList();
-		this.list.updateSize(this.width, this.height, 30, this.height - 30);
 		this.addRenderableWidget(this.list);
 		
 		this.exit = Button.builder(Component.translatable("gui.crackerslib.button.exitAndSave.title"), button -> this.closeMenu())

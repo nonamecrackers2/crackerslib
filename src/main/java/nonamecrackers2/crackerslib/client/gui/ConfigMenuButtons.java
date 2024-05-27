@@ -14,7 +14,7 @@ import com.google.common.collect.Lists;
 
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
-import net.minecraftforge.fml.ModLoader;
+import net.neoforged.fml.ModLoader;
 import nonamecrackers2.crackerslib.client.event.impl.ConfigMenuButtonEvent;
 
 public class ConfigMenuButtons
@@ -34,7 +34,7 @@ public class ConfigMenuButtons
 			throw new IllegalStateException("Config menu button factories have already been gathered!");
 		ImmutableMap.Builder<String, ConfigMenuButtons.Factory> factories = ImmutableMap.builder();
 		List<ConfigMenuButtonEvent> postedEvents = Lists.newArrayList();
-		ModLoader.get().runEventGenerator(mod -> {
+		ModLoader.runEventGenerator(mod -> {
 			var event = new ConfigMenuButtonEvent(mod.getModId());
 			postedEvents.add(event);
 			return event;

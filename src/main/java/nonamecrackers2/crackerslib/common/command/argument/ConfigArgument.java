@@ -20,7 +20,7 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class ConfigArgument implements ArgumentType<String>
 {
@@ -57,20 +57,20 @@ public class ConfigArgument implements ArgumentType<String>
 		return SharedSuggestionProvider.suggest(this.getAvailableOptions(), builder);
 	}
 	
-	public static <T> ForgeConfigSpec.ConfigValue<T> get(CommandContext<CommandSourceStack> context, String argName, ForgeConfigSpec spec)
+	public static <T> ModConfigSpec.ConfigValue<T> get(CommandContext<CommandSourceStack> context, String argName, ModConfigSpec spec)
 	{
 		String path = context.getArgument(argName, String.class);
 		return spec.getValues().get(path);
 	}
 	
-	public static ConfigArgument arg(Map<String, ForgeConfigSpec.ValueSpec> allValues, Class<?> arg)
+	public static ConfigArgument arg(Map<String, ModConfigSpec.ValueSpec> allValues, Class<?> arg)	
 	{
 		return new ConfigArgument(allValues.entrySet().stream().filter(e -> {
 			return e.getValue().getDefault() instanceof Enum<?> enub ? enub.getDeclaringClass().isAssignableFrom(arg) : e.getValue().getDefault().getClass().isAssignableFrom(arg);
 		}).map(Map.Entry::getKey).toList());
 	}
 	
-	public static ConfigArgument any(Map<String, ForgeConfigSpec.ValueSpec> allValues)
+	public static ConfigArgument any(Map<String, ModConfigSpec.ValueSpec> allValues)
 	{
 		return new ConfigArgument(allValues.entrySet().stream().map(Map.Entry::getKey).toList());
 	}

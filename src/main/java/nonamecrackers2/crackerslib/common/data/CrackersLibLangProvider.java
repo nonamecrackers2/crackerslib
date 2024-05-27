@@ -1,7 +1,7 @@
 package nonamecrackers2.crackerslib.common.data;
 
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.common.data.LanguageProvider;
+import net.neoforged.neoforge.common.data.LanguageProvider;
 import nonamecrackers2.crackerslib.CrackersLib;
 import nonamecrackers2.crackerslib.common.config.CrackersLibConfig;
 import nonamecrackers2.crackerslib.common.util.data.ConfigLangGeneratorHelper;

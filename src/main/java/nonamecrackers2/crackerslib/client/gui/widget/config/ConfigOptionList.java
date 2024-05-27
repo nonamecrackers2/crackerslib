@@ -7,7 +7,6 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,13 +14,13 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.ConfigEntry;
 import nonamecrackers2.crackerslib.client.util.SortType;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 
+//TODO: Test
 public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionList.Entry>
 {
 	private static final Component NO_CONFIG_OPTIONS = Component.translatable("gui.crackerslib.config.noAvailableOptions");
@@ -32,15 +31,13 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	private SortType sortType = SortType.A_TO_Z;
 	private final Runnable valuesChangedResponder;
 	private final String modid;
-	private final ForgeConfigSpec spec;
+	private final ModConfigSpec spec;
 	
-	public ConfigOptionList(Minecraft mc, String modid, ForgeConfigSpec spec, int width, int height, int top, int bottom, Runnable valuesChangedResponder)
+	public ConfigOptionList(Minecraft mc, String modid, ModConfigSpec spec, int width, int height, int headerHeight, Runnable valuesChangedResponder)
 	{
-		super(mc, width, height, top, bottom, ROW_HEIGHT);
+		super(mc, width, height, headerHeight, ROW_HEIGHT);
 		this.modid = modid;
 		this.spec = spec;
-		this.setRenderBackground(false);
-		this.setRenderTopAndBottom(true);
 		this.valuesChangedResponder = valuesChangedResponder;
 	}
 	
@@ -179,28 +176,13 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	@Override
 	protected int getScrollbarPosition()
 	{
-		return this.getLeft() + this.getWidth() - 5;
+		return this.getX() + this.getWidth() - 5;
 	}
 	
 	@Override
-	protected void renderBackground(GuiGraphics stack)
+	public void renderWidget(GuiGraphics stack, int mouseX, int mouseY, float partialTick)
 	{
-		if (this.minecraft.level != null)
-		{
-			 stack.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
-		}
-		else
-		{
-			RenderSystem.setShaderColor(0.15F, 0.15F, 0.15F, 1.0F);
-			stack.blit(Screen.BACKGROUND_LOCATION, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, 32, 32);
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		}
-	}
-	
-	@Override
-	public void render(GuiGraphics stack, int mouseX, int mouseY, float partialTick)
-	{
-		super.render(stack, mouseX, mouseY, partialTick);
+		super.renderWidget(stack, mouseX, mouseY, partialTick);
 		if (this.children().isEmpty())
 			stack.drawCenteredString(this.minecraft.font, NO_CONFIG_OPTIONS, this.width / 2, this.height / 2, 0xFFFFFFFF);
 	}
@@ -242,7 +224,7 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 			int x = (ConfigOptionList.this.getWidth() - ConfigOptionList.this.getRowWidth()) / 2;
 			if (category != null)
 				x = category.getX() + 20;
-			this.item.init(this.children, x, ConfigOptionList.this.getTop(), ConfigOptionList.this.getRowWidth(), ConfigOptionList.this.itemHeight);
+			this.item.init(this.children, x, ConfigOptionList.this.getY(), ConfigOptionList.this.getRowWidth(), ConfigOptionList.this.itemHeight);
 			this.x = x;
 		}
 		
@@ -274,6 +256,6 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	@FunctionalInterface
 	public static interface ConfigEntryBuilder
 	{
-		ConfigEntry<?, ?> build(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated);
+		ConfigEntry<?, ?> build(Minecraft mc, String modid, String path, ModConfigSpec spec, Runnable onValueUpdated);
 	}
 }

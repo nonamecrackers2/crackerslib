@@ -4,11 +4,11 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public abstract class NumberConfigEntry<T extends Number> extends ConfigEntry<T, EditBox>
 {
-	public NumberConfigEntry(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
+	public NumberConfigEntry(Minecraft mc, String modid, String path, ModConfigSpec spec, Runnable onValueUpdated)
 	{
 		super(mc, modid, path, spec, onValueUpdated);
 	}

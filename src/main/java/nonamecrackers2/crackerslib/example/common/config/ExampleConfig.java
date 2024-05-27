@@ -1,4 +1,4 @@
-package nonamecrackers2.crackerslib.example.client.event.common.config;
+package nonamecrackers2.crackerslib.example.common.config;
 
 import java.util.List;
 
@@ -6,34 +6,34 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Lists;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import nonamecrackers2.crackerslib.CrackersLib;
 import nonamecrackers2.crackerslib.common.config.ConfigHelper;
 
 public class ExampleConfig
 {
 	public static final ClientConfig CLIENT;
-	public static final ForgeConfigSpec CLIENT_SPEC;
+	public static final ModConfigSpec SERVER_SPEC;
 	
 	static
 	{
-		var clientPair = new ForgeConfigSpec.Builder().configure(ClientConfig::new);
+		var clientPair = new ModConfigSpec.Builder().configure(ClientConfig::new);
 		CLIENT = clientPair.getLeft();
-		CLIENT_SPEC = clientPair.getRight();
+		SERVER_SPEC = clientPair.getRight();
 	}
 	
 	public static class ClientConfig extends ConfigHelper
 	{
-		public final ForgeConfigSpec.ConfigValue<Boolean> exampleBoolean;
-		public final ForgeConfigSpec.ConfigValue<Integer> exampleInteger;
-		public final ForgeConfigSpec.ConfigValue<Double> exampleDouble;
-		public final ForgeConfigSpec.ConfigValue<String> exampleString;
-		public final ForgeConfigSpec.ConfigValue<ExampleConfig.ExampleEnum> exampleEnum;
-		public final ForgeConfigSpec.ConfigValue<List<? extends String>> exampleListString;
-		public final ForgeConfigSpec.ConfigValue<List<? extends Integer>> exampleListInteger;
-		public final ForgeConfigSpec.ConfigValue<List<? extends Double>> exampleListDouble;
+		public final ModConfigSpec.ConfigValue<Boolean> exampleBoolean;
+		public final ModConfigSpec.ConfigValue<Integer> exampleInteger;
+		public final ModConfigSpec.ConfigValue<Double> exampleDouble;
+		public final ModConfigSpec.ConfigValue<String> exampleString;
+		public final ModConfigSpec.ConfigValue<ExampleConfig.ExampleEnum> exampleEnum;
+		public final ModConfigSpec.ConfigValue<List<? extends String>> exampleListString;
+		public final ModConfigSpec.ConfigValue<List<? extends Integer>> exampleListInteger;
+		public final ModConfigSpec.ConfigValue<List<? extends Double>> exampleListDouble;
 		
-		public ClientConfig(ForgeConfigSpec.Builder builder)
+		public ClientConfig(ModConfigSpec.Builder builder)
 		{
 			super(builder, CrackersLib.MODID);
 			

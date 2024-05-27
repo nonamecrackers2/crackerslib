@@ -10,7 +10,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import nonamecrackers2.crackerslib.common.config.ConfigHelper;
 
 public record ConfigPreset(Map<String, Object> values, Component name, @Nullable Component description)
@@ -84,7 +84,7 @@ public record ConfigPreset(Map<String, Object> values, Component name, @Nullable
 			return this;
 		}
 		
-		public <T> Builder setPreset(ForgeConfigSpec.ConfigValue<T> config, T value)
+		public <T> Builder setPreset(ModConfigSpec.ConfigValue<T> config, T value)
 		{
 			return this.setPreset(ConfigHelper.DOT_JOINER.join(config.getPath()), value);
 		}

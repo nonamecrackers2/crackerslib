@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fStack;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -95,9 +95,9 @@ public abstract class Screen3D extends Screen
 	}
 	
 	@Override
-	public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta)
+	public boolean mouseScrolled(double pMouseX, double pMouseY, double d, double pDelta)
 	{
-		if (!super.mouseScrolled(pMouseX, pMouseY, pDelta))
+		if (!super.mouseScrolled(pMouseX, pMouseY, d, pDelta))
 		{
 			if (this.canZoom())
 			{
@@ -115,6 +115,8 @@ public abstract class Screen3D extends Screen
 	@Override
 	public void render(GuiGraphics stack, int pMouseX, int pMouseY, float pPartialTick)
 	{
+		this.renderBackground(stack, pMouseX, pMouseY, pPartialTick);
+		
 		if (this.moveFor > 0.0F)
 		{
 			this.moveFor -= pPartialTick * Math.max(this.moveFor/(float)this.moveForTime, 0.0001F);
@@ -149,14 +151,15 @@ public abstract class Screen3D extends Screen
 		Window window = this.minecraft.getWindow();
 		Matrix4f matrix4f = (new Matrix4f()).setOrtho(0.0F, (float)((double)window.getWidth() / window.getGuiScale()), (float)((double)window.getHeight() / window.getGuiScale()), 0.0F, 0.0F, this.farPlane);
 		RenderSystem.setProjectionMatrix(matrix4f, VertexSorting.ORTHOGRAPHIC_Z);
-		PoseStack modelViewStack = RenderSystem.getModelViewStack();
-		modelViewStack.pushPose();
-		modelViewStack.setIdentity();
+		Matrix4fStack modelViewStack = RenderSystem.getModelViewStack();
+		modelViewStack.pushMatrix();
+		modelViewStack.identity();
+		modelViewStack.translation(0.0F, 0.0F, this.farPlane / 4.0F);
 		RenderSystem.applyModelViewMatrix();
 		
 		stack.pose().pushPose();
 		stack.pose().translate((double)(this.width / 2), (double)(this.height / 2), 0.0F);
-		stack.pose().mulPoseMatrix((new Matrix4f()).scaling(this.zoom * this.zoomConstant, this.zoom * this.zoomConstant, -1.0F));
+		stack.pose().mulPose((new Matrix4f()).scaling(this.zoom * this.zoomConstant, this.zoom * this.zoomConstant, -1.0F));
 		stack.pose().translate(0.0D, 0.0D, this.farPlane / 2.0F);
 		stack.pose().mulPose(rot);
 		stack.pose().translate(this.offset.x, this.offset.y, this.offset.z);
@@ -169,15 +172,14 @@ public abstract class Screen3D extends Screen
 		{
 			VertexConsumer consumer = bufferSource.getBuffer(RenderType.lines());
 			Matrix4f pose = stack.pose().last().pose();
-			Matrix3f normal = stack.pose().last().normal();
-			consumer.vertex(pose, 0.0F, 0.0F, 0.0F).color(0.0F, 1.0F, 0.0F, 1.0F).normal(normal, 0.0F, 1.0F, 0.0F).endVertex();
-			consumer.vertex(pose, 0.0F, 1.0F, 0.0F).color(0.0F, 1.0F, 0.0F, 1.0F).normal(normal, 0.0F, 1.0F, 0.0F).endVertex();
+			consumer.vertex(pose, 0.0F, 0.0F, 0.0F).color(0.0F, 1.0F, 0.0F, 1.0F).normal(stack.pose().last(), 0.0F, 1.0F, 0.0F).endVertex();
+			consumer.vertex(pose, 0.0F, 1.0F, 0.0F).color(0.0F, 1.0F, 0.0F, 1.0F).normal(stack.pose().last(), 0.0F, 1.0F, 0.0F).endVertex();
 			
-			consumer.vertex(pose, 0.0F, 0.0F, 0.0F).color(1.0F, 0.0F, 0.0F, 1.0F).normal(normal, 1.0F, 0.0F, 0.0F).endVertex();
-			consumer.vertex(pose, 1.0F, 0.0F, 0.0F).color(1.0F, 0.0F, 0.0F, 1.0F).normal(normal, 1.0F, 0.0F, 0.0F).endVertex();
+			consumer.vertex(pose, 0.0F, 0.0F, 0.0F).color(1.0F, 0.0F, 0.0F, 1.0F).normal(stack.pose().last(), 1.0F, 0.0F, 0.0F).endVertex();
+			consumer.vertex(pose, 1.0F, 0.0F, 0.0F).color(1.0F, 0.0F, 0.0F, 1.0F).normal(stack.pose().last(), 1.0F, 0.0F, 0.0F).endVertex();
 			
-			consumer.vertex(pose, 0.0F, 0.0F, 0.0F).color(0.0F, 0.0F, 1.0F, 1.0F).normal(normal, 0.0F, 0.0F, 1.0F).endVertex();
-			consumer.vertex(pose, 0.0F, 0.0F, 1.0F).color(0.0F, 0.0F, 1.0F, 1.0F).normal(normal, 0.0F, 0.0F, 1.0F).endVertex();
+			consumer.vertex(pose, 0.0F, 0.0F, 0.0F).color(0.0F, 0.0F, 1.0F, 1.0F).normal(stack.pose().last(), 0.0F, 0.0F, 1.0F).endVertex();
+			consumer.vertex(pose, 0.0F, 0.0F, 1.0F).color(0.0F, 0.0F, 1.0F, 1.0F).normal(stack.pose().last(), 0.0F, 0.0F, 1.0F).endVertex();
 		}
 		
 		this.poseMatrix = stack.pose().last().pose();
@@ -198,10 +200,11 @@ public abstract class Screen3D extends Screen
 		RenderSystem.clear(256, Minecraft.ON_OSX);
 		
 		RenderSystem.setProjectionMatrix(prevProjMat, VertexSorting.ORTHOGRAPHIC_Z);
-		modelViewStack.popPose();
+		modelViewStack.popMatrix();
 		RenderSystem.applyModelViewMatrix();
 		
-		super.render(stack, pMouseX, pMouseY, pPartialTick);
+		for (Renderable renderable : this.renderables) 
+            renderable.render(stack, pMouseX, pMouseY, pPartialTick);
 	}
 	
 	protected void render3D(PoseStack stack, MultiBufferSource buffers, int mouseX, int mouseY, float partialTick) {}
@@ -247,12 +250,11 @@ public abstract class Screen3D extends Screen
 		stack.scale(1.0F, -1.0F, 1.0F);
 		stack.translate(0.0D, 0.0D, 10.0D);
 		Matrix4f pose = stack.last().pose();
-		Matrix3f normal = stack.last().normal();
 		VertexConsumer consumer = buffer.getBuffer(RenderType.entityCutout(tex));
-		consumer.vertex(pose, size, -size, size).color(r, g, b, 1.0F).uv(0.0F, 1.0F).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(normal, 0.0F, 1.0F, 0.0F).endVertex();
-		consumer.vertex(pose, -size, -size, size).color(r, g, b, 1.0F).uv(1.0F, 1.0F).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(normal, 0.0F, 1.0F, 0.0F).endVertex();
-		consumer.vertex(pose, -size, size, size).color(r, g, b, 1.0F).uv(1.0F, 0.0F).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(normal, 0.0F, 1.0F, 0.0F).endVertex();
-		consumer.vertex(pose, size, size, size).color(r, g, b, 1.0F).uv(0.0F, 0.0F).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(normal, 0.0F, 1.0F, 0.0F).endVertex();
+		consumer.vertex(pose, size, -size, size).color(r, g, b, 1.0F).uv(0.0F, 1.0F).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(stack.last(), 0.0F, 1.0F, 0.0F).endVertex();
+		consumer.vertex(pose, -size, -size, size).color(r, g, b, 1.0F).uv(1.0F, 1.0F).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(stack.last(), 0.0F, 1.0F, 0.0F).endVertex();
+		consumer.vertex(pose, -size, size, size).color(r, g, b, 1.0F).uv(1.0F, 0.0F).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(stack.last(), 0.0F, 1.0F, 0.0F).endVertex();
+		consumer.vertex(pose, size, size, size).color(r, g, b, 1.0F).uv(0.0F, 0.0F).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(stack.last(), 0.0F, 1.0F, 0.0F).endVertex();
 		stack.popPose();
 	}
 }

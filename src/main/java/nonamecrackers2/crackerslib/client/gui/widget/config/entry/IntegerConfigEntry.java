@@ -1,11 +1,11 @@
 package nonamecrackers2.crackerslib.client.gui.widget.config.entry;
 
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class IntegerConfigEntry extends NumberConfigEntry<Integer>
 {
-	public IntegerConfigEntry(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
+	public IntegerConfigEntry(Minecraft mc, String modid, String path, ModConfigSpec spec, Runnable onValueUpdated)
 	{
 		super(mc, modid, path, spec, onValueUpdated);
 	}

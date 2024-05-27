@@ -2,12 +2,11 @@ package nonamecrackers2.crackerslib.client.event.impl;
 
 import javax.annotation.Nullable;
 
-import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.config.ModConfig;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.ICancellableEvent;
+import net.neoforged.fml.config.ModConfig;
 
-@Cancelable
-public class OnConfigScreenOpened extends Event
+public class OnConfigScreenOpened extends Event implements ICancellableEvent
 {
 	private final String modid;
 	private final ModConfig.Type type;

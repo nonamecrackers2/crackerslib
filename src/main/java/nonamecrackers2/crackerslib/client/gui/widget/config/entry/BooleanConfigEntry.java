@@ -5,12 +5,12 @@ import com.google.common.collect.Lists;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import nonamecrackers2.crackerslib.client.gui.widget.CyclableButton;
 
 public class BooleanConfigEntry extends ConfigEntry<Boolean, CyclableButton<Boolean>>
 {
-	public BooleanConfigEntry(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
+	public BooleanConfigEntry(Minecraft mc, String modid, String path, ModConfigSpec spec, Runnable onValueUpdated)
 	{
 		super(mc, modid, path, spec, onValueUpdated);
 	}

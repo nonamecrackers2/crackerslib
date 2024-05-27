@@ -3,12 +3,12 @@ package nonamecrackers2.crackerslib.example.common.event;
 import com.google.common.collect.Lists;
 
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.fml.config.ModConfig;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import nonamecrackers2.crackerslib.common.command.ConfigCommandBuilder;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 import nonamecrackers2.crackerslib.common.config.preset.RegisterConfigPresetsEvent;
-import nonamecrackers2.crackerslib.example.client.event.common.config.ExampleConfig;
+import nonamecrackers2.crackerslib.example.common.config.ExampleConfig;
 
 public class ExampleEvents
 {
@@ -33,6 +33,6 @@ public class ExampleEvents
 	
 	public static void registerCommands(RegisterCommandsEvent event)
 	{
-		ConfigCommandBuilder.builder(event.getDispatcher(), "crackerslib").addSpec(ModConfig.Type.SERVER, ExampleConfig.CLIENT_SPEC).register();
+		ConfigCommandBuilder.builder(event.getDispatcher(), "crackerslib").addSpec(ModConfig.Type.SERVER, ExampleConfig.SERVER_SPEC).register();
 	}
 }

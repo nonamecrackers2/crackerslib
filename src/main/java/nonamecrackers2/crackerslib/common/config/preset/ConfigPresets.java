@@ -14,8 +14,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import net.minecraftforge.fml.ModLoader;
-import net.minecraftforge.fml.config.ModConfig;
+import net.neoforged.fml.ModLoader;
+import net.neoforged.fml.config.ModConfig;
 
 public class ConfigPresets
 {
@@ -34,7 +34,7 @@ public class ConfigPresets
 			throw new IllegalStateException("Presets have already been gathered!");
 		ImmutableMap.Builder<String, ConfigPresets.Presets> presetsBuilder = ImmutableMap.builder();
 		List<RegisterConfigPresetsEvent> postedEvents = Lists.newArrayList();
-		ModLoader.get().runEventGenerator(mod -> {
+		ModLoader.runEventGenerator(mod -> {
 			var event = new RegisterConfigPresetsEvent(mod.getModId());
 			postedEvents.add(event);
 			return event;

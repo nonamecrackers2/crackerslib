@@ -4,26 +4,26 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import nonamecrackers2.crackerslib.CrackersLib;
 
 public class CrackersLibConfig
 {
 	public static final ClientConfig CLIENT;
-	public static final ForgeConfigSpec CLIENT_SPEC;
+	public static final ModConfigSpec CLIENT_SPEC;
 	
 	static
 	{
-		var clientPair = new ForgeConfigSpec.Builder().configure(ClientConfig::new);
+		var clientPair = new ModConfigSpec.Builder().configure(ClientConfig::new);
 		CLIENT = clientPair.getLeft();
 		CLIENT_SPEC = clientPair.getRight();
 	}
 	
 	public static class ClientConfig extends ConfigHelper
 	{
-		public final ForgeConfigSpec.ConfigValue<List<? extends String>> hiddenConfigMenuButtons;
+		public final ModConfigSpec.ConfigValue<List<? extends String>> hiddenConfigMenuButtons;
 		
-		public ClientConfig(ForgeConfigSpec.Builder builder)
+		public ClientConfig(ModConfigSpec.Builder builder)
 		{
 			super(builder, CrackersLib.MODID);
 			

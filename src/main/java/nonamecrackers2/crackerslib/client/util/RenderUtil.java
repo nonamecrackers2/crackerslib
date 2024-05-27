@@ -2,7 +2,6 @@ package nonamecrackers2.crackerslib.client.util;
 
 import java.util.List;
 
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -59,7 +58,6 @@ public class RenderUtil
 	{
 		Vector2f normal = start.sub(end, new Vector2f()).normalize();
 		Matrix4f matrix4f = stack.pose().last().pose();
-		Matrix3f matrix3f = stack.pose().last().normal();
 		BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
 		RenderSystem.enableBlend();
 		RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
@@ -67,13 +65,13 @@ public class RenderUtil
 		bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
 		if (normal.y < -0.008F)
 		{
-			bufferbuilder.vertex(matrix4f, start.x, start.y, (float)blitOffset).color(r, g, b, a).normal(matrix3f, normal.x, normal.y, 0.0F).endVertex();
-			bufferbuilder.vertex(matrix4f, end.x, end.y, (float)blitOffset).color(r, g, b, a).normal(matrix3f, normal.x, normal.y, 0.0F).endVertex();
+			bufferbuilder.vertex(matrix4f, start.x, start.y, (float)blitOffset).color(r, g, b, a).normal(stack.pose().last(), normal.x, normal.y, 0.0F).endVertex();
+			bufferbuilder.vertex(matrix4f, end.x, end.y, (float)blitOffset).color(r, g, b, a).normal(stack.pose().last(), normal.x, normal.y, 0.0F).endVertex();
 		}
 		else
 		{
-			bufferbuilder.vertex(matrix4f, end.x, end.y, (float)blitOffset).color(r, g, b, a).normal(matrix3f, normal.x, normal.y, 0.0F).endVertex();
-			bufferbuilder.vertex(matrix4f, start.x, start.y, (float)blitOffset).color(r, g, b, a).normal(matrix3f, normal.x, normal.y, 0.0F).endVertex();
+			bufferbuilder.vertex(matrix4f, end.x, end.y, (float)blitOffset).color(r, g, b, a).normal(stack.pose().last(), normal.x, normal.y, 0.0F).endVertex();
+			bufferbuilder.vertex(matrix4f, start.x, start.y, (float)blitOffset).color(r, g, b, a).normal(stack.pose().last(), normal.x, normal.y, 0.0F).endVertex();
 		}
 		BufferUploader.drawWithShader(bufferbuilder.end());
 		RenderSystem.disableBlend();
@@ -234,7 +232,6 @@ public class RenderUtil
         	indices.add(startIndex + indices.get(i));
         
         Matrix4f matrix4f = stack.last().pose();
-		Matrix3f matrix3f = stack.last().normal();
 		for (int i = 0; i < indices.size(); i++)
 		{
 			int index = indices.get(i);
@@ -243,7 +240,7 @@ public class RenderUtil
 			Vector2f uv = texCoords.get(index);
 			consumer.vertex(matrix4f, vertex.x, vertex.y, vertex.z).color(1.0F, 1.0F, 1.0F, 1.0F).uv(uv.x, uv.y).overlayCoords(overlayTexture).uv2(packedLight);
 			if (useNormals)
-				consumer.normal(matrix3f, normal.x, normal.y, normal.z).endVertex();
+				consumer.normal(stack.last(), normal.x, normal.y, normal.z).endVertex();
 			else
 				consumer.normal(0.0F, -1.0F, 0.0F).endVertex();
 		}
@@ -351,14 +348,13 @@ public class RenderUtil
 		}
 		
 		Matrix4f matrix4f = stack.last().pose();
-		Matrix3f matrix3f = stack.last().normal();
 		for (int i = 0; i < indices.size(); i++)
 		{
 			int index = indices.get(i);
 			Vector3f vertex = vertices.get(index);
 			Vector3f normal = normals.get(index);
 			Vector2f uv = texCoords.get(index);
-			consumer.vertex(matrix4f, vertex.x, vertex.y, vertex.z).color(1.0F, 1.0F, 1.0F, 1.0F).uv(uv.x, uv.y).overlayCoords(overlayTexture).uv2(packedLight).normal(matrix3f, normal.x, normal.y, normal.z).endVertex();
+			consumer.vertex(matrix4f, vertex.x, vertex.y, vertex.z).color(1.0F, 1.0F, 1.0F, 1.0F).uv(uv.x, uv.y).overlayCoords(overlayTexture).uv2(packedLight).normal(stack.last(), normal.x, normal.y, normal.z).endVertex();
 		}
 	}
 	

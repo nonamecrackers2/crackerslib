@@ -19,10 +19,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.server.command.EnumArgument;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec.ValueSpec;
+import net.neoforged.neoforge.server.command.EnumArgument;
 import nonamecrackers2.crackerslib.common.command.argument.ConfigArgument;
 import nonamecrackers2.crackerslib.common.config.ConfigHelper;
 
@@ -31,7 +31,7 @@ import nonamecrackers2.crackerslib.common.config.ConfigHelper;
  */
 public class ConfigCommandBuilder
 {
-	private final Map<ModConfig.Type, ForgeConfigSpec> specs = Maps.newEnumMap(ModConfig.Type.class);
+	private final Map<ModConfig.Type, ModConfigSpec> specs = Maps.newEnumMap(ModConfig.Type.class);
 	private final LiteralArgumentBuilder<CommandSourceStack> argumentBuilder;
 	private final CommandDispatcher<CommandSourceStack> dispatcher;
 	
@@ -46,7 +46,7 @@ public class ConfigCommandBuilder
 		return new ConfigCommandBuilder(Commands.literal(rootName).requires(src -> src.hasPermission(2)), dispatcher);
 	}
 	
-	public ConfigCommandBuilder addSpec(ModConfig.Type type, ForgeConfigSpec spec)
+	public ConfigCommandBuilder addSpec(ModConfig.Type type, ModConfigSpec spec)
 	{
 		if (this.specs.containsKey(type))
 			throw new IllegalArgumentException("Spec '" + type + "' already registered.");
@@ -60,7 +60,7 @@ public class ConfigCommandBuilder
 		for (var entry : this.specs.entrySet())
 		{
 			ModConfig.Type type = entry.getKey();
-			ForgeConfigSpec spec = entry.getValue();
+			ModConfigSpec spec = entry.getValue();
 			var specArgument = Commands.literal(type.extension());
 			addArgumentsForSpec(spec, specArgument);
 			root.then(specArgument);
@@ -69,9 +69,9 @@ public class ConfigCommandBuilder
 		this.dispatcher.register(this.argumentBuilder);
 	}
 	
-	private static void addArgumentsForSpec(ForgeConfigSpec spec, LiteralArgumentBuilder<CommandSourceStack> specArgument)
+	private static void addArgumentsForSpec(ModConfigSpec spec, LiteralArgumentBuilder<CommandSourceStack> specArgument)
 	{
-		Map<String, ForgeConfigSpec.ValueSpec> allValues = ConfigHelper.getAllSpecs(spec);
+		Map<String, ModConfigSpec.ValueSpec> allValues = ConfigHelper.getAllSpecs(spec);
 		var setArg = Commands.literal("set")
 				.then(
 						Commands.argument("double", ConfigArgument.arg(allValues, Double.class))
@@ -144,7 +144,7 @@ public class ConfigCommandBuilder
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static List<Class<Enum>> gatherEnumValueClasses(Map<String, ForgeConfigSpec.ValueSpec> allValues)
+	private static List<Class<Enum>> gatherEnumValueClasses(Map<String, ModConfigSpec.ValueSpec> allValues)
 	{
 		List<Class<Enum>> list = Lists.newArrayList();
 		for (var value : allValues.values())
@@ -156,10 +156,10 @@ public class ConfigCommandBuilder
 		return list;
 	}
 	
-	private static <T> int set(CommandContext<CommandSourceStack> context, String arg, BiFunction<CommandContext<CommandSourceStack>, String, T> valueGetter, ForgeConfigSpec spec) throws CommandSyntaxException
+	private static <T> int set(CommandContext<CommandSourceStack> context, String arg, BiFunction<CommandContext<CommandSourceStack>, String, T> valueGetter, ModConfigSpec spec) throws CommandSyntaxException
 	{
 		CommandSourceStack source = context.getSource();
-		ForgeConfigSpec.ConfigValue<T> config = ConfigArgument.get(context, arg, spec);
+		ModConfigSpec.ConfigValue<T> config = ConfigArgument.get(context, arg, spec);
 		T value = valueGetter.apply(context, "value");
 		ValueSpec valueSpec = spec.getRaw(config.getPath());
 		if (!config.get().equals(value) && valueSpec.test(value))
@@ -184,9 +184,9 @@ public class ConfigCommandBuilder
 		}
 	}
 	
-	private static int get(CommandContext<CommandSourceStack> context, ForgeConfigSpec spec)
+	private static int get(CommandContext<CommandSourceStack> context, ModConfigSpec spec)
 	{
-		ForgeConfigSpec.ConfigValue<Object> config = ConfigArgument.get(context, "value", spec);
+		ModConfigSpec.ConfigValue<Object> config = ConfigArgument.get(context, "value", spec);
 		Object val = config.get();
 		context.getSource().sendSuccess(() -> Component.translatable("commands.crackerslib.getConfig.get", ConfigHelper.DOT_JOINER.join(config.getPath()), config.get()), false);
 		if (val instanceof Integer integer)
@@ -201,10 +201,10 @@ public class ConfigCommandBuilder
 			return -1;
 	}
 	
-	public static int setDefault(CommandContext<CommandSourceStack> context, String arg, ForgeConfigSpec spec)
+	public static int setDefault(CommandContext<CommandSourceStack> context, String arg, ModConfigSpec spec)
 	{
 		CommandSourceStack source = context.getSource();
-		ForgeConfigSpec.ConfigValue<Object> config = ConfigArgument.get(context, arg, spec);
+		ModConfigSpec.ConfigValue<Object> config = ConfigArgument.get(context, arg, spec);
 		ValueSpec valueSpec = spec.getRaw(config.getPath());
 		if (config.get() != config.getDefault())
 		{

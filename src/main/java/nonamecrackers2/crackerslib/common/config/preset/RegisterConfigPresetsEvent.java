@@ -9,10 +9,10 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.IModBusEvent;
+import net.neoforged.bus.api.Event;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.IModBusEvent;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import nonamecrackers2.crackerslib.common.config.ConfigHelper;
 
 public class RegisterConfigPresetsEvent extends Event implements IModBusEvent
@@ -47,7 +47,7 @@ public class RegisterConfigPresetsEvent extends Event implements IModBusEvent
 		return this;
 	}
 	
-	public RegisterConfigPresetsEvent exclude(ForgeConfigSpec.ConfigValue<?> value)
+	public RegisterConfigPresetsEvent exclude(ModConfigSpec.ConfigValue<?> value)
 	{
 		return this.exclude(ConfigHelper.DOT_JOINER.join(value.getPath()));
 	}

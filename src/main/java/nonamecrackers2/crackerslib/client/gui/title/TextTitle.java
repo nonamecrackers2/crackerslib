@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 public record TextTitle(Component title, int width, int height) implements TitleLogo
 {

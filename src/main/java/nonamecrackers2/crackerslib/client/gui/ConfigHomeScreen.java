@@ -19,9 +19,9 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.config.ModConfig;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.common.NeoForge;
 import nonamecrackers2.crackerslib.client.config.ConfigHomeScreenFactory;
 import nonamecrackers2.crackerslib.client.event.impl.OnConfigScreenOpened;
 import nonamecrackers2.crackerslib.client.gui.title.TitleLogo;
@@ -35,7 +35,7 @@ public class ConfigHomeScreen extends Screen
 	private static final int MAX_WIDTH = 200;
 	private static final int COLUMN_SPACING = 4;
 	private final String modid;
-	private final Map<ModConfig.Type, ForgeConfigSpec> specs;
+	private final Map<ModConfig.Type, ModConfigSpec> specs;
 	private final TitleLogo title;
 	private final boolean isWorldLoaded;
 	private final boolean hasSinglePlayerServer;
@@ -48,7 +48,7 @@ public class ConfigHomeScreen extends Screen
 	
 	private int elementSpacing;
 	
-	public ConfigHomeScreen(String modid, Map<ModConfig.Type, ForgeConfigSpec> specs, TitleLogo title, boolean isWorldLoaded, boolean hasSinglePlayerServer, @Nullable Screen previous, List<Supplier<AbstractButton>> extraButtons, int totalColumns)
+	public ConfigHomeScreen(String modid, Map<ModConfig.Type, ModConfigSpec> specs, TitleLogo title, boolean isWorldLoaded, boolean hasSinglePlayerServer, @Nullable Screen previous, List<Supplier<AbstractButton>> extraButtons, int totalColumns)
 	{
 		super(Component.translatable("gui." + modid + ".screen.config.home.title"));
 		this.title = title;
@@ -156,16 +156,15 @@ public class ConfigHomeScreen extends Screen
 	@Override
 	public void render(GuiGraphics stack, int mouseX, int mouseY, float partialTicks)
 	{
+		super.render(stack, mouseX, mouseY, partialTicks); 
 		MutableComponent worldDesc = Component.translatable("gui.crackerslib.screen.serverOptions.notInWorld.info");
 		if (this.isWorldLoaded)
 			worldDesc = Component.translatable("gui.crackerslib.screen.serverOptions.inWorld.info");
 		if (this.worldButton != null)
 			this.worldButton.setTooltip(Tooltip.create(worldDesc));
-		this.renderBackground(stack);
 		int titleX = this.width / 2 - this.title.getWidth() / 2;
 		int titleY = this.elementSpacing;
 		this.title.blit(stack, titleX, titleY, partialTicks);
-		super.render(stack, mouseX, mouseY, partialTicks); 
 	}
 	
 	@Override
@@ -179,11 +178,11 @@ public class ConfigHomeScreen extends Screen
 	
 	protected void openConfigMenu(ModConfig.Type type)
 	{
-		ForgeConfigSpec spec = this.specs.get(type);
+		ModConfigSpec spec = this.specs.get(type);
 		if (spec != null)
 		{
 			OnConfigScreenOpened event = new OnConfigScreenOpened(this.modid, type);
-			if (!MinecraftForge.EVENT_BUS.post(event))
+			if (!NeoForge.EVENT_BUS.post(event).isCanceled())
 				this.minecraft.setScreen(ConfigScreen.makeScreen(this.modid, spec, type, this, event.getInitialPath() != null ? event.getInitialPath() : ""));
 		}
 	}
@@ -268,7 +267,7 @@ public class ConfigHomeScreen extends Screen
 		@FunctionalInterface
 		public static interface CustomHomeScreen
 		{
-			public ConfigHomeScreen build(String modid, Map<ModConfig.Type, ForgeConfigSpec> specs, TitleLogo title, boolean isWorldLoaded, boolean hasSinglePlayerServer, @Nullable Screen previous, List<Supplier<AbstractButton>> extraButtons, int totalColumns);
+			public ConfigHomeScreen build(String modid, Map<ModConfig.Type, ModConfigSpec> specs, TitleLogo title, boolean isWorldLoaded, boolean hasSinglePlayerServer, @Nullable Screen previous, List<Supplier<AbstractButton>> extraButtons, int totalColumns);
 		}
 	}
 }

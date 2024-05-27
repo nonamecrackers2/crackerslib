@@ -1,7 +1,7 @@
 package nonamecrackers2.crackerslib.example.client.event;
 
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.config.ModConfig;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.config.ModConfig;
 import nonamecrackers2.crackerslib.CrackersLib;
 import nonamecrackers2.crackerslib.client.event.impl.AddConfigEntryToMenuEvent;
 import nonamecrackers2.crackerslib.client.event.impl.ConfigMenuButtonEvent;
@@ -9,7 +9,7 @@ import nonamecrackers2.crackerslib.client.event.impl.OnConfigScreenOpened;
 import nonamecrackers2.crackerslib.client.event.impl.RegisterConfigScreensEvent;
 import nonamecrackers2.crackerslib.client.gui.ConfigHomeScreen;
 import nonamecrackers2.crackerslib.client.gui.title.TextTitle;
-import nonamecrackers2.crackerslib.example.client.event.common.config.ExampleConfig;
+import nonamecrackers2.crackerslib.example.common.config.ExampleConfig;
 
 public class ExampleClientEvents
 {
@@ -17,7 +17,7 @@ public class ExampleClientEvents
 	{
 		event.builder(ConfigHomeScreen.builder(TextTitle.ofModDisplayName(CrackersLib.MODID))
 				.crackersDefault("https://github.com/nonamecrackers2/crackerslib/issues").build()
-		).addSpec(ModConfig.Type.CLIENT, ExampleConfig.CLIENT_SPEC).register();
+		).addSpec(ModConfig.Type.SERVER, ExampleConfig.SERVER_SPEC).register();
 	}
 	
 	public static void registerConfigMenuButton(ConfigMenuButtonEvent event)
@@ -28,14 +28,14 @@ public class ExampleClientEvents
 	@SubscribeEvent
 	public static void onConfigScreenOpened(OnConfigScreenOpened event)
 	{
-		if (event.getModId().equals(CrackersLib.MODID) && event.getType() == ModConfig.Type.CLIENT)
+		if (event.getModId().equals(CrackersLib.MODID) && event.getType().equals(ModConfig.Type.SERVER))
 			event.setInitialPath("list.category_example");
 	}
 	
 	@SubscribeEvent
 	public static void onConfigEntryAddedToMenu(AddConfigEntryToMenuEvent event)
 	{
-		if (event.getModId().equals(CrackersLib.MODID) && event.getType() == ModConfig.Type.CLIENT)
+		if (event.getModId().equals(CrackersLib.MODID) && event.getType().equals(ModConfig.Type.SERVER))
 		{
 			if (event.isValue(ExampleConfig.CLIENT.exampleString))
 				event.setCanceled(true);
