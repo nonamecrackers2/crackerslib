@@ -100,7 +100,7 @@ publishing {
     publications {
         register('mavenJava', MavenPublication) {
         	group = "nonamecrackers2"
-            artifactId = "crackerslib-forge"
+            artifactId = "crackerslib-neoforge"
             artifact jar
             artifact sourcesJar
         }
