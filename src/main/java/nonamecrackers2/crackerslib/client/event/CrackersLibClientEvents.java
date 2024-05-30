@@ -9,24 +9,29 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import nonamecrackers2.crackerslib.CrackersLib;
+import nonamecrackers2.crackerslib.client.config.ConfigHomeScreenFactory;
 import nonamecrackers2.crackerslib.client.event.impl.RegisterConfigScreensEvent;
 import nonamecrackers2.crackerslib.client.gui.ConfigHomeScreen;
 import nonamecrackers2.crackerslib.client.gui.ConfigMenuButtons;
 import nonamecrackers2.crackerslib.client.gui.title.TextTitle;
 import nonamecrackers2.crackerslib.client.gui.widget.config.CrackersLibConfigHomeMenu;
 import nonamecrackers2.crackerslib.common.config.CrackersLibConfig;
-import nonamecrackers2.crackerslib.example.common.config.ExampleConfig;
 
 public class CrackersLibClientEvents
 {
 	public static void registerConfigScreen(RegisterConfigScreensEvent event)
 	{
-		event.builder(ConfigHomeScreen.builder(TextTitle.ofModDisplayName(CrackersLib.MODID))
-				.crackersDefault().build(CrackersLibConfigHomeMenu::new)
-		).addSpec(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC).addSpec(ModConfig.Type.SERVER, ExampleConfig.SERVER_SPEC).register();
+		ConfigHomeScreen.Builder builder = ConfigHomeScreen.builder(TextTitle.ofModDisplayName(CrackersLib.MODID)).crackersDefault();
+		ConfigHomeScreenFactory factory;
+		if (FMLEnvironment.production)
+			factory = builder.build();
+		else
+			factory = builder.build(CrackersLibConfigHomeMenu::new);
+		event.builder(factory).addSpec(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC).register();;//.addSpec(ModConfig.Type.SERVER, ExampleConfig.SERVER_SPEC).register();
 	}
 	
 //	public static void registerConfigMenuButton(ConfigMenuButtonEvent event)
