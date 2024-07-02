@@ -1,4 +1,4 @@
-package nonamecrackers2.crackerslib.common.util.nbt;
+package nonamecrackers2.crackerslib.common.util.primitives;
 
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
