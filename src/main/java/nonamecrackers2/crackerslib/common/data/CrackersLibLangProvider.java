@@ -55,5 +55,11 @@ public class CrackersLibLangProvider extends LanguageProvider
 		this.add("commands.crackerslib.setConfig.set.note", "Note: '%s' requires a restart to take effect.");
 		this.add("commands.crackerslib.getConfig.get", "The value of '%s' is '%s'");
 		this.add("commands.crackerslib.setDefault.success", "Set '%s' to its default: '%s'");
+		this.add("gui.popup.yes", "Yes");
+		this.add("gui.popup.no", "No");
+		this.add("gui.popup.submit", "Submit");
+		this.add("gui.popup.cancel", "Cancel");
+		this.add("gui.popup.select", "Select");
+		this.add("gui.popup.close", "Close");
 	}
 }

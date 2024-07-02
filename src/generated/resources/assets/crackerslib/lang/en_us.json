@@ -38,5 +38,11 @@
   "gui.crackerslib.screen.config.search": "Search",
   "gui.crackerslib.screen.serverOptions.inWorld.info": "Includes config options unique for this world.",
   "gui.crackerslib.screen.serverOptions.notInWorld.info": "Includes config options unique for each world. Can only be accessed while in a world.",
-  "gui.crackerslib.screen.serverOptions.title": "World Options"
+  "gui.crackerslib.screen.serverOptions.title": "World Options",
+  "gui.popup.cancel": "Cancel",
+  "gui.popup.close": "Close",
+  "gui.popup.no": "No",
+  "gui.popup.select": "Select",
+  "gui.popup.submit": "Submit",
+  "gui.popup.yes": "Yes"
 }
