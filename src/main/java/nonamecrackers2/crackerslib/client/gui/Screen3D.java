@@ -191,6 +191,7 @@ public abstract class Screen3D extends Screen
 				widget.renderAs3D(stack.pose(), bufferSource, pMouseX, pMouseY, this.minecraft.getPartialTick());
 		}
 		
+		RenderSystem.clear(256, Minecraft.ON_OSX);
 		bufferSource.endBatch();
 		
 		stack.pose().popPose();
