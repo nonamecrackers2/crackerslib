@@ -136,7 +136,7 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		if (this.valueSpec.test(current))
 		{
 			if (!Objects.equals(current, this.value.get()))
-				MinecraftForge.EVENT_BUS.post(new OnConfigOptionChanged(this.modid, this.type, OnConfigOptionChanged.Source.CONFIG_SCREEN, this.value));
+				MinecraftForge.EVENT_BUS.post(new OnConfigOptionChanged(this.modid, this.type, OnConfigOptionChanged.Source.CONFIG_SCREEN, this.value, current));
 			this.value.set(current);
 		}
 	}

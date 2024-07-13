@@ -178,8 +178,8 @@ public class ConfigCommandBuilder
 		ValueSpec valueSpec = spec.getRaw(config.getPath());
 		if (!Objects.equals(config.get(), value) && valueSpec.test(value))
 		{
+			MinecraftForge.EVENT_BUS.post(new OnConfigOptionChanged(modid, type, OnConfigOptionChanged.Source.COMMAND, config, value));
 			config.set(value);
-			MinecraftForge.EVENT_BUS.post(new OnConfigOptionChanged(modid, type, OnConfigOptionChanged.Source.COMMAND, config));
 			String joinedPath = ConfigHelper.DOT_JOINER.join(config.getPath());
 			source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.success", joinedPath, value), true);
 			if (valueSpec.needsWorldRestart())
@@ -223,8 +223,8 @@ public class ConfigCommandBuilder
 		ValueSpec valueSpec = spec.getRaw(config.getPath());
 		if (!Objects.equals(config.get(), config.getDefault()))
 		{
+			MinecraftForge.EVENT_BUS.post(new OnConfigOptionChanged(modid, type, OnConfigOptionChanged.Source.COMMAND, config, config.getDefault()));
 			config.set(config.getDefault());
-			MinecraftForge.EVENT_BUS.post(new OnConfigOptionChanged(modid, type, OnConfigOptionChanged.Source.COMMAND, config));
 			String name = ConfigHelper.DOT_JOINER.join(config.getPath());
 			source.sendSuccess(() -> Component.translatable("commands.crackerslib.setDefault.success", name, config.get()), true);
 			if (valueSpec.needsWorldRestart())

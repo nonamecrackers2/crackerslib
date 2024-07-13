@@ -11,13 +11,10 @@ import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import nonamecrackers2.crackerslib.CrackersLib;
-import nonamecrackers2.crackerslib.client.event.impl.OnConfigOptionChanged;
 import nonamecrackers2.crackerslib.client.event.impl.RegisterConfigScreensEvent;
 import nonamecrackers2.crackerslib.client.gui.ConfigHomeScreen;
 import nonamecrackers2.crackerslib.client.gui.ConfigMenuButtons;
-import nonamecrackers2.crackerslib.client.gui.Popup;
 import nonamecrackers2.crackerslib.client.gui.title.TextTitle;
 import nonamecrackers2.crackerslib.common.config.CrackersLibConfig;
 

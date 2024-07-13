@@ -13,13 +13,15 @@ public class OnConfigOptionChanged extends Event
 	private final ModConfig.Type type;
 	private final OnConfigOptionChanged.Source source;
 	private final ForgeConfigSpec.ConfigValue<?> config;
+	private final Object newValue;
 	
-	public OnConfigOptionChanged(String modid, ModConfig.Type type, OnConfigOptionChanged.Source source, ForgeConfigSpec.ConfigValue<?> config)
+	public <T> OnConfigOptionChanged(String modid, ModConfig.Type type, OnConfigOptionChanged.Source source, ForgeConfigSpec.ConfigValue<T> config, T newValue)
 	{
 		this.modid = modid;
 		this.type = type;
 		this.source = source;
 		this.config = config;
+		this.newValue = newValue;
 	}
 	
 	public String getModId()
@@ -35,6 +37,12 @@ public class OnConfigOptionChanged extends Event
 	public OnConfigOptionChanged.Source getSource()
 	{
 		return this.source;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> T getNewValue()
+	{
+		return (T)this.newValue;
 	}
 	
 	public ForgeConfigSpec.ConfigValue<?> getConfigOption()
