@@ -25,7 +25,7 @@ import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.server.command.EnumArgument;
-import nonamecrackers2.crackerslib.client.event.impl.OnConfigOptionChanged;
+import nonamecrackers2.crackerslib.client.event.impl.OnConfigOptionSaved;
 import nonamecrackers2.crackerslib.common.command.argument.ConfigArgument;
 import nonamecrackers2.crackerslib.common.config.ConfigHelper;
 
@@ -176,12 +176,18 @@ public class ConfigCommandBuilder
 		ForgeConfigSpec.ConfigValue<T> config = ConfigArgument.get(context, arg, spec);
 		T value = valueGetter.apply(context, "value");
 		ValueSpec valueSpec = spec.getRaw(config.getPath());
+		if (!valueSpec.test(value))
+			return 0;
+		OnConfigOptionSaved<T> event = new OnConfigOptionSaved<>(modid, type, OnConfigOptionSaved.Source.COMMAND, config, value, !Objects.equals(config.get(), value));
+		MinecraftForge.EVENT_BUS.post(event);
+		if (event.getOverrideValue() != null)
+			value = event.getOverrideValue();
 		if (!Objects.equals(config.get(), value) && valueSpec.test(value))
 		{
-			MinecraftForge.EVENT_BUS.post(new OnConfigOptionChanged(modid, type, OnConfigOptionChanged.Source.COMMAND, config, value));
 			config.set(value);
 			String joinedPath = ConfigHelper.DOT_JOINER.join(config.getPath());
-			source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.success", joinedPath, value), true);
+			Component result = Component.translatable("commands.crackerslib.setConfig.set.success", joinedPath, value);
+			source.sendSuccess(() -> result, true);
 			if (valueSpec.needsWorldRestart())
 			{
 				source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.note", joinedPath).withStyle(ChatFormatting.GRAY), false);
@@ -216,14 +222,16 @@ public class ConfigCommandBuilder
 			return -1;
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static int setDefault(CommandContext<CommandSourceStack> context, String arg, ForgeConfigSpec spec, String modid, ModConfig.Type type)
 	{
 		CommandSourceStack source = context.getSource();
 		ForgeConfigSpec.ConfigValue<Object> config = ConfigArgument.get(context, arg, spec);
 		ValueSpec valueSpec = spec.getRaw(config.getPath());
-		if (!Objects.equals(config.get(), config.getDefault()))
+		boolean flag = !Objects.equals(config.get(), config.getDefault());
+		MinecraftForge.EVENT_BUS.post(new OnConfigOptionSaved(modid, type, OnConfigOptionSaved.Source.COMMAND, config, config.getDefault(), flag));
+		if (flag)
 		{
-			MinecraftForge.EVENT_BUS.post(new OnConfigOptionChanged(modid, type, OnConfigOptionChanged.Source.COMMAND, config, config.getDefault()));
 			config.set(config.getDefault());
 			String name = ConfigHelper.DOT_JOINER.join(config.getPath());
 			source.sendSuccess(() -> Component.translatable("commands.crackerslib.setDefault.success", name, config.get()), true);

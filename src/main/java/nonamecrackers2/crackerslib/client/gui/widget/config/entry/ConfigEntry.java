@@ -17,7 +17,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.config.ModConfig;
-import nonamecrackers2.crackerslib.client.event.impl.OnConfigOptionChanged;
+import nonamecrackers2.crackerslib.client.event.impl.OnConfigOptionSaved;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigListItem;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 
@@ -135,8 +135,10 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		var current = this.getCurrentValue();
 		if (this.valueSpec.test(current))
 		{
-			if (!Objects.equals(current, this.value.get()))
-				MinecraftForge.EVENT_BUS.post(new OnConfigOptionChanged(this.modid, this.type, OnConfigOptionChanged.Source.CONFIG_SCREEN, this.value, current));
+			OnConfigOptionSaved<T> event = new OnConfigOptionSaved<>(this.modid, this.type, OnConfigOptionSaved.Source.CONFIG_SCREEN, this.value, current, !Objects.equals(current, this.value.get()));
+			MinecraftForge.EVENT_BUS.post(event);
+			if (event.getOverrideValue() != null && this.valueSpec.test(event.getOverrideValue()))
+				current = event.getOverrideValue();
 			this.value.set(current);
 		}
 	}
