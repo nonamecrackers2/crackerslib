@@ -18,6 +18,7 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.config.ModConfig;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.ConfigEntry;
 import nonamecrackers2.crackerslib.client.util.SortType;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
@@ -28,16 +29,18 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	private static final int ROW_HEIGHT = 30;
 	private final List<ConfigListItem> items = Lists.newArrayList();
 	private final List<ConfigCategory> categories = Lists.newArrayList();
+	private final ModConfig.Type type;
 	private String lastSearch = "";
 	private SortType sortType = SortType.A_TO_Z;
 	private final Runnable valuesChangedResponder;
 	private final String modid;
 	private final ForgeConfigSpec spec;
 	
-	public ConfigOptionList(Minecraft mc, String modid, ForgeConfigSpec spec, int width, int height, int top, int bottom, Runnable valuesChangedResponder)
+	public ConfigOptionList(Minecraft mc, String modid, ModConfig.Type type, ForgeConfigSpec spec, int width, int height, int top, int bottom, Runnable valuesChangedResponder)
 	{
 		super(mc, width, height, top, bottom, ROW_HEIGHT);
 		this.modid = modid;
+		this.type = type;
 		this.spec = spec;
 		this.setRenderBackground(false);
 		this.setRenderTopAndBottom(true);
@@ -52,9 +55,9 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	public <T> void addConfigValue(String path, ConfigOptionList.ConfigEntryBuilder itemBuilder, Optional<ConfigCategory> category)
 	{
 		category.ifPresentOrElse(c -> {
-			c.addChild(itemBuilder.build(this.minecraft, this.modid, path, this.spec, this.valuesChangedResponder));
+			c.addChild(itemBuilder.build(this.minecraft, this.modid, this.type, path, this.spec, this.valuesChangedResponder));
 		}, () -> {
-			this.items.add(itemBuilder.build(this.minecraft, this.modid, path, this.spec, this.valuesChangedResponder));
+			this.items.add(itemBuilder.build(this.minecraft, this.modid, this.type, path, this.spec, this.valuesChangedResponder));
 		});
 	}
 	
@@ -274,6 +277,6 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	@FunctionalInterface
 	public static interface ConfigEntryBuilder
 	{
-		ConfigEntry<?, ?> build(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated);
+		ConfigEntry<?, ?> build(Minecraft mc, String modid, ModConfig.Type type, String path, ForgeConfigSpec spec, Runnable onValueUpdated);
 	}
 }

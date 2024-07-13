@@ -56,6 +56,7 @@ public class ConfigScreen extends Screen
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int EXIT_BUTTON_OFFSET = 26;
 	private final String modid;
+	private final ModConfig.Type type;
 	private final ForgeConfigSpec spec;
 	private final Consumer<ConfigOptionList> itemGenerator;
 	private final Screen homeScreen;
@@ -74,6 +75,7 @@ public class ConfigScreen extends Screen
 	{
 		super(Component.translatable("gui.crackerslib.screen." + type.extension() + "Options.title"));
 		this.modid = modid;
+		this.type = type;
 		this.spec = spec;
 		this.itemGenerator = itemGenerator;
 		this.homeScreen = homeScreen;
@@ -191,8 +193,8 @@ public class ConfigScreen extends Screen
 	
 	private static void putListEntry(ConfigOptionList list, String path, Optional<ConfigCategory> category, ListConfigEntry.ValueParser<?> parser)
 	{
-		list.addConfigValue(path, (mc, modid, p, s, r) -> {
-			return new ListConfigEntry(mc, modid, p, s, r, parser);
+		list.addConfigValue(path, (mc, modid, type, p, s, r) -> {
+			return new ListConfigEntry(mc, modid, type, p, s, r, parser);
 		}, category);
 	}
 	
@@ -201,7 +203,7 @@ public class ConfigScreen extends Screen
 	{
 		if (this.list == null)
 		{
-			this.list = new ConfigOptionList(this.minecraft, this.modid, this.spec,  this.width, this.height, 30, this.height - 30, this::onValueChanged);
+			this.list = new ConfigOptionList(this.minecraft, this.modid, this.type, this.spec,  this.width, this.height, 30, this.height - 30, this::onValueChanged);
 			this.itemGenerator.accept(this.list);
 		}
 		this.list.buildList();

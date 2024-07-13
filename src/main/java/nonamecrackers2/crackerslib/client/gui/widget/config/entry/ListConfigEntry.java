@@ -12,6 +12,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.config.ModConfig;
 
 public class ListConfigEntry extends ConfigEntry<List<?>, EditBox>
 {
@@ -20,9 +21,9 @@ public class ListConfigEntry extends ConfigEntry<List<?>, EditBox>
 	protected static final Splitter SPLITTER = Splitter.on(PATH_SPLITTER);
 	private final ListConfigEntry.ValueParser<?> parser;
 	
-	public ListConfigEntry(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated, ListConfigEntry.ValueParser<?> parser)
+	public ListConfigEntry(Minecraft mc, String modid, ModConfig.Type type, String path, ForgeConfigSpec spec, Runnable onValueUpdated, ListConfigEntry.ValueParser<?> parser)
 	{
-		super(mc, modid, path, spec, onValueUpdated);
+		super(mc, modid, type, path, spec, onValueUpdated);
 		this.parser = parser;
 	}
 	

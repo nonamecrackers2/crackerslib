@@ -12,6 +12,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.config.ModConfig;
 import nonamecrackers2.crackerslib.CrackersLib;
+import nonamecrackers2.crackerslib.client.event.impl.OnConfigOptionChanged;
 import nonamecrackers2.crackerslib.client.event.impl.RegisterConfigScreensEvent;
 import nonamecrackers2.crackerslib.client.gui.ConfigHomeScreen;
 import nonamecrackers2.crackerslib.client.gui.ConfigMenuButtons;
