@@ -263,8 +263,8 @@ public class ConfigScreen extends Screen
 	
 	private void closeMenu()
 	{
-		this.list.onClosed();
 		this.minecraft.setScreen(this.homeScreen);
+		this.list.onClosed();
 	}
 	
 	private void resetValues()
