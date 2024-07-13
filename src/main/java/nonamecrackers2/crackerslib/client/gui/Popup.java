@@ -1,5 +1,6 @@
 package nonamecrackers2.crackerslib.client.gui;
 
+import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -7,6 +8,7 @@ import javax.annotation.Nullable;
 
 import org.lwjgl.opengl.GL11;
 
+import com.google.common.collect.Queues;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
@@ -28,6 +30,7 @@ import nonamecrackers2.crackerslib.client.util.CommonColors;
 
 public class Popup extends Screen
 {
+	private static final Queue<Popup> POPUP_QUEUE = Queues.newArrayDeque();
 	private static final int BUTTON_WIDTH = 80;
 	private final @Nullable Screen previous;
 	private final Popup.Initializer onInitialized;
@@ -239,7 +242,9 @@ public class Popup extends Screen
 	
 	private void close()
 	{
-		if (this.previous != null)
+		if (!POPUP_QUEUE.isEmpty())
+			this.minecraft.setScreen(POPUP_QUEUE.poll());
+		else if (this.previous != null)
 			this.minecraft.setScreen(this.previous);
 		else
 			this.minecraft.popGuiLayer();
@@ -247,7 +252,11 @@ public class Popup extends Screen
 	
 	private Popup open()
 	{
-		Minecraft.getInstance().setScreen(this);
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.screen instanceof Popup)
+			POPUP_QUEUE.add(this);
+		else
+			mc.setScreen(this);
 		return this;
 	}
 	
