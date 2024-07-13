@@ -11,13 +11,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.config.ModConfig;
-import nonamecrackers2.crackerslib.client.event.impl.OnConfigOptionSaved;
+import nonamecrackers2.crackerslib.client.event.impl.OnConfigOptionSavedFromConfigMenu;
+import nonamecrackers2.crackerslib.client.gui.ConfigScreen;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigListItem;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 
@@ -135,7 +137,14 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		var current = this.getCurrentValue();
 		if (this.valueSpec.test(current))
 		{
-			OnConfigOptionSaved<T> event = new OnConfigOptionSaved<>(this.modid, this.type, OnConfigOptionSaved.Source.CONFIG_SCREEN, this.value, current, !Objects.equals(current, this.value.get()));
+			ConfigScreen cfgScreen = null;
+			Screen homeScreen = null;
+			if (this.mc.screen instanceof ConfigScreen configScreen)
+			{
+				cfgScreen = configScreen;
+				homeScreen = configScreen.getHomeScreen();
+			}
+			OnConfigOptionSavedFromConfigMenu<T> event = new OnConfigOptionSavedFromConfigMenu<>(this.modid, this.type, this.value, current, !Objects.equals(current, this.value.get()), cfgScreen, homeScreen);
 			MinecraftForge.EVENT_BUS.post(event);
 			if (event.getOverrideValue() != null && this.valueSpec.test(event.getOverrideValue()))
 				current = event.getOverrideValue();

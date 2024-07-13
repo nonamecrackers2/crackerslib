@@ -25,9 +25,9 @@ import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.server.command.EnumArgument;
-import nonamecrackers2.crackerslib.client.event.impl.OnConfigOptionSaved;
 import nonamecrackers2.crackerslib.common.command.argument.ConfigArgument;
 import nonamecrackers2.crackerslib.common.config.ConfigHelper;
+import nonamecrackers2.crackerslib.common.event.impl.OnConfigOptionSaved;
 
 /**
  * Creates config commands for modifying config options in game
