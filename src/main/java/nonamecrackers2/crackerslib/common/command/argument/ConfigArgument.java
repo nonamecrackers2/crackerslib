@@ -45,7 +45,7 @@ public class ConfigArgument implements ArgumentType<String>
 		String name = reader.readUnquotedString();
 		for (String option : this.getAvailableOptions())
 		{
-			if (option.contains(name) || option.equals(name))
+			if (option.equals(name))
 				return option;
 		}
 		throw INVALID_VALUE.create(name);

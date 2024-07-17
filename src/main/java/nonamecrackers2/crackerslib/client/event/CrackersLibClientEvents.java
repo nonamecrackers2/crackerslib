@@ -31,6 +31,12 @@ public class CrackersLibClientEvents
 //	{
 //		event.defaultButtonWithSingleCharacter('C', 0xFFF5D442);
 //	}
+//	
+//	@SubscribeEvent
+//	public static void registerClientCommands(RegisterClientCommandsEvent event)
+//	{
+//		ConfigCommandBuilder.builder(event.getDispatcher(), CrackersLib.MODID).addSpec(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC).register();
+//	}
 	
 	@SubscribeEvent
 	public static void initGui(ScreenEvent.Init.Pre event)
