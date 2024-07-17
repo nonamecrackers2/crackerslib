@@ -2,7 +2,6 @@ package nonamecrackers2.crackerslib.common.event.impl;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.config.ModConfig;
