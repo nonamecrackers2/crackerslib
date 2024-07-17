@@ -1,10 +1,14 @@
 package nonamecrackers2.crackerslib.client.gui;
 
+import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import javax.annotation.Nullable;
+
 import org.lwjgl.opengl.GL11;
 
+import com.google.common.collect.Queues;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -26,8 +30,9 @@ import nonamecrackers2.crackerslib.client.util.CommonColors;
 
 public class Popup extends Screen
 {
+	private static final Queue<Popup> POPUP_QUEUE = Queues.newArrayDeque();
 	private static final int BUTTON_WIDTH = 80;
-	private final Screen previous;
+	private final @Nullable Screen previous;
 	private final Popup.Initializer onInitialized;
 	private final MultiLineLabel text;
 	private final int boxWidth;
@@ -36,7 +41,7 @@ public class Popup extends Screen
 	private int y;
 	private int boxHeight;
 	
-	public Popup(Screen previous, Popup.Initializer onInitialized, int width, int widgetsHeight, Component pMessage)
+	public Popup(@Nullable Screen previous, Popup.Initializer onInitialized, int width, int widgetsHeight, Component pMessage)
 	{
 		super(pMessage);
 		this.text = MultiLineLabel.create(Minecraft.getInstance().font, pMessage, width - 20);
@@ -46,7 +51,7 @@ public class Popup extends Screen
 		this.widgetsHeight = widgetsHeight;
 	}
 	
-	public static Popup createYesNoPopupWithCancel(Screen screen, Runnable onAccepted, Runnable onNotAccepted, int width, Component message)
+	public static Popup createYesNoPopupWithCancel(@Nullable Screen screen, Runnable onAccepted, Runnable onNotAccepted, int width, Component message)
 	{
 		return new Popup(screen, (p, r) -> {
 			GridLayout layout = new GridLayout().rowSpacing(5);
@@ -78,7 +83,7 @@ public class Popup extends Screen
 		}, width, 45, message).open();
 	}
 	
-	public static Popup createYesNoPopup(Screen screen, Runnable onAccepted, Runnable onNotAccepted, int width, Component message)
+	public static Popup createYesNoPopup(@Nullable Screen screen, Runnable onAccepted, Runnable onNotAccepted, int width, Component message)
 	{
 		return new Popup(screen, (p, r) -> {
 			GridLayout layout = new GridLayout().columnSpacing(10);
@@ -98,12 +103,12 @@ public class Popup extends Screen
 		}, width, 20, message).open();
 	}
 	
-	public static Popup createYesNoPopup(Screen screen, Runnable onAccepted, int width, Component message)
+	public static Popup createYesNoPopup(@Nullable Screen screen, Runnable onAccepted, int width, Component message)
 	{
 		return createYesNoPopup(screen, onAccepted, () -> {}, width, message);
 	}
 	
-	public static Popup createTextFieldPopup(Screen screen, Consumer<String> onAccepted, int width, Component message, Predicate<String> filter)
+	public static Popup createTextFieldPopup(@Nullable Screen screen, Consumer<String> onAccepted, int width, Component message, Predicate<String> filter)
 	{
 		Minecraft mc = Minecraft.getInstance();
 		return new Popup(screen, (p, r) -> {
@@ -137,12 +142,12 @@ public class Popup extends Screen
 		}, width, 45, message).open();
 	}
 	
-	public static Popup createTextFieldPopup(Screen screen, Consumer<String> onAccepted, int width, Component message)
+	public static Popup createTextFieldPopup(@Nullable Screen screen, Consumer<String> onAccepted, int width, Component message)
 	{
 		return createTextFieldPopup(screen, onAccepted, width, message, str -> true);
 	}
 	
-	public static <T> Popup createOptionListPopup(Screen screen, Consumer<SelectableNamedObjectList<T>> valueApplier, Consumer<T> onAccepted, int width, int listHeight, Component message)
+	public static <T> Popup createOptionListPopup(@Nullable Screen screen, Consumer<SelectableNamedObjectList<T>> valueApplier, Consumer<T> onAccepted, int width, int listHeight, Component message)
 	{
 		Minecraft mc = Minecraft.getInstance();
 		return new Popup(screen, (p, r) -> {
@@ -176,7 +181,7 @@ public class Popup extends Screen
 		}, width, listHeight + 30, message).open();
 	}
 	
-	public static Popup createInfoPopup(Screen screen, int width, Component message)
+	public static Popup createInfoPopup(@Nullable Screen screen, int width, Component message)
 	{
 		return new Popup(screen, (p, r) -> {
 			int buttonWidth = 100;
@@ -215,7 +220,8 @@ public class Popup extends Screen
 		this.y = this.height / 2 - this.boxHeight / 2;
 		ScreenRectangle widgetsRectangle = new ScreenRectangle(this.x, this.messageTop() + this.messageHeight() + 10, this.boxWidth, this.widgetsHeight);
 		this.onInitialized.init(this, widgetsRectangle);
-		this.previous.init(this.minecraft, this.width, this.height);
+		if (this.previous != null)
+			this.previous.init(this.minecraft, this.width, this.height);
 	}
 	
 	private int messageTop()
@@ -236,25 +242,36 @@ public class Popup extends Screen
 	
 	private void close()
 	{
-		this.minecraft.setScreen(this.previous);
+		if (!POPUP_QUEUE.isEmpty())
+			this.minecraft.setScreen(POPUP_QUEUE.poll());
+		else if (this.previous != null)
+			this.minecraft.setScreen(this.previous);
+		else
+			this.minecraft.popGuiLayer();
 	}
 	
 	private Popup open()
 	{
-		Minecraft.getInstance().setScreen(this);
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.screen instanceof Popup)
+			POPUP_QUEUE.add(this);
+		else
+			mc.setScreen(this);
 		return this;
 	}
 	
 	@Override
 	public void tick()
 	{
-		this.previous.tick();
+		if (this.previous != null)
+			this.previous.tick();
 	}
 	
 	@Override
 	public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks)
 	{
-		this.previous.render(stack, mouseX, mouseY, partialTicks);
+		if (this.previous != null)
+			this.previous.render(stack, mouseX, mouseY, partialTicks);
 		RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
 		fillGradient(stack, 0, 0, this.width, this.height, -1072689136, -804253680);
 		fill(stack, this.x, this.y, this.x + this.boxWidth, this.y + this.boxHeight, CommonColors.BACKGROUND);

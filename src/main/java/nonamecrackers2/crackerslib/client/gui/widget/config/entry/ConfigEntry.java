@@ -1,6 +1,7 @@
 package nonamecrackers2.crackerslib.client.gui.widget.config.entry;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
@@ -16,12 +17,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.config.ModConfig;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigListItem;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
+import nonamecrackers2.crackerslib.common.event.impl.OnConfigOptionSaved;
 
 public abstract class ConfigEntry<T, W extends AbstractWidget> implements ConfigListItem
 {
 	protected final Minecraft mc;
+	protected final String modid;
+	protected final ModConfig.Type type;
 //	protected final ConfigHolder config;
 	protected final ForgeConfigSpec.ConfigValue<T> value;
 	protected final ForgeConfigSpec.ValueSpec valueSpec;
@@ -36,9 +42,11 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	protected W widget;
 	protected Component displayName;
 	
-	public ConfigEntry(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
+	public ConfigEntry(Minecraft mc, String modid, ModConfig.Type type, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
 	{
 		this.mc = mc;
+		this.modid = modid;
+		this.type = type;
 		this.path = path;
 		this.value = spec.getValues().getRaw(path);
 		this.valueSpec = spec.getRaw(path);
@@ -128,7 +136,13 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	{
 		var current = this.getCurrentValue();
 		if (this.valueSpec.test(current))
+		{
+			OnConfigOptionSaved<T> event = new OnConfigOptionSaved<>(this.modid, this.type, OnConfigOptionSaved.Source.CONFIG_SCREEN, this.value, current, !Objects.equals(current, this.value.get()));
+			MinecraftForge.EVENT_BUS.post(event);
+			if (event.getOverrideValue() != null && this.valueSpec.test(event.getOverrideValue()))
+				current = event.getOverrideValue();
 			this.value.set(current);
+		}
 	}
 	
 	@Override

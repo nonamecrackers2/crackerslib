@@ -4,15 +4,16 @@ import java.util.Arrays;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.config.ModConfig;
 import nonamecrackers2.crackerslib.client.gui.widget.CyclableButton;
 
 public class EnumConfigEntry<T extends Enum<T>> extends ConfigEntry<T, CyclableButton<T>>
 {
 	private final Class<T> enumClass;
 	
-	public EnumConfigEntry(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
+	public EnumConfigEntry(Minecraft mc, String modid, ModConfig.Type type, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
 	{
-		super(mc, modid, path, spec, onValueUpdated);
+		super(mc, modid, type, path, spec, onValueUpdated);
 		this.enumClass = this.value.getDefault().getDeclaringClass();
 	}
 

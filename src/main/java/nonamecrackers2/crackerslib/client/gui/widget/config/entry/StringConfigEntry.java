@@ -4,12 +4,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.config.ModConfig;
 
 public class StringConfigEntry extends ConfigEntry<String, EditBox>
 {
-	public StringConfigEntry(Minecraft mc, String modid, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
+	public StringConfigEntry(Minecraft mc, String modid, ModConfig.Type type, String path, ForgeConfigSpec spec, Runnable onValueUpdated)
 	{
-		super(mc, modid, path, spec, onValueUpdated);
+		super(mc, modid, type, path, spec, onValueUpdated);
 	}
 	
 	@Override
