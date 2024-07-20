@@ -45,6 +45,11 @@ public abstract class ConfigHelper
 		return this.defaultProperties(name, description, restart, value).defineInRange(name, value, min, max);
 	}
 	
+	protected ForgeConfigSpec.ConfigValue<Long> createRangedLongValue(long value, long min, long max, String name, boolean restart, String description)
+	{
+		return this.defaultProperties(name, description, restart, value).defineInRange(name, value, min, max);
+	}
+	
 	protected <T extends Enum<T>> ForgeConfigSpec.ConfigValue<T> createEnumValue(T value, String name, boolean restart, String description)
 	{
 		return this.defaultProperties(name, description, restart, value).defineEnum(name, value);

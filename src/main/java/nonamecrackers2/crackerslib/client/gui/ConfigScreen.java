@@ -41,6 +41,7 @@ import nonamecrackers2.crackerslib.client.gui.widget.config.entry.DoubleConfigEn
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.EnumConfigEntry;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.IntegerConfigEntry;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.ListConfigEntry;
+import nonamecrackers2.crackerslib.client.gui.widget.config.entry.LongConfigEntry;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.StringConfigEntry;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPresets;
@@ -144,6 +145,8 @@ public class ConfigScreen extends Screen
 				var clazz = value.getDefault().getClass();
 				if (Integer.class.isAssignableFrom(clazz))
 					list.addConfigValue(path, IntegerConfigEntry::new, category);
+				else if (Long.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, LongConfigEntry::new, category);
 				else if (Double.class.isAssignableFrom(clazz))
 					list.addConfigValue(path, DoubleConfigEntry::new, category);
 				else if (Boolean.class.isAssignableFrom(clazz))
