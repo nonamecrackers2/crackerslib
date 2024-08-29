@@ -192,6 +192,18 @@ public class Popup extends Screen
 		}, width, 20, message).open();
 	}
 	
+	public static Popup createInfoPopup(@Nullable Screen screen, int width, Component message, Runnable onContinued)
+	{
+		return new Popup(screen, (p, r) -> {
+			int buttonWidth = 100;
+			Button close = Button.builder(Component.translatable("gui.popup.continue"), b -> {
+				p.close();
+				onContinued.run();
+			}).pos(p.boxX() + width / 2 - buttonWidth / 2, p.boxY() + p.boxHeight() - 30).width(buttonWidth).build();
+			p.addRenderableWidget(close);
+		}, width, 20, message).open();
+	}
+	
 	public int boxX()
 	{
 		return this.x;
@@ -250,7 +262,7 @@ public class Popup extends Screen
 			this.minecraft.popGuiLayer();
 	}
 	
-	private Popup open()
+	public Popup open()
 	{
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.screen instanceof Popup)

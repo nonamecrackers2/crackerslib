@@ -126,6 +126,10 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+//    
+//    flatDir {
+//        dir 'libs'
+//    }
 }
 
 dependencies {
@@ -138,6 +142,9 @@ dependencies {
     
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     
+    //runtimeOnly fg.deobf("curse.maven:crackers-wither-storm-mod-621405:5619741")
+    //runtimeOnly fg.deobf("curse.maven:mob-battle-music-977024:5240965")
+    //runtimeOnly fg.deobf("dev.nonamecrackers2.simpleclouds:simpleclouds:0.4:all")
     //runtimeOnly fg.deobf("curse.maven:vivecraft-667903:5144672")
 
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings

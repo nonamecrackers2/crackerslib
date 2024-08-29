@@ -22,7 +22,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 public class PacketUtil
 {
 	private static @Nullable Throwable lastException;
-	private static final Map<SimpleChannel, AtomicInteger> CURRENT_IDS = Maps.newHashMap();
+	private static final Map<SimpleChannel, AtomicInteger> CURRENT_IDS = Maps.newConcurrentMap();
 	private static final Logger LOGGER = LogManager.getLogger();
 	
 	public static <T extends Packet> void registerToClient(SimpleChannel channel, Class<T> clazz)

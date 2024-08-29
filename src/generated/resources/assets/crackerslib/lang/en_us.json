@@ -41,6 +41,7 @@
   "gui.crackerslib.screen.serverOptions.title": "World Options",
   "gui.popup.cancel": "Cancel",
   "gui.popup.close": "Close",
+  "gui.popup.continue": "Continue",
   "gui.popup.no": "No",
   "gui.popup.select": "Select",
   "gui.popup.submit": "Submit",

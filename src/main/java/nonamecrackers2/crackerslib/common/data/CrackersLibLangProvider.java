@@ -61,5 +61,6 @@ public class CrackersLibLangProvider extends LanguageProvider
 		this.add("gui.popup.cancel", "Cancel");
 		this.add("gui.popup.select", "Select");
 		this.add("gui.popup.close", "Close");
+		this.add("gui.popup.continue", "Continue");
 	}
 }
