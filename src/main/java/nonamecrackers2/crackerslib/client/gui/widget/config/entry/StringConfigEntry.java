@@ -17,6 +17,7 @@ public class StringConfigEntry extends ConfigEntry<String, EditBox>
 	protected EditBox buildWidget(int x, int y, int width, int height)
 	{
 		EditBox box = new EditBox(this.mc.font, x + 6, y + height / 2 - 10, 60, 20, CommonComponents.EMPTY);
+		box.setMaxLength(1000);
 		box.setValue(this.value.get());
 		box.setResponder(value -> {
 			this.getValueUpdatedResponder().run();
