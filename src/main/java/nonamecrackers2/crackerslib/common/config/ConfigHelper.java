@@ -1,5 +1,6 @@
 package nonamecrackers2.crackerslib.common.config;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -53,6 +54,25 @@ public abstract class ConfigHelper
 	protected <T extends Enum<T>> ForgeConfigSpec.ConfigValue<T> createEnumValue(T value, String name, boolean restart, String description)
 	{
 		return this.defaultProperties(name, description, restart, value).defineEnum(name, value);
+	}
+	
+	protected <T extends Enum<T>> ForgeConfigSpec.ConfigValue<T> createEnumValue(T value, String name, boolean restart, String description, @SuppressWarnings("unchecked") T... valid)
+	{
+		return this.defaultProperties(name, description, restart, value).defineEnum(name, value, valid);
+	}
+	
+	protected <T extends Enum<T>> ForgeConfigSpec.ConfigValue<T> createEnumValue(T value, String name, boolean restart, String description, Collection<T> valid)
+	{
+		
+		return this.defaultProperties(name, description, restart, value).defineEnum(name, value, valid);
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected <T extends Enum<T>> ForgeConfigSpec.ConfigValue<T> createEnumValue(T value, String name, boolean restart, String description, Predicate<T> validator)
+	{
+		return this.defaultProperties(name, description, restart, value).defineEnum(name, value, obj -> {
+			return value.getDeclaringClass().isAssignableFrom(obj.getClass()) && validator.test((T)obj);
+		});
 	}
 	
 	@SuppressWarnings("unchecked")
