@@ -57,7 +57,7 @@ public class ConfigCommandBuilder
 	
 	public static ConfigCommandBuilder builder(CommandDispatcher<CommandSourceStack> dispatcher, String modid)
 	{
-		return new ConfigCommandBuilder(modid, Commands.literal(modid).requires(src -> src.hasPermission(2)), dispatcher);
+		return new ConfigCommandBuilder(modid, Commands.literal(modid), dispatcher);
 	}
 	
 	public ConfigCommandBuilder addSpec(ModConfig.Type type, ForgeConfigSpec spec)
@@ -76,6 +76,8 @@ public class ConfigCommandBuilder
 			ModConfig.Type type = entry.getKey();
 			ForgeConfigSpec spec = entry.getValue();
 			var specArgument = Commands.literal(type.extension());
+			if (type != ModConfig.Type.CLIENT)
+				specArgument.requires(src -> src.hasPermission(2));
 			addArgumentsForSpec(spec, this.modid, type, specArgument);
 			root.then(specArgument);
 		}
