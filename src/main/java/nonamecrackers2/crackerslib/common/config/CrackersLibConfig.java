@@ -5,7 +5,6 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.config.ModConfig;
 import nonamecrackers2.crackerslib.CrackersLib;
 
 public class CrackersLibConfig

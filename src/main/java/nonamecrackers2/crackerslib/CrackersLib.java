@@ -4,7 +4,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -16,15 +15,12 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import nonamecrackers2.crackerslib.client.event.CrackersLibClientEvents;
 import nonamecrackers2.crackerslib.client.event.impl.RegisterConfigScreensEvent;
 import nonamecrackers2.crackerslib.client.gui.ConfigMenuButtons;
-import nonamecrackers2.crackerslib.common.command.ConfigCommandBuilder;
 import nonamecrackers2.crackerslib.common.compat.CompatHelper;
 import nonamecrackers2.crackerslib.common.config.CrackersLibConfig;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPresets;
 import nonamecrackers2.crackerslib.common.event.CrackersLibDataEvents;
 import nonamecrackers2.crackerslib.common.extending.BlockEntityTypeExtender;
 import nonamecrackers2.crackerslib.common.init.CrackersLibCommandArguments;
-import nonamecrackers2.crackerslib.example.client.event.common.config.ExampleConfig;
-import nonamecrackers2.crackerslib.example.common.event.ExampleEvents;
 
 @Mod(CrackersLib.MODID)
 public class CrackersLib
@@ -64,9 +60,6 @@ public class CrackersLib
 //		forgeBus.addListener(ExampleEvents::registerCommands);
 //		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 //		modBus.addListener(ExampleEvents::registerPresetsEvent);
-		MinecraftForge.EVENT_BUS.<RegisterCommandsEvent>addListener(e -> {
-			ConfigCommandBuilder.builder(e.getDispatcher(), "crackerslib").addSpec(ModConfig.Type.SERVER, CrackersLibConfig.CLIENT_SPEC).register();
-		});
 		event.enqueueWork(() -> {
 			ConfigPresets.gatherPresets();
 			CompatHelper.checkForLoaded();
