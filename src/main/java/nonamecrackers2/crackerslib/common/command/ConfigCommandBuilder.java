@@ -21,6 +21,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec.RestartType;
 import net.neoforged.neoforge.common.ModConfigSpec.ValueSpec;
 import net.neoforged.neoforge.server.command.EnumArgument;
 import nonamecrackers2.crackerslib.common.command.argument.ConfigArgument;
@@ -161,15 +162,15 @@ public class ConfigCommandBuilder
 		CommandSourceStack source = context.getSource();
 		ModConfigSpec.ConfigValue<T> config = ConfigArgument.get(context, arg, spec);
 		T value = valueGetter.apply(context, "value");
-		ValueSpec valueSpec = spec.getRaw(config.getPath());
+		ValueSpec valueSpec = spec.getSpec().getRaw(config.getPath());
 		if (!config.get().equals(value) && valueSpec.test(value))
 		{
 			config.set(value);
 			String joinedPath = ConfigHelper.DOT_JOINER.join(config.getPath());
 			source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.success", joinedPath, value), true);
-			if (valueSpec.needsWorldRestart())
+			if (valueSpec.restartType() != RestartType.NONE)
 			{
-				source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.note", joinedPath).withStyle(ChatFormatting.GRAY), false);
+				source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.note", joinedPath, valueSpec.restartType()).withStyle(ChatFormatting.GRAY), false);
 				return 2;
 			}
 			else
@@ -205,15 +206,15 @@ public class ConfigCommandBuilder
 	{
 		CommandSourceStack source = context.getSource();
 		ModConfigSpec.ConfigValue<Object> config = ConfigArgument.get(context, arg, spec);
-		ValueSpec valueSpec = spec.getRaw(config.getPath());
+		ValueSpec valueSpec = spec.getSpec().getRaw(config.getPath());
 		if (config.get() != config.getDefault())
 		{
 			config.set(config.getDefault());
 			String name = ConfigHelper.DOT_JOINER.join(config.getPath());
 			source.sendSuccess(() -> Component.translatable("commands.crackerslib.setDefault.success", name, config.get()), true);
-			if (valueSpec.needsWorldRestart())
+			if (valueSpec.restartType() != RestartType.NONE)
 			{
-				source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.note", name).withStyle(ChatFormatting.GRAY), false);
+				source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.note", name, valueSpec.restartType()).withStyle(ChatFormatting.GRAY), false);
 				return 2;
 			}
 			else

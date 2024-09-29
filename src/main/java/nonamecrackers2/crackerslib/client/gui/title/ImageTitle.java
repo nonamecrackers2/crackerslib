@@ -8,7 +8,7 @@ public record ImageTitle(ResourceLocation location, int imageWidth, int imageHei
 {
 	public static ImageTitle ofMod(String modid, int imageWidth, int imageHeight, int width, int height)
 	{
-		ResourceLocation location = new ResourceLocation(modid, "textures/gui/config/title/title.png");
+		ResourceLocation location = ResourceLocation.fromNamespaceAndPath(modid, "textures/gui/config/title/title.png");
 		return new ImageTitle(location, imageWidth, imageHeight, width, height);
 	}
 	

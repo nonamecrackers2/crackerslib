@@ -58,22 +58,21 @@ public class RenderUtil
 	{
 		Vector2f normal = start.sub(end, new Vector2f()).normalize();
 		Matrix4f matrix4f = stack.pose().last().pose();
-		BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+		BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
 		RenderSystem.enableBlend();
 		RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
 		RenderSystem.lineWidth(lineWidth);
-		bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
 		if (normal.y < -0.008F)
 		{
-			bufferbuilder.vertex(matrix4f, start.x, start.y, (float)blitOffset).color(r, g, b, a).normal(stack.pose().last(), normal.x, normal.y, 0.0F).endVertex();
-			bufferbuilder.vertex(matrix4f, end.x, end.y, (float)blitOffset).color(r, g, b, a).normal(stack.pose().last(), normal.x, normal.y, 0.0F).endVertex();
+			bufferbuilder.addVertex(matrix4f, start.x, start.y, (float)blitOffset).setColor(r, g, b, a).setNormal(stack.pose().last(), normal.x, normal.y, 0.0F);
+			bufferbuilder.addVertex(matrix4f, end.x, end.y, (float)blitOffset).setColor(r, g, b, a).setNormal(stack.pose().last(), normal.x, normal.y, 0.0F);
 		}
 		else
 		{
-			bufferbuilder.vertex(matrix4f, end.x, end.y, (float)blitOffset).color(r, g, b, a).normal(stack.pose().last(), normal.x, normal.y, 0.0F).endVertex();
-			bufferbuilder.vertex(matrix4f, start.x, start.y, (float)blitOffset).color(r, g, b, a).normal(stack.pose().last(), normal.x, normal.y, 0.0F).endVertex();
+			bufferbuilder.addVertex(matrix4f, end.x, end.y, (float)blitOffset).setColor(r, g, b, a).setNormal(stack.pose().last(), normal.x, normal.y, 0.0F);
+			bufferbuilder.addVertex(matrix4f, start.x, start.y, (float)blitOffset).setColor(r, g, b, a).setNormal(stack.pose().last(), normal.x, normal.y, 0.0F);
 		}
-		BufferUploader.drawWithShader(bufferbuilder.end());
+		BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 		RenderSystem.disableBlend();
 	}
 	
@@ -238,11 +237,11 @@ public class RenderUtil
 			Vector3f vertex = vertices.get(index);
 			Vector3f normal = normals.get(index);
 			Vector2f uv = texCoords.get(index);
-			consumer.vertex(matrix4f, vertex.x, vertex.y, vertex.z).color(1.0F, 1.0F, 1.0F, 1.0F).uv(uv.x, uv.y).overlayCoords(overlayTexture).uv2(packedLight);
+			consumer.addVertex(matrix4f, vertex.x, vertex.y, vertex.z).setColor(1.0F, 1.0F, 1.0F, 1.0F).setUv(uv.x, uv.y).setOverlay(overlayTexture).setLight(packedLight);
 			if (useNormals)
-				consumer.normal(stack.last(), normal.x, normal.y, normal.z).endVertex();
+				consumer.setNormal(stack.last(), normal.x, normal.y, normal.z);
 			else
-				consumer.normal(0.0F, -1.0F, 0.0F).endVertex();
+				consumer.setNormal(0.0F, -1.0F, 0.0F);
 		}
 	}
 	
@@ -354,7 +353,7 @@ public class RenderUtil
 			Vector3f vertex = vertices.get(index);
 			Vector3f normal = normals.get(index);
 			Vector2f uv = texCoords.get(index);
-			consumer.vertex(matrix4f, vertex.x, vertex.y, vertex.z).color(1.0F, 1.0F, 1.0F, 1.0F).uv(uv.x, uv.y).overlayCoords(overlayTexture).uv2(packedLight).normal(stack.last(), normal.x, normal.y, normal.z).endVertex();
+			consumer.addVertex(matrix4f, vertex.x, vertex.y, vertex.z).setColor(1.0F, 1.0F, 1.0F, 1.0F).setUv(uv.x, uv.y).setOverlay(overlayTexture).setLight(packedLight).setNormal(stack.last(), normal.x, normal.y, normal.z);
 		}
 	}
 	

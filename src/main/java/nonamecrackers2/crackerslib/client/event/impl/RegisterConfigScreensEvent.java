@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.Minecraft;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.config.ModConfig;
@@ -51,7 +52,9 @@ public class RegisterConfigScreensEvent extends Event implements IModBusEvent
 			//I hope you like lambdas
 			ModList.get().getModContainerById(this.modid).ifPresentOrElse(mod -> 
 			{
-				mod.registerExtensionPoint(IConfigScreenFactory.class, (mc, screen) -> {
+				mod.registerExtensionPoint(IConfigScreenFactory.class, (container, screen) -> 
+				{
+					Minecraft mc = Minecraft.getInstance();
 					return this.factory.build(this.modid, this.specsByType, mc.level != null, mc.hasSingleplayerServer(), screen);
 				});
 			}, () -> {

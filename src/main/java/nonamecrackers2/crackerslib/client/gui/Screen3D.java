@@ -172,25 +172,25 @@ public abstract class Screen3D extends Screen
 		{
 			VertexConsumer consumer = bufferSource.getBuffer(RenderType.lines());
 			Matrix4f pose = stack.pose().last().pose();
-			consumer.vertex(pose, 0.0F, 0.0F, 0.0F).color(0.0F, 1.0F, 0.0F, 1.0F).normal(stack.pose().last(), 0.0F, 1.0F, 0.0F).endVertex();
-			consumer.vertex(pose, 0.0F, 1.0F, 0.0F).color(0.0F, 1.0F, 0.0F, 1.0F).normal(stack.pose().last(), 0.0F, 1.0F, 0.0F).endVertex();
+			consumer.addVertex(pose, 0.0F, 0.0F, 0.0F).setColor(0.0F, 1.0F, 0.0F, 1.0F).setNormal(stack.pose().last(), 0.0F, 1.0F, 0.0F);
+			consumer.addVertex(pose, 0.0F, 1.0F, 0.0F).setColor(0.0F, 1.0F, 0.0F, 1.0F).setNormal(stack.pose().last(), 0.0F, 1.0F, 0.0F);
 			
-			consumer.vertex(pose, 0.0F, 0.0F, 0.0F).color(1.0F, 0.0F, 0.0F, 1.0F).normal(stack.pose().last(), 1.0F, 0.0F, 0.0F).endVertex();
-			consumer.vertex(pose, 1.0F, 0.0F, 0.0F).color(1.0F, 0.0F, 0.0F, 1.0F).normal(stack.pose().last(), 1.0F, 0.0F, 0.0F).endVertex();
+			consumer.addVertex(pose, 0.0F, 0.0F, 0.0F).setColor(1.0F, 0.0F, 0.0F, 1.0F).setNormal(stack.pose().last(), 1.0F, 0.0F, 0.0F);
+			consumer.addVertex(pose, 1.0F, 0.0F, 0.0F).setColor(1.0F, 0.0F, 0.0F, 1.0F).setNormal(stack.pose().last(), 1.0F, 0.0F, 0.0F);
 			
-			consumer.vertex(pose, 0.0F, 0.0F, 0.0F).color(0.0F, 0.0F, 1.0F, 1.0F).normal(stack.pose().last(), 0.0F, 0.0F, 1.0F).endVertex();
-			consumer.vertex(pose, 0.0F, 0.0F, 1.0F).color(0.0F, 0.0F, 1.0F, 1.0F).normal(stack.pose().last(), 0.0F, 0.0F, 1.0F).endVertex();
+			consumer.addVertex(pose, 0.0F, 0.0F, 0.0F).setColor(0.0F, 0.0F, 1.0F, 1.0F).setNormal(stack.pose().last(), 0.0F, 0.0F, 1.0F);
+			consumer.addVertex(pose, 0.0F, 0.0F, 1.0F).setColor(0.0F, 0.0F, 1.0F, 1.0F).setNormal(stack.pose().last(), 0.0F, 0.0F, 1.0F);
 		}
 		
 		this.poseMatrix = stack.pose().last().pose();
-		this.render3D(stack.pose(), bufferSource, pMouseX, pMouseY, this.minecraft.getPartialTick());
+		this.render3D(stack.pose(), bufferSource, pMouseX, pMouseY, pPartialTick); //TODO: Test this partial tick, prev was this.minecraft.getPartialTick()
 		
 		bufferSource.endBatch();
 		
 		for (Renderable renderable : this.renderables)
 		{
 			if (renderable instanceof Widget3D widget)
-				widget.renderAs3D(stack.pose(), bufferSource, pMouseX, pMouseY, this.minecraft.getPartialTick());
+				widget.renderAs3D(stack.pose(), bufferSource, pMouseX, pMouseY, pPartialTick);
 		}
 		
 		bufferSource.endBatch();
@@ -251,10 +251,10 @@ public abstract class Screen3D extends Screen
 		stack.translate(0.0D, 0.0D, 10.0D);
 		Matrix4f pose = stack.last().pose();
 		VertexConsumer consumer = buffer.getBuffer(RenderType.entityCutout(tex));
-		consumer.vertex(pose, size, -size, size).color(r, g, b, 1.0F).uv(0.0F, 1.0F).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(stack.last(), 0.0F, 1.0F, 0.0F).endVertex();
-		consumer.vertex(pose, -size, -size, size).color(r, g, b, 1.0F).uv(1.0F, 1.0F).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(stack.last(), 0.0F, 1.0F, 0.0F).endVertex();
-		consumer.vertex(pose, -size, size, size).color(r, g, b, 1.0F).uv(1.0F, 0.0F).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(stack.last(), 0.0F, 1.0F, 0.0F).endVertex();
-		consumer.vertex(pose, size, size, size).color(r, g, b, 1.0F).uv(0.0F, 0.0F).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT).normal(stack.last(), 0.0F, 1.0F, 0.0F).endVertex();
+		consumer.addVertex(pose, size, -size, size).setColor(r, g, b, 1.0F).setUv(0.0F, 1.0F).setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightTexture.FULL_BRIGHT).setNormal(stack.last(), 0.0F, 1.0F, 0.0F);
+		consumer.addVertex(pose, -size, -size, size).setColor(r, g, b, 1.0F).setUv(1.0F, 1.0F).setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightTexture.FULL_BRIGHT).setNormal(stack.last(), 0.0F, 1.0F, 0.0F);
+		consumer.addVertex(pose, -size, size, size).setColor(r, g, b, 1.0F).setUv(1.0F, 0.0F).setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightTexture.FULL_BRIGHT).setNormal(stack.last(), 0.0F, 1.0F, 0.0F);
+		consumer.addVertex(pose, size, size, size).setColor(r, g, b, 1.0F).setUv(0.0F, 0.0F).setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightTexture.FULL_BRIGHT).setNormal(stack.last(), 0.0F, 1.0F, 0.0F);
 		stack.popPose();
 	}
 }

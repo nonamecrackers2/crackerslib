@@ -73,12 +73,12 @@ public abstract class Widget3D extends AbstractWidget
 	{
 		Matrix4f matrix4f = stack.last().pose();
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-		bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		bufferbuilder.vertex(matrix4f, x, y, (float)blitOffset).uv(u1, v1).endVertex();
-		bufferbuilder.vertex(matrix4f, x, y + height, (float)blitOffset).uv(u1, v2).endVertex();
-		bufferbuilder.vertex(matrix4f, x + width, y + height, (float)blitOffset).uv(u2, v2).endVertex();
-		bufferbuilder.vertex(matrix4f, x + width, y, (float)blitOffset).uv(u2, v1).endVertex();
-		BufferUploader.drawWithShader(bufferbuilder.end());
+		Tesselator tesselator = Tesselator.getInstance();
+		BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		bufferbuilder.addVertex(matrix4f, x, y, (float)blitOffset).setUv(u1, v1);
+		bufferbuilder.addVertex(matrix4f, x, y + height, (float)blitOffset).setUv(u1, v2);
+		bufferbuilder.addVertex(matrix4f, x + width, y + height, (float)blitOffset).setUv(u2, v2);
+		bufferbuilder.addVertex(matrix4f, x + width, y, (float)blitOffset).setUv(u2, v1);
+		BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 	}
 }

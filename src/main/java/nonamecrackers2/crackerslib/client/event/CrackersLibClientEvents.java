@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.GridLayout;
-import net.minecraft.client.gui.screens.OptionsScreen;
+import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
@@ -57,7 +57,7 @@ public class CrackersLibClientEvents
 						if (buttonFactory != null)
 						{
 							var button = rowHelper.addChild(buttonFactory.makeButton(action -> {
-								mc.setScreen(factory.createScreen(mc, screen));
+								mc.setScreen(factory.createScreen(mod, screen));
 							}));
 							button.setWidth(20);
 							button.setHeight(20);

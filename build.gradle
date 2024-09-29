@@ -3,7 +3,11 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.133'
+    id 'net.neoforged.gradle.userdev' version '7.0.145'
+}
+
+tasks.named('wrapper', Wrapper).configure {
+    distributionType = Wrapper.DistributionType.BIN
 }
 
 version = mod_version
@@ -47,6 +51,10 @@ runs {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 }
@@ -72,19 +80,19 @@ tasks.withType(ProcessResources).configureEach {
     }
     
     //For Eclipse
-    var resourceTargets = ['META-INF/neoforge.mods.toml', 'pack.mcmeta']
-    var intoTargets = ["$rootDir/bin/main/"]
-    intoTargets.each { target ->
-        if (file(target).exists()) {
-            copy {
-                from(sourceSets.main.resources) {
-                    include resourceTargets
-                    expand replaceProperties
-                }
-                into target
-            }
-        }
-    }
+    //var resourceTargets = ['META-INF/neoforge.mods.toml', 'pack.mcmeta']
+    //var intoTargets = ["$rootDir/bin/main/"]
+    //intoTargets.each { target ->
+    //    if (file(target).exists()) {
+    //        copy {
+    //            from(sourceSets.main.resources) {
+    //                include resourceTargets
+    //                expand replaceProperties
+    //            }
+    //            into target
+    //        }
+    //    }
+    //}
 }
 
 java {

@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec.RestartType;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigListItem;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 
@@ -23,7 +24,7 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	protected final ModConfigSpec.ConfigValue<T> value;
 	protected final ModConfigSpec.ValueSpec valueSpec;
 	protected final ModConfigSpec spec;
-	protected final boolean requiresRestart;
+	protected final RestartType restartType;
 	protected final String path;
 	protected final Component name;
 	protected final Component description;
@@ -37,8 +38,8 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		this.mc = mc;
 		this.path = path;
 		this.value = spec.getValues().getRaw(path);
-		this.valueSpec = spec.getRaw(path);
-		this.requiresRestart = this.valueSpec.needsWorldRestart();
+		this.valueSpec = spec.getSpec().getRaw(path);
+		this.restartType = this.valueSpec.restartType();
 		this.spec = spec;
 		this.name = Component.translatable("gui." + modid + ".config." + ConfigListItem.extractNameFromPath(path) + ".title");
 		String key = this.valueSpec.getTranslationKey();
@@ -47,8 +48,8 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		else
 			this.description = Component.translatable(key);
 		this.onValueUpdated = onValueUpdated;
-		if (this.requiresRestart)
-			this.restartText = Component.translatable("gui.crackerslib.screen.config.requiresRestart").withStyle(ChatFormatting.RED);
+		if (this.restartType != RestartType.NONE)
+			this.restartText = Component.translatable("gui.crackerslib.screen.config.requiresRestart", this.restartType).withStyle(ChatFormatting.RED);
 		else
 			this.restartText = null;
 	}
@@ -129,7 +130,7 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 			this.widget = this.buildWidget(x, y, width, height);
 		widgets.add(this.widget);
 		int allowedWidth = width - this.widget.getWidth() - x - 5;
-		if (this.requiresRestart)
+		if (this.restartType != RestartType.NONE)
 			allowedWidth -= this.mc.font.width(this.restartText);
 		this.displayName = ConfigListItem.shortenText(this.name, allowedWidth);
 	}
@@ -171,7 +172,7 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		}
 		comment.append("\n");
 		comment.append(Component.literal(defaultName + object).withStyle(ChatFormatting.GREEN));
-		if (this.requiresRestart)
+		if (this.restartType != RestartType.NONE)
 		{
 			comment.append("\n");
 			comment.append(Component.translatable("gui.crackerslib.screen.config.requiresRestart").withStyle(ChatFormatting.YELLOW));

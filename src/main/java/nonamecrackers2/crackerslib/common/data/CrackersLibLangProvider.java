@@ -40,7 +40,7 @@ public class CrackersLibLangProvider extends LanguageProvider
 		this.add("gui.crackerslib.screen.config.github", "GitHub");
 		this.add("gui.crackerslib.screen.config.github.info", "Report bugs/provide feedback here!");
 		this.add("gui.crackerslib.screen.config.search", "Search");
-		this.add("gui.crackerslib.screen.config.requiresRestart", "Requires restart");
+		this.add("gui.crackerslib.screen.config.requiresRestart", "Requires restart of %s");
 		this.add("gui.crackerslib.screen.clientOptions.title", "Client Options");
 		this.add("gui.crackerslib.screen.clientOptions.info", "Includes various config options for the client with varying purposes, such as performance and personal preference.");
 		this.add("gui.crackerslib.screen.commonOptions.title", "Common Options");
@@ -52,7 +52,7 @@ public class CrackersLibLangProvider extends LanguageProvider
 		this.add("argument.crackerslib.config.invalidValue", "Could not find config value `%s`");
 		this.add("commands.crackerslib.setConfig.set.fail", "Value did not change or is invalid.");
 		this.add("commands.crackerslib.setConfig.set.success", "Successfully set '%s' to '%s'");
-		this.add("commands.crackerslib.setConfig.set.note", "Note: '%s' requires a restart to take effect.");
+		this.add("commands.crackerslib.setConfig.set.note", "Note: '%s' requires a restart of %s to take effect.");
 		this.add("commands.crackerslib.getConfig.get", "The value of '%s' is '%s'");
 		this.add("commands.crackerslib.setDefault.success", "Set '%s' to its default: '%s'");
 	}
