@@ -41,6 +41,7 @@ import nonamecrackers2.crackerslib.client.gui.widget.config.entry.DoubleConfigEn
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.EnumConfigEntry;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.IntegerConfigEntry;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.ListConfigEntry;
+import nonamecrackers2.crackerslib.client.gui.widget.config.entry.LongConfigEntry;
 import nonamecrackers2.crackerslib.client.gui.widget.config.entry.StringConfigEntry;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPresets;
@@ -56,7 +57,9 @@ public class ConfigScreen extends Screen
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int EXIT_BUTTON_OFFSET = 26;
 	private static final int HEADER_HEIGHT = 30;
+	private static final int FOOTER_HEIGHT = 35;
 	private final String modid;
+	private final ModConfig.Type type;	
 	private final ModConfigSpec spec;
 	private final Consumer<ConfigOptionList> itemGenerator;
 	private final Screen homeScreen;
@@ -75,6 +78,7 @@ public class ConfigScreen extends Screen
 	{
 		super(Component.translatable("gui.crackerslib.screen." + type.extension() + "Options.title"));
 		this.modid = modid;
+		this.type = type;
 		this.spec = spec;
 		this.itemGenerator = itemGenerator;
 		this.homeScreen = homeScreen;
@@ -119,7 +123,6 @@ public class ConfigScreen extends Screen
 				path = previousPath + "." + path;
 			return Map.entry(path, entry.getValue());
 		}).filter(entry -> {
-			//TODO: Test
 			return !NeoForge.EVENT_BUS.post(new AddConfigEntryToMenuEvent(modid, type, entry.getKey())).isCanceled();
 		}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
@@ -144,6 +147,8 @@ public class ConfigScreen extends Screen
 				var clazz = value.getDefault().getClass();
 				if (Integer.class.isAssignableFrom(clazz))
 					list.addConfigValue(path, IntegerConfigEntry::new, category);
+				else if (Long.class.isAssignableFrom(clazz))
+					list.addConfigValue(path, LongConfigEntry::new, category);
 				else if (Double.class.isAssignableFrom(clazz))
 					list.addConfigValue(path, DoubleConfigEntry::new, category);
 				else if (Boolean.class.isAssignableFrom(clazz))
@@ -193,8 +198,8 @@ public class ConfigScreen extends Screen
 	
 	private static void putListEntry(ConfigOptionList list, String path, Optional<ConfigCategory> category, ListConfigEntry.ValueParser<?> parser)
 	{
-		list.addConfigValue(path, (mc, modid, p, s, r) -> {
-			return new ListConfigEntry(mc, modid, p, s, r, parser);
+		list.addConfigValue(path, (mc, modid, type, p, s, r) -> {
+			return new ListConfigEntry(mc, modid, type, p, s, r, parser);
 		}, category);
 	}
 	
@@ -203,10 +208,10 @@ public class ConfigScreen extends Screen
 	{
 		if (this.list == null)
 		{
-			this.list = new ConfigOptionList(this.minecraft, this.modid, this.spec, this.width, this.height, HEADER_HEIGHT, this::onValueChanged);
+			this.list = new ConfigOptionList(this.minecraft, this.modid, this.type, this.spec, this.width, this.height - HEADER_HEIGHT - FOOTER_HEIGHT, HEADER_HEIGHT, this::onValueChanged);
 			this.itemGenerator.accept(this.list);
 		}
-		this.list.updateSizeAndPosition(this.width, this.height, HEADER_HEIGHT);
+		this.list.updateSizeAndPosition(this.width, this.height - HEADER_HEIGHT - FOOTER_HEIGHT, HEADER_HEIGHT);
 		this.list.buildList();
 		this.addRenderableWidget(this.list);
 		
@@ -264,7 +269,13 @@ public class ConfigScreen extends Screen
 	private void closeMenu()
 	{
 		this.list.onClosed();
-		this.minecraft.setScreen(this.homeScreen);
+		if (this.minecraft.screen == this)
+			this.minecraft.setScreen(this.homeScreen);
+	}
+	
+	public Screen getHomeScreen()
+	{
+		return this.homeScreen;
 	}
 	
 	private void resetValues()

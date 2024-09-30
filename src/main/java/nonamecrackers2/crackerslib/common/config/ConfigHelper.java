@@ -1,5 +1,6 @@
 package nonamecrackers2.crackerslib.common.config;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -15,6 +16,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec.RestartType;
 import net.neoforged.neoforge.common.ModConfigSpec.ValueSpec;
 
 public abstract class ConfigHelper
@@ -30,40 +32,83 @@ public abstract class ConfigHelper
 		this.modid = modid;
 	}
 	
-	protected <T> ModConfigSpec.ConfigValue<T> createValue(T value, String name, boolean restart, String description)
+	protected <T> ModConfigSpec.ConfigValue<T> createValue(T value, String name, RestartType restartType, String description)
 	{
-		return this.defaultProperties(name, description, restart, value).define(name, value);
+		return this.defaultProperties(name, description, restartType, value).define(name, value);
 	}
 	
-	protected ModConfigSpec.ConfigValue<Double> createRangedDoubleValue(double value, double min, double max, String name, boolean restart, String description)
+	protected ModConfigSpec.ConfigValue<Double> createRangedDoubleValue(double value, double min, double max, String name, RestartType restartType, String description)
 	{
-		return this.defaultProperties(name, description, restart, value).defineInRange(name, value, min, max);
+		return this.defaultProperties(name, description, restartType, value).defineInRange(name, value, min, max);
 	}
 	
-	protected ModConfigSpec.ConfigValue<Integer> createRangedIntValue(int value, int min, int max, String name, boolean restart, String description)
+	protected ModConfigSpec.ConfigValue<Integer> createRangedIntValue(int value, int min, int max, String name, RestartType restartType, String description)
 	{
-		return this.defaultProperties(name, description, restart, value).defineInRange(name, value, min, max);
+		return this.defaultProperties(name, description, restartType, value).defineInRange(name, value, min, max);
 	}
 	
-	protected <T extends Enum<T>> ModConfigSpec.ConfigValue<T> createEnumValue(T value, String name, boolean restart, String description)
+	protected ModConfigSpec.ConfigValue<Long> createRangedLongValue(long value, long min, long max, String name, RestartType restartType, String description)
 	{
-		return this.defaultProperties(name, description, restart, value).defineEnum(name, value);
+		return this.defaultProperties(name, description, restartType, value).defineInRange(name, value, min, max);
+	}
+	
+	protected <T extends Enum<T>> ModConfigSpec.ConfigValue<T> createEnumValue(T value, String name, RestartType restartType, String description)
+	{
+		return this.defaultProperties(name, description, restartType, value).defineEnum(name, value);
+	}
+	
+	protected <T extends Enum<T>> ModConfigSpec.ConfigValue<T> createEnumValue(T value, String name, RestartType restartType, String description, @SuppressWarnings("unchecked") T... valid)
+	{
+		return this.defaultProperties(name, description, restartType, value).defineEnum(name, value, valid);
+	}
+	
+	protected <T extends Enum<T>> ModConfigSpec.ConfigValue<T> createEnumValue(T value, String name, RestartType restartType, String description, Collection<T> valid)
+	{
+		
+		return this.defaultProperties(name, description, restartType, value).defineEnum(name, value, valid);
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected <T> ModConfigSpec.ConfigValue<List<? extends T>> createListValue(Class<T> valueClass, Supplier<List<? extends T>> value, Predicate<T> validator, String name, boolean restart, String description)
+	protected <T extends Enum<T>> ModConfigSpec.ConfigValue<T> createEnumValue(T value, String name, RestartType restartType, String description, Predicate<T> validator)
 	{
-		return this.defaultProperties(name, description, restart, null).defineListAllowEmpty(split(name), value, obj -> {
+		return this.defaultProperties(name, description, restartType, value).defineEnum(name, value, obj -> {
+			return value.getDeclaringClass().isAssignableFrom(obj.getClass()) && validator.test((T)obj);
+		});
+	}
+	
+	protected <T> ModConfigSpec.ConfigValue<List<? extends T>> createListValue(Class<T> valueClass, Supplier<List<? extends T>> value, Predicate<T> validator, String name, RestartType restartType, String description, T newValue)
+	{
+		return this.createListValueWithNewValueSupplier(valueClass, value, validator, name, restartType, description, () -> newValue);
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected <T> ModConfigSpec.ConfigValue<List<? extends T>> createListValueWithNewValueSupplier(Class<T> valueClass, Supplier<List<? extends T>> value, Predicate<T> validator, String name, RestartType restartType, String description, Supplier<T> newValue)
+	{
+		return this.defaultProperties(name, description, restartType, null).defineListAllowEmpty(split(name), value, newValue, obj -> {
 			return valueClass.isAssignableFrom(obj.getClass()) && validator.test((T)obj);
 		});
 	}
 	
-	protected <T> ModConfigSpec.Builder defaultProperties(String name, String desc, boolean restart, @Nullable T defaultValue)
+	protected <T> ModConfigSpec.Builder defaultProperties(String name, String desc, RestartType restartType, @Nullable T defaultValue)
 	{
-		if (restart)
+		if (restartType != RestartType.NONE)
 		{
-			this.builder.worldRestart().comment(desc);
-			this.builder.comment("Requires restart.");
+			switch (restartType)
+			{
+			case WORLD:
+			{
+				this.builder.worldRestart();
+				break;
+			}
+			case GAME:
+			{
+				this.builder.gameRestart();
+				break;
+			}
+			default:
+			}
+			this.builder.comment(desc);
+			this.builder.comment("Requires restart of " + restartType.toString());
 		}
 		else
 		{

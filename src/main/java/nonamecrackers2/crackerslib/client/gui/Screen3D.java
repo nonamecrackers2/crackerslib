@@ -183,7 +183,7 @@ public abstract class Screen3D extends Screen
 		}
 		
 		this.poseMatrix = stack.pose().last().pose();
-		this.render3D(stack.pose(), bufferSource, pMouseX, pMouseY, pPartialTick); //TODO: Test this partial tick, prev was this.minecraft.getPartialTick()
+		this.render3D(stack.pose(), bufferSource, pMouseX, pMouseY, pPartialTick); //prev was this.minecraft.getPartialTick()
 		
 		bufferSource.endBatch();
 		
@@ -193,6 +193,7 @@ public abstract class Screen3D extends Screen
 				widget.renderAs3D(stack.pose(), bufferSource, pMouseX, pMouseY, pPartialTick);
 		}
 		
+		RenderSystem.clear(256, Minecraft.ON_OSX);
 		bufferSource.endBatch();
 		
 		stack.pose().popPose();
@@ -205,6 +206,12 @@ public abstract class Screen3D extends Screen
 		
 		for (Renderable renderable : this.renderables) 
             renderable.render(stack, pMouseX, pMouseY, pPartialTick);
+	}
+	
+	@Override
+	public boolean isPauseScreen()
+	{
+		return false;
 	}
 	
 	protected void render3D(PoseStack stack, MultiBufferSource buffers, int mouseX, int mouseY, float partialTick) {}

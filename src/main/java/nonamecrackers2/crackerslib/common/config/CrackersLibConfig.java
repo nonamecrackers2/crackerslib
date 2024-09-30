@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec.RestartType;
 import nonamecrackers2.crackerslib.CrackersLib;
 
 public class CrackersLibConfig
@@ -31,7 +32,7 @@ public class CrackersLibConfig
 				return Lists.newArrayList("example_mod_id");
 			}, v -> {
 				return true;
-			}, "hiddenConfigMenuButtons", false, "A list of mod ids that cannot have their registered config menu buttons appear in the options screen");
+			}, "hiddenConfigMenuButtons", RestartType.NONE, "A list of mod ids that cannot have their registered config menu buttons appear in the options screen", "modid");
 		}
 	}
 }

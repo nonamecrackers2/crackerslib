@@ -25,7 +25,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 public class ConfigArgument implements ArgumentType<String>
 {
 	private static final DynamicCommandExceptionType INVALID_VALUE = new DynamicCommandExceptionType(o -> {
-		return Component.translatable("argument.crackerslib.config.invalidValue", o);
+		return Component.translatableEscape("argument.crackerslib.config.invalidValue", o);
 	});
 	private final List<String> availableOptions;
 	
@@ -45,7 +45,7 @@ public class ConfigArgument implements ArgumentType<String>
 		String name = reader.readUnquotedString();
 		for (String option : this.getAvailableOptions())
 		{
-			if (option.contains(name) || option.equals(name))
+			if (option.equals(name))
 				return option;
 		}
 		throw INVALID_VALUE.create(name);

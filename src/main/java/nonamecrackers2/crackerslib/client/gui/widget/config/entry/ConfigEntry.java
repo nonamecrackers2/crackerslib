@@ -1,6 +1,7 @@
 package nonamecrackers2.crackerslib.client.gui.widget.config.entry;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
@@ -13,14 +14,19 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.ModConfigSpec.RestartType;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigListItem;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPreset;
+import nonamecrackers2.crackerslib.common.event.impl.OnConfigOptionSaved;
 
 public abstract class ConfigEntry<T, W extends AbstractWidget> implements ConfigListItem
 {
 	protected final Minecraft mc;
+	protected final String modid;
+	protected final ModConfig.Type type;
 	protected final ModConfigSpec.ConfigValue<T> value;
 	protected final ModConfigSpec.ValueSpec valueSpec;
 	protected final ModConfigSpec spec;
@@ -33,9 +39,11 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	protected W widget;
 	protected Component displayName;
 	
-	public ConfigEntry(Minecraft mc, String modid, String path, ModConfigSpec spec, Runnable onValueUpdated)
+	public ConfigEntry(Minecraft mc, String modid, ModConfig.Type type, String path, ModConfigSpec spec, Runnable onValueUpdated)
 	{
 		this.mc = mc;
+		this.modid = modid;
+		this.type = type;
 		this.path = path;
 		this.value = spec.getValues().getRaw(path);
 		this.valueSpec = spec.getSpec().getRaw(path);
@@ -49,7 +57,7 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 			this.description = Component.translatable(key);
 		this.onValueUpdated = onValueUpdated;
 		if (this.restartType != RestartType.NONE)
-			this.restartText = Component.translatable("gui.crackerslib.screen.config.requiresRestart", this.restartType).withStyle(ChatFormatting.RED);
+			this.restartText = Component.translatable("gui.crackerslib.screen.config.requiresRestart", this.restartType.toString()).withStyle(ChatFormatting.RED);
 		else
 			this.restartText = null;
 	}
@@ -120,7 +128,13 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	{
 		var current = this.getCurrentValue();
 		if (this.valueSpec.test(current))
+		{
+			OnConfigOptionSaved<T> event = new OnConfigOptionSaved<>(this.modid, this.type, OnConfigOptionSaved.Source.CONFIG_SCREEN, this.value, current, !Objects.equals(current, this.value.get()));
+			NeoForge.EVENT_BUS.post(event);
+			if (event.getOverrideValue() != null && this.valueSpec.test(event.getOverrideValue()))
+				current = event.getOverrideValue();
 			this.value.set(current);
+		}
 	}
 	
 	@Override

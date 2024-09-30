@@ -18,8 +18,9 @@ import nonamecrackers2.crackerslib.client.event.impl.RegisterConfigScreensEvent;
 import nonamecrackers2.crackerslib.client.gui.ConfigHomeScreen;
 import nonamecrackers2.crackerslib.client.gui.ConfigMenuButtons;
 import nonamecrackers2.crackerslib.client.gui.title.TextTitle;
-import nonamecrackers2.crackerslib.client.gui.widget.config.CrackersLibConfigHomeMenu;
+import nonamecrackers2.crackerslib.client.gui.widget.config.CrackersLibDebugConfigHomeMenu;
 import nonamecrackers2.crackerslib.common.config.CrackersLibConfig;
+import nonamecrackers2.crackerslib.example.common.config.ExampleConfig;
 
 public class CrackersLibClientEvents
 {
@@ -30,13 +31,19 @@ public class CrackersLibClientEvents
 		if (FMLEnvironment.production)
 			factory = builder.build();
 		else
-			factory = builder.build(CrackersLibConfigHomeMenu::new);
-		event.builder(factory).addSpec(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC).register();;//.addSpec(ModConfig.Type.SERVER, ExampleConfig.SERVER_SPEC).register();
+			factory = builder.build(CrackersLibDebugConfigHomeMenu::new);
+		event.builder(factory).addSpec(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC).addSpec(ModConfig.Type.SERVER, ExampleConfig.SERVER_SPEC).register();
 	}
 	
 //	public static void registerConfigMenuButton(ConfigMenuButtonEvent event)
 //	{
 //		event.defaultButtonWithSingleCharacter('C', 0xFFF5D442);
+//	}
+//	
+//	@SubscribeEvent
+//	public static void registerClientCommands(RegisterClientCommandsEvent event)
+//	{
+//		ConfigCommandBuilder.builder(event.getDispatcher(), CrackersLib.MODID).addSpec(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC).register();
 //	}
 	
 	@SubscribeEvent

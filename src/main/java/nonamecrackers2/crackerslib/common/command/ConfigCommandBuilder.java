@@ -2,6 +2,7 @@ package nonamecrackers2.crackerslib.common.command;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 import com.google.common.collect.Lists;
@@ -23,28 +24,33 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.RestartType;
 import net.neoforged.neoforge.common.ModConfigSpec.ValueSpec;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.server.command.EnumArgument;
 import nonamecrackers2.crackerslib.common.command.argument.ConfigArgument;
 import nonamecrackers2.crackerslib.common.config.ConfigHelper;
+import nonamecrackers2.crackerslib.common.event.impl.OnConfigOptionSaved;
 
 /**
  * Creates config commands for modifying config options in game
  */
+//TODO: Test
 public class ConfigCommandBuilder
 {
+	private final String modid;
 	private final Map<ModConfig.Type, ModConfigSpec> specs = Maps.newEnumMap(ModConfig.Type.class);
 	private final LiteralArgumentBuilder<CommandSourceStack> argumentBuilder;
 	private final CommandDispatcher<CommandSourceStack> dispatcher;
 	
-	public ConfigCommandBuilder(LiteralArgumentBuilder<CommandSourceStack> argumentBuilder, CommandDispatcher<CommandSourceStack> dispatcher)
+	public ConfigCommandBuilder(String modid, LiteralArgumentBuilder<CommandSourceStack> argumentBuilder, CommandDispatcher<CommandSourceStack> dispatcher)
 	{
+		this.modid = modid;
 		this.argumentBuilder = argumentBuilder;
 		this.dispatcher = dispatcher;
 	}
 	
-	public static ConfigCommandBuilder builder(CommandDispatcher<CommandSourceStack> dispatcher, String rootName)
+	public static ConfigCommandBuilder builder(CommandDispatcher<CommandSourceStack> dispatcher, String modid)
 	{
-		return new ConfigCommandBuilder(Commands.literal(rootName).requires(src -> src.hasPermission(2)), dispatcher);
+		return new ConfigCommandBuilder(modid, Commands.literal(modid), dispatcher);
 	}
 	
 	public ConfigCommandBuilder addSpec(ModConfig.Type type, ModConfigSpec spec)
@@ -63,14 +69,16 @@ public class ConfigCommandBuilder
 			ModConfig.Type type = entry.getKey();
 			ModConfigSpec spec = entry.getValue();
 			var specArgument = Commands.literal(type.extension());
-			addArgumentsForSpec(spec, specArgument);
+			if (type != ModConfig.Type.CLIENT)
+				specArgument.requires(src -> src.hasPermission(2));
+			addArgumentsForSpec(spec, this.modid, type, specArgument);
 			root.then(specArgument);
 		}
 		this.argumentBuilder.then(root);
 		this.dispatcher.register(this.argumentBuilder);
 	}
 	
-	private static void addArgumentsForSpec(ModConfigSpec spec, LiteralArgumentBuilder<CommandSourceStack> specArgument)
+	private static void addArgumentsForSpec(ModConfigSpec spec, String modid, ModConfig.Type type, LiteralArgumentBuilder<CommandSourceStack> specArgument)
 	{
 		Map<String, ModConfigSpec.ValueSpec> allValues = ConfigHelper.getAllSpecs(spec);
 		var setArg = Commands.literal("set")
@@ -78,44 +86,44 @@ public class ConfigCommandBuilder
 						Commands.argument("double", ConfigArgument.arg(allValues, Double.class))
 						.then(
 								Commands.argument("value", DoubleArgumentType.doubleArg())
-								.executes(ctx -> set(ctx, "double", DoubleArgumentType::getDouble, spec))
+								.executes(ctx -> set(ctx, "double", DoubleArgumentType::getDouble, spec, modid, type))
 						)
 						.then(
 								Commands.literal("default")
-								.executes(ctx -> setDefault(ctx, "double", spec))
+								.executes(ctx -> setDefault(ctx, "double", spec, modid, type))
 						)
 				)
 				.then(
 						Commands.argument("boolean", ConfigArgument.arg(allValues, Boolean.class))
 						.then(
 								Commands.argument("value", BoolArgumentType.bool())
-								.executes(ctx -> set(ctx, "boolean", BoolArgumentType::getBool, spec))
+								.executes(ctx -> set(ctx, "boolean", BoolArgumentType::getBool, spec, modid, type))
 						)
 						.then(
 								Commands.literal("default")
-								.executes(ctx -> setDefault(ctx, "boolean", spec))
+								.executes(ctx -> setDefault(ctx, "boolean", spec, modid, type))
 						)
 				)
 				.then(
 						Commands.argument("integer", ConfigArgument.arg(allValues, Integer.class))
 						.then(
 								Commands.argument("value", IntegerArgumentType.integer())
-								.executes(ctx -> set(ctx, "integer", IntegerArgumentType::getInteger, spec))
+								.executes(ctx -> set(ctx, "integer", IntegerArgumentType::getInteger, spec, modid, type))
 						)
 						.then(
 								Commands.literal("default")
-								.executes(ctx -> setDefault(ctx, "integer", spec))
+								.executes(ctx -> setDefault(ctx, "integer", spec, modid, type))
 						)
 				)
 				.then(
 						Commands.argument("string", ConfigArgument.arg(allValues, String.class))
 						.then(
 								Commands.argument("value", StringArgumentType.greedyString())
-								.executes(ctx -> set(ctx, "string", StringArgumentType::getString, spec))
+								.executes(ctx -> set(ctx, "string", StringArgumentType::getString, spec, modid, type))
 						)
 						.then(
 								Commands.literal("default")
-								.executes(ctx -> setDefault(ctx, "string", spec))
+								.executes(ctx -> setDefault(ctx, "string", spec, modid, type))
 						)
 				);
 		//Auto register the command arguments for custom enums (really hacky)
@@ -126,11 +134,11 @@ public class ConfigCommandBuilder
 					Commands.argument(name, ConfigArgument.arg(allValues, clazz))
 					.then(
 							Commands.argument("value", EnumArgument.enumArgument(clazz))
-							.executes(ctx -> set(ctx, name, (ctx1, arg) -> ctx1.getArgument(arg, clazz), spec))
+							.executes(ctx -> set(ctx, name, (ctx1, arg) -> ctx1.getArgument(arg, clazz), spec, modid, type))
 					)
 					.then(
 							Commands.literal("default")
-							.executes(ctx -> setDefault(ctx, name, spec))
+							.executes(ctx -> setDefault(ctx, name, spec, modid, type))
 					)
 			);
 		}
@@ -157,20 +165,27 @@ public class ConfigCommandBuilder
 		return list;
 	}
 	
-	private static <T> int set(CommandContext<CommandSourceStack> context, String arg, BiFunction<CommandContext<CommandSourceStack>, String, T> valueGetter, ModConfigSpec spec) throws CommandSyntaxException
+	private static <T> int set(CommandContext<CommandSourceStack> context, String arg, BiFunction<CommandContext<CommandSourceStack>, String, T> valueGetter, ModConfigSpec spec, String modid, ModConfig.Type type) throws CommandSyntaxException
 	{
 		CommandSourceStack source = context.getSource();
 		ModConfigSpec.ConfigValue<T> config = ConfigArgument.get(context, arg, spec);
 		T value = valueGetter.apply(context, "value");
 		ValueSpec valueSpec = spec.getSpec().getRaw(config.getPath());
-		if (!config.get().equals(value) && valueSpec.test(value))
+		if (!valueSpec.test(value))
+			return 0;
+		OnConfigOptionSaved<T> event = new OnConfigOptionSaved<>(modid, type, OnConfigOptionSaved.Source.COMMAND, config, value, !Objects.equals(config.get(), value));
+		NeoForge.EVENT_BUS.post(event);
+		if (event.getOverrideValue() != null)
+			value = event.getOverrideValue();
+		if (!Objects.equals(config.get(), value) && valueSpec.test(value))
 		{
 			config.set(value);
 			String joinedPath = ConfigHelper.DOT_JOINER.join(config.getPath());
-			source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.success", joinedPath, value), true);
+			Component result = Component.translatable("commands.crackerslib.setConfig.set.success", joinedPath, value.toString());
+			source.sendSuccess(() -> result, true);
 			if (valueSpec.restartType() != RestartType.NONE)
 			{
-				source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.note", joinedPath, valueSpec.restartType()).withStyle(ChatFormatting.GRAY), false);
+				source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.note", joinedPath, valueSpec.restartType().toString()).withStyle(ChatFormatting.GRAY), false);
 				return 2;
 			}
 			else
@@ -189,7 +204,7 @@ public class ConfigCommandBuilder
 	{
 		ModConfigSpec.ConfigValue<Object> config = ConfigArgument.get(context, "value", spec);
 		Object val = config.get();
-		context.getSource().sendSuccess(() -> Component.translatable("commands.crackerslib.getConfig.get", ConfigHelper.DOT_JOINER.join(config.getPath()), config.get()), false);
+		context.getSource().sendSuccess(() -> Component.translatable("commands.crackerslib.getConfig.get", ConfigHelper.DOT_JOINER.join(config.getPath()), config.get().toString()), false);
 		if (val instanceof Integer integer)
 			return integer;
 		else if (val instanceof Boolean bool)
@@ -202,19 +217,22 @@ public class ConfigCommandBuilder
 			return -1;
 	}
 	
-	public static int setDefault(CommandContext<CommandSourceStack> context, String arg, ModConfigSpec spec)
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static int setDefault(CommandContext<CommandSourceStack> context, String arg, ModConfigSpec spec, String modid, ModConfig.Type type)
 	{
 		CommandSourceStack source = context.getSource();
 		ModConfigSpec.ConfigValue<Object> config = ConfigArgument.get(context, arg, spec);
 		ValueSpec valueSpec = spec.getSpec().getRaw(config.getPath());
-		if (config.get() != config.getDefault())
+		boolean flag = !Objects.equals(config.get(), config.getDefault());
+		NeoForge.EVENT_BUS.post(new OnConfigOptionSaved(modid, type, OnConfigOptionSaved.Source.COMMAND, config, config.getDefault(), flag));
+		if (flag)
 		{
 			config.set(config.getDefault());
 			String name = ConfigHelper.DOT_JOINER.join(config.getPath());
-			source.sendSuccess(() -> Component.translatable("commands.crackerslib.setDefault.success", name, config.get()), true);
+			source.sendSuccess(() -> Component.translatable("commands.crackerslib.setDefault.success", name, config.get().toString()), true);
 			if (valueSpec.restartType() != RestartType.NONE)
 			{
-				source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.note", name, valueSpec.restartType()).withStyle(ChatFormatting.GRAY), false);
+				source.sendSuccess(() -> Component.translatable("commands.crackerslib.setConfig.set.note", name, valueSpec.restartType().toString()).withStyle(ChatFormatting.GRAY), false);
 				return 2;
 			}
 			else
