@@ -33,7 +33,6 @@ import nonamecrackers2.crackerslib.common.event.impl.OnConfigOptionSaved;
 /**
  * Creates config commands for modifying config options in game
  */
-//TODO: Test
 public class ConfigCommandBuilder
 {
 	private final String modid;

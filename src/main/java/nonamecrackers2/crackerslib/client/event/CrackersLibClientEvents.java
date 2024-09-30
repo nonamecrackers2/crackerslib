@@ -20,7 +20,6 @@ import nonamecrackers2.crackerslib.client.gui.ConfigMenuButtons;
 import nonamecrackers2.crackerslib.client.gui.title.TextTitle;
 import nonamecrackers2.crackerslib.client.gui.widget.config.CrackersLibDebugConfigHomeMenu;
 import nonamecrackers2.crackerslib.common.config.CrackersLibConfig;
-import nonamecrackers2.crackerslib.example.common.config.ExampleConfig;
 
 public class CrackersLibClientEvents
 {
@@ -32,7 +31,7 @@ public class CrackersLibClientEvents
 			factory = builder.build();
 		else
 			factory = builder.build(CrackersLibDebugConfigHomeMenu::new);
-		event.builder(factory).addSpec(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC).addSpec(ModConfig.Type.SERVER, ExampleConfig.SERVER_SPEC).register();
+		event.builder(factory).addSpec(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC).register();//.addSpec(ModConfig.Type.SERVER, ExampleConfig.SERVER_SPEC).register();
 	}
 	
 //	public static void registerConfigMenuButton(ConfigMenuButtonEvent event)
