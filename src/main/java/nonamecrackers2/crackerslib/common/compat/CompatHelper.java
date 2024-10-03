@@ -43,7 +43,7 @@ public class CompatHelper
 	{
 		try
 		{
-			if (isOculusLoaded())
+			if (isIrisLoaded())
 			{
 				var clazz = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
 				var instanceGetter = clazz.getMethod("getInstance");
@@ -99,9 +99,9 @@ public class CompatHelper
 		return vivecraftStandaloneLoaded || ModList.get().isLoaded("vivecraft");
 	}
 	
-	public static boolean isOculusLoaded()
+	public static boolean isIrisLoaded()
 	{
-		return ModList.get().isLoaded("oculus");
+		return ModList.get().isLoaded("iris");
 	}
 	
 	public static boolean isOptifineLoaded()
@@ -111,7 +111,7 @@ public class CompatHelper
 	
 	public static boolean isSodiumLoaded()
 	{
-		return ModList.get().isLoaded("rubidium");
+		return ModList.get().isLoaded("sodium");
 	}
 	
 	private static final void doErrorFor(String mod, Runnable runnable)
