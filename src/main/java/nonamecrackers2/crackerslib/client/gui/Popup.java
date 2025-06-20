@@ -39,7 +39,6 @@ public class Popup extends Screen
 	private final int boxWidth;
 	private final int widgetsHeight;
 	private boolean alignLeft;
-	private boolean doNotQueue;
 	private int x;
 	private int y;
 	private int boxHeight;
@@ -207,15 +206,14 @@ public class Popup extends Screen
 		}, width, 20, message).open();
 	}
 	
+	public static void clearQueue()
+	{
+		POPUP_QUEUE.clear();
+	}
+	
 	public Popup alignLeft()
 	{
 		this.alignLeft = true;
-		return this;
-	}
-	
-	public Popup doNotQueue()
-	{
-		this.doNotQueue = true;
 		return this;
 	}
 	
@@ -280,7 +278,7 @@ public class Popup extends Screen
 	public Popup open()
 	{
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.screen instanceof Popup && !this.doNotQueue)
+		if (mc.screen instanceof Popup)
 			POPUP_QUEUE.add(this);
 		else
 			mc.setScreen(this);
