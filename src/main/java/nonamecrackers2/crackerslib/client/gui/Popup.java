@@ -30,6 +30,7 @@ import nonamecrackers2.crackerslib.client.util.CommonColors;
 
 public class Popup extends Screen
 {
+	private static final int PADDING = 20;
 	private static final Queue<Popup> POPUP_QUEUE = Queues.newArrayDeque();
 	private static final int BUTTON_WIDTH = 80;
 	private final @Nullable Screen previous;
@@ -37,6 +38,8 @@ public class Popup extends Screen
 	private final MultiLineLabel text;
 	private final int boxWidth;
 	private final int widgetsHeight;
+	private boolean alignLeft;
+	private boolean doNotQueue = true;
 	private int x;
 	private int y;
 	private int boxHeight;
@@ -44,7 +47,7 @@ public class Popup extends Screen
 	public Popup(@Nullable Screen previous, Popup.Initializer onInitialized, int width, int widgetsHeight, Component pMessage)
 	{
 		super(pMessage);
-		this.text = MultiLineLabel.create(Minecraft.getInstance().font, pMessage, width - 20);
+		this.text = MultiLineLabel.create(Minecraft.getInstance().font, pMessage, width - PADDING * 2);
 		this.previous = previous;
 		this.onInitialized = onInitialized;
 		this.boxWidth = width;
@@ -204,6 +207,18 @@ public class Popup extends Screen
 		}, width, 20, message).open();
 	}
 	
+	public Popup alignLeft()
+	{
+		this.alignLeft = true;
+		return this;
+	}
+	
+	public Popup doNotQueue()
+	{
+		this.doNotQueue = true;
+		return this;
+	}
+	
 	public int boxX()
 	{
 		return this.x;
@@ -265,7 +280,7 @@ public class Popup extends Screen
 	public Popup open()
 	{
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.screen instanceof Popup)
+		if (mc.screen instanceof Popup && !this.doNotQueue)
 			POPUP_QUEUE.add(this);
 		else
 			mc.setScreen(this);
@@ -287,7 +302,10 @@ public class Popup extends Screen
 		RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
 		stack.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
 		stack.fill(this.x, this.y, this.x + this.boxWidth, this.y + this.boxHeight, CommonColors.BACKGROUND);
-		this.text.renderCentered(stack, this.x + this.boxWidth / 2, this.messageTop(), this.font.lineHeight, CommonColors.WHITE);
+		if (this.alignLeft)
+			this.text.renderLeftAligned(stack, this.x + PADDING, this.messageTop(), this.font.lineHeight, CommonColors.WHITE);
+		else
+			this.text.renderCentered(stack, this.x + this.boxWidth / 2, this.messageTop(), this.font.lineHeight, CommonColors.WHITE);
 		super.render(stack, mouseX, mouseY, partialTicks);
 	}
 	
