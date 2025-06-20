@@ -2,7 +2,7 @@
 
 A small library mod adding a highly customizable config menu system and some smaller utilities. To be expanded.
 
-Used in mods such as [Mob Battle Music](https://www.curseforge.com/minecraft/mc-mods/mob-battle-music), [Story Mod](https://www.curseforge.com/minecraft/mc-mods/story-mod) and [Cracker's Wither Storm Mod](https://www.curseforge.com/minecraft/mc-mods/crackers-wither-storm-mod).
+Used in mods such as [Mob Battle Music](https://www.curseforge.com/minecraft/mc-mods/mob-battle-music), [Simple Clouds](https://modrinth.com/mod/simple-clouds), [Create: Molten Metallurgy](https://modrinth.com/mod/create-molten-metallurgy), and [Cracker's Wither Storm Mod](https://www.curseforge.com/minecraft/mc-mods/crackers-wither-storm-mod).
 
 To use in your own mod, include the following in your in your ``build.gradle`` file (replace ``${minecraft_version}`` and ``${crackerslib_version}`` appropriately, or define them in your ``gradle.properties`` file):
 
