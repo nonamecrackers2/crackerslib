@@ -39,7 +39,7 @@ public class Popup extends Screen
 	private final int boxWidth;
 	private final int widgetsHeight;
 	private boolean alignLeft;
-	private boolean doNotQueue = true;
+	private boolean doNotQueue;
 	private int x;
 	private int y;
 	private int boxHeight;
