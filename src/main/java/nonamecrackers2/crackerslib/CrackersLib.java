@@ -21,6 +21,9 @@ import nonamecrackers2.crackerslib.common.config.preset.ConfigPresets;
 import nonamecrackers2.crackerslib.common.event.CrackersLibDataEvents;
 import nonamecrackers2.crackerslib.common.extending.BlockEntityTypeExtender;
 import nonamecrackers2.crackerslib.common.init.CrackersLibCommandArguments;
+import nonamecrackers2.crackerslib.example.client.event.ExampleClientEvents;
+import nonamecrackers2.crackerslib.example.client.event.common.config.ExampleConfig;
+import nonamecrackers2.crackerslib.example.common.event.ExampleEvents;
 
 @Mod(CrackersLib.MODID)
 public class CrackersLib
@@ -63,7 +66,6 @@ public class CrackersLib
 		event.enqueueWork(() -> {
 			ConfigPresets.gatherPresets();
 			CompatHelper.checkForLoaded();
-			BlockEntityTypeExtender.addToBlockEntityType(BlockEntityType.BEACON, Blocks.BARREL);
 		});
 	}
 	
