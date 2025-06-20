@@ -289,9 +289,10 @@ public class ConfigScreen extends Screen
 		int next = this.presets.indexOf(this.preset) + 1;
 		if (next >= this.presets.size())
 			next = 0;
-		this.preset = this.presets.get(next);
-		if (this.preset != null)
-			this.list.setFromPreset(this.preset, this.presetExcluded::contains);
+		ConfigPreset preset = this.presets.get(next);
+		if (preset != null)
+			this.list.setFromPreset(preset, this.presetExcluded::contains);
+		this.preset = preset;
 		this.changePreset.setMessage(Component.translatable("gui.crackerslib.button.preset.title").append(": ").append(this.getPresetName()));
 		this.reset.active = !this.list.areValuesReset();
 	}
