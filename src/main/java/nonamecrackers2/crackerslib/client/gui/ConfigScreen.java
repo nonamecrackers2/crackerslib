@@ -26,12 +26,14 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import nonamecrackers2.crackerslib.CrackersLib;
 import nonamecrackers2.crackerslib.client.event.impl.AddConfigEntryToMenuEvent;
-import nonamecrackers2.crackerslib.client.gui.widget.CollapseButton;
+import nonamecrackers2.crackerslib.client.gui.widget.SimpleIconButton;
 import nonamecrackers2.crackerslib.client.gui.widget.SortButton;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigCategory;
 import nonamecrackers2.crackerslib.client.gui.widget.config.ConfigListItem;
@@ -52,6 +54,12 @@ public class ConfigScreen extends Screen
 	private static final Component CUSTOM_PRESET_TITLE = Component.translatable("config.crackerslib.preset.custom.title");
 	private static final Component CUSTOM_PRESET_DESCRIPTION = Component.translatable("config.crackerslib.preset.custom.description").withStyle(ChatFormatting.GRAY);
 	private static final Component HOLD_SHIFT = Component.translatable("gui.crackerslib.button.preset.holdShift").withStyle(ChatFormatting.DARK_GRAY);
+	private static final ResourceLocation COLLAPSE_ICON = CrackersLib.id("textures/gui/config/collapse.png");
+	private static final Component COLLAPSE_NAME = Component.translatable("gui.crackerslib.button.collapse.title");
+	private static final Component COLLAPSE_TOOLTIP = Component.translatable("gui.crackerslib.button.collapse.description");
+	private static final ResourceLocation EXPAND_ICON = CrackersLib.id("textures/gui/config/expand.png");
+	private static final Component EXPAND_NAME = Component.translatable("gui.crackerslib.button.expand.title");
+	private static final Component EXPAND_TOOLTIP = Component.translatable("gui.crackerslib.button.expand.description");
 	private static final int TITLE_HEIGHT = 12;
 	private static final int BUTTON_WIDTH = 200;
 	private static final int BUTTON_HEIGHT = 20;
@@ -233,15 +241,19 @@ public class ConfigScreen extends Screen
 		this.reset.active = false;
 		
 		GridLayout layout = new GridLayout().columnSpacing(5);
-		GridLayout.RowHelper rows = layout.createRowHelper(2);
+		GridLayout.RowHelper rows = layout.createRowHelper(3);
 		
 		rows.addChild(new SortButton(0, 0, type -> {
 			this.list.setSorting(type);
 			this.list.rebuildList();
 		}));
 		
-		rows.addChild(new CollapseButton(0, 0, () -> {
-			this.list.collapseAllCategories();
+		rows.addChild(new SimpleIconButton(COLLAPSE_NAME, COLLAPSE_TOOLTIP, COLLAPSE_ICON, 0, 0, () -> {
+			this.list.expandCategories(false);
+		}));
+		
+		rows.addChild(new SimpleIconButton(EXPAND_NAME, EXPAND_TOOLTIP, EXPAND_ICON, 0, 0, () -> {
+			this.list.expandCategories(true);
 		}));
 		
 		layout.arrangeElements();

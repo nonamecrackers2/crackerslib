@@ -31,9 +31,9 @@ public enum SortType
 	{
 		list.sort(this.sorter.thenComparing((first, second) -> {
 			if (first instanceof ConfigCategory && second instanceof ConfigEntry)
-				return 1;
-			else if (first instanceof ConfigEntry && second instanceof ConfigCategory)
 				return -1;
+			else if (first instanceof ConfigEntry && second instanceof ConfigCategory)
+				return 1;
 			else
 				return 0;
 		}));

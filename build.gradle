@@ -144,7 +144,7 @@ dependencies {
     
     //runtimeOnly fg.deobf("curse.maven:crackers-wither-storm-mod-621405:5619741")
     //runtimeOnly fg.deobf("curse.maven:mob-battle-music-977024:5240965")
-    //runtimeOnly fg.deobf("dev.nonamecrackers2.simpleclouds:simpleclouds:0.7-pre6+1.20.1-forge-all")
+    runtimeOnly fg.deobf("dev.nonamecrackers2.simpleclouds:simpleclouds:0.7-pre6+1.20.1-forge-all")
     //runtimeOnly fg.deobf("curse.maven:vivecraft-667903:5144672")
 
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings

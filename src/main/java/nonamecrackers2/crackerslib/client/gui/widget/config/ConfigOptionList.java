@@ -88,10 +88,10 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 		this.sortType = sorting;
 	}
 	
-	public void collapseAllCategories()
+	public void expandCategories(boolean expand)
 	{
 		for (ConfigCategory category : this.categories)
-			category.setExpanded(false);
+			category.setExpanded(expand);
 		this.rebuildList();
 	}
 	
