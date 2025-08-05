@@ -32,6 +32,8 @@ public class CrackersLibLangProvider extends LanguageProvider
 		this.add("gui.crackerslib.button.sorting.z-a.tooltip", "Z-A");
 		this.add("gui.crackerslib.button.collapse.title", "Collapse");
 		this.add("gui.crackerslib.button.collapse.description", "Collapse all categories");
+		this.add("gui.crackerslib.button.expand.title", "Expand");
+		this.add("gui.crackerslib.button.expand.description", "Expand all categories");
 		this.add("gui.crackerslib.screen.config.home.title", "CrackersLib Config");
 		this.add("gui.crackerslib.screen.config.discord", "Discord Server");
 		this.add("gui.crackerslib.screen.config.discord.info", "Join the official Discord server!");

@@ -9,18 +9,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import nonamecrackers2.crackerslib.CrackersLib;
 
-public class CollapseButton extends AbstractButton
+public class SimpleIconButton extends AbstractButton
 {
-	private static final ResourceLocation ICON = CrackersLib.id("textures/gui/config/collapse.png");
-	private static final Component NAME = Component.translatable("gui.crackerslib.button.collapse.title");
-	private static final Component TOOLTIP = Component.translatable("gui.crackerslib.button.collapse.description");
+	private final ResourceLocation icon;
 	private final Runnable onPressed;
 	
-	public CollapseButton(int x, int y, Runnable onPressed)
+	public SimpleIconButton(Component name, Component description, ResourceLocation icon, int x, int y, Runnable onPressed)
 	{
-		super(x, y, 20, 20, NAME);
+		super(x, y, 20, 20, name);
+		this.icon = icon;
 		this.onPressed = onPressed;
-		this.setTooltip(Tooltip.create(TOOLTIP));
+		this.setTooltip(Tooltip.create(description));
 	}
 	
 	@Override
@@ -33,7 +32,7 @@ public class CollapseButton extends AbstractButton
 	public void renderWidget(GuiGraphics stack, int mouseX, int mouseY, float partialTick)
 	{
 		super.renderWidget(stack, mouseX, mouseY, partialTick);
-		stack.blit(ICON, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 0.0F, 0.0F, this.getWidth(), this.getHeight(), 256, 256);
+		stack.blit(this.icon, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 0.0F, 0.0F, this.getWidth(), this.getHeight(), 256, 256);
 	}
 	
 	@Override

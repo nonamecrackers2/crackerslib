@@ -14,6 +14,8 @@
   "gui.crackerslib.button.collapse.title": "Collapse",
   "gui.crackerslib.button.exit.title": "Exit",
   "gui.crackerslib.button.exitAndSave.title": "Save and Exit",
+  "gui.crackerslib.button.expand.description": "Expand all categories",
+  "gui.crackerslib.button.expand.title": "Expand",
   "gui.crackerslib.button.preset.holdShift": "Hold SHIFT to see a description",
   "gui.crackerslib.button.preset.title": "Preset",
   "gui.crackerslib.button.reset.title": "Reset",
