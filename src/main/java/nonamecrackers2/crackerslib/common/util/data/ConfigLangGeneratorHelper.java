@@ -28,6 +28,7 @@ public class ConfigLangGeneratorHelper
 	 * extra info such as a config values range, allowed values, etc. as new lines on to a config comment, 
 	 * which typically isn't always wanted in the description.
 	 */
+	@SuppressWarnings("deprecation")
 	public static void langForSpec(String modid, ModConfigSpec spec, LanguageProvider provider, ConfigLangGeneratorHelper.Info infoType)
 	{
 		forValues(modid, spec.getSpec().valueMap(), provider, infoType);
@@ -48,6 +49,7 @@ public class ConfigLangGeneratorHelper
 		langForSpec(modid, spec, provider, ConfigLangGeneratorHelper.Info.ALL);
 	}
 	
+	@SuppressWarnings("deprecation")
 	private static void forValues(String modid, Map<String, Object> values, LanguageProvider provider, ConfigLangGeneratorHelper.Info infoType)
 	{
 		for (var entry : values.entrySet())

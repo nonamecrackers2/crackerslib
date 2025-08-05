@@ -125,6 +125,7 @@ public abstract class ConfigHelper
         return Lists.newArrayList(DOT_SPLITTER.split(path));
     }
 	
+	@SuppressWarnings("deprecation")
 	public static Map<String, ModConfigSpec.ConfigValue<?>> getAllValues(ModConfigSpec spec)
 	{
 		return searchForValues("", spec.getValues().valueMap()).entrySet().stream().map(e -> {
@@ -132,6 +133,7 @@ public abstract class ConfigHelper
 		}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static Map<String, ModConfigSpec.ValueSpec> getAllSpecs(ModConfigSpec spec)
 	{
 		return searchForValues("", spec.getSpec().valueMap()).entrySet().stream().map(e -> {
@@ -139,6 +141,7 @@ public abstract class ConfigHelper
 		}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 	
+	@SuppressWarnings("deprecation")
 	private static Map<String, Object> searchForValues(String previousPath, Map<String, Object> values)
 	{
 		Map<String, Object> map = Maps.newHashMap();

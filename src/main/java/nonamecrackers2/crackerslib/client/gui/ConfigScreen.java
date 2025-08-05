@@ -100,6 +100,7 @@ public class ConfigScreen extends Screen
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static ConfigScreen makeScreen(String modid, ModConfigSpec spec, ModConfig.Type type, Screen homeScreen, String startingPath)
 	{
 		return new ConfigScreen(modid, spec, type, list -> 
@@ -143,6 +144,7 @@ public class ConfigScreen extends Screen
 			Object obj = entry.getValue();
 			if (obj instanceof UnmodifiableConfig next)
 			{
+				@SuppressWarnings("deprecation")
 				var nextValues = filterValues(modid, type, path, next.valueMap());
 				if (!nextValues.isEmpty())
 				{
