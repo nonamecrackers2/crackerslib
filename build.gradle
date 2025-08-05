@@ -78,21 +78,6 @@ tasks.withType(ProcessResources).configureEach {
     filesMatching(['META-INF/neoforge.mods.toml']) {
         expand replaceProperties
     }
-    
-    //For Eclipse
-    var resourceTargets = ['META-INF/neoforge.mods.toml', 'pack.mcmeta']
-    var intoTargets = ["$rootDir/bin/main/"]
-    intoTargets.each { target ->
-        if (file(target).exists()) {
-            copy {
-                from(sourceSets.main.resources) {
-                    include resourceTargets
-                    expand replaceProperties
-                }
-                into target
-            }
-        }
-    }
 }
 
 java {
