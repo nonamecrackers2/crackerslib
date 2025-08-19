@@ -130,6 +130,7 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	{
 		for (ConfigListItem item : this.items)
 			item.onSavedAndClosed();
+		this.spec.save();
 	}
 	
 	public void resetValues()
