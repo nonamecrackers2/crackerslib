@@ -189,7 +189,7 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 		if (this.restartType != RestartType.NONE)
 		{
 			comment.append("\n");
-			comment.append(Component.translatable("gui.crackerslib.screen.config.requiresRestart", this.restartType).withStyle(ChatFormatting.YELLOW));
+			comment.append(Component.translatable("gui.crackerslib.screen.config.requiresRestart", this.restartType.toString()).withStyle(ChatFormatting.YELLOW));
 		}
 		return Tooltip.create(comment);
 	}
