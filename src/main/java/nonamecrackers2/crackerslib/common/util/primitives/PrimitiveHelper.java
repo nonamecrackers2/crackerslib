@@ -24,14 +24,10 @@ public class PrimitiveHelper
 	public static Quaternionf quaternionFromTag(CompoundTag tag)
 	{
 		Quaternionf quaternion = new Quaternionf().identity();
-		if (tag.contains("x", 5))
-			quaternion.x = tag.getFloat("x");
-		if (tag.contains("y", 5))
-			quaternion.y = tag.getFloat("y");
-		if (tag.contains("z", 5))
-			quaternion.z = tag.getFloat("z");
-		if (tag.contains("w", 5))
-			quaternion.w = tag.getFloat("w");
+		quaternion.x = tag.getFloatOr("x", 0.0F);
+		quaternion.y = tag.getFloatOr("y", 0.0F);
+		quaternion.z = tag.getFloatOr("z", 0.0F);
+		quaternion.w = tag.getFloatOr("w", 0.0F);
 		return quaternion;
 	}
 	
@@ -46,7 +42,7 @@ public class PrimitiveHelper
 	
 	public static Vector3f vector3fFromTag(CompoundTag tag)
 	{
-		return new Vector3f(tag.getFloat("x"), tag.getFloat("y"), tag.getFloat("z"));
+		return new Vector3f(tag.getFloatOr("x", 0.0F), tag.getFloatOr("y", 0.0F), tag.getFloatOr("z", 0.0F));
 	}
 	
 	public static CompoundTag vec3ToTag(Vec3 vec)
@@ -60,21 +56,21 @@ public class PrimitiveHelper
 	
 	public static Vec3 vec3FromTag(CompoundTag tag)
 	{
-		return new Vec3(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z"));
+		return new Vec3(tag.getDoubleOr("x", 0.0D), tag.getDoubleOr("y", 0.0D), tag.getDoubleOr("z", 0.0D));
 	}
 	
 	public static CompoundTag chunkPosToTag(ChunkPos pos)
 	{
 		CompoundTag tag = new CompoundTag();
-		tag.putInt("chunkX", pos.x);
-		tag.putInt("chunkZ", pos.z);
+		tag.putInt("chunkX", pos.x());
+		tag.putInt("chunkZ", pos.z());
 		return tag;
 	}
 	
 	public static ChunkPos chunkPosFromTag(CompoundTag tag)
 	{
-		int x = tag.getInt("chunkX");
-		int z = tag.getInt("chunkZ");
+		int x = tag.getIntOr("chunkX", 0);
+		int z = tag.getIntOr("chunkZ", 0);
 		return new ChunkPos(x, z);
 	}
 	
@@ -88,7 +84,7 @@ public class PrimitiveHelper
 	
 	public static Vec2 vec2FromTag(CompoundTag tag)
 	{
-		return new Vec2(tag.getFloat("x"), tag.getFloat("y"));
+		return new Vec2(tag.getFloatOr("x", 0.0F), tag.getFloatOr("y", 0.0F));
 	}
 	
 	public static void encodeVec3(FriendlyByteBuf buffer, Vec3 vec)
@@ -111,7 +107,7 @@ public class PrimitiveHelper
 	public static <T extends Enum<T>> T readEnum(Class<T> clazz, CompoundTag tag, String id)
 	{
 		T[] values = clazz.getEnumConstants();
-		int ordinal = tag.getInt(id);
+		int ordinal = tag.getIntOr(id, -1);
 		if (ordinal < values.length && ordinal >= 0)
 			return values[ordinal];
 		else

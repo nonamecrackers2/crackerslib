@@ -69,7 +69,7 @@ public class ConfigCommandBuilder
 			ModConfigSpec spec = entry.getValue();
 			var specArgument = Commands.literal(type.extension());
 			if (type != ModConfig.Type.CLIENT)
-				specArgument.requires(src -> src.hasPermission(2));
+				specArgument.requires(Commands.hasPermission(Commands.LEVEL_ADMINS));
 			addArgumentsForSpec(spec, this.modid, type, specArgument);
 			root.then(specArgument);
 		}

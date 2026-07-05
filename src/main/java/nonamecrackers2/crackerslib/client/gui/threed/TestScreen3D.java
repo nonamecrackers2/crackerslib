@@ -1,21 +1,24 @@
-package nonamecrackers2.crackerslib.client.gui;
+package nonamecrackers2.crackerslib.client.gui.threed;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.PopupScreen;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import nonamecrackers2.crackerslib.client.gui.Popup;
 
 public class TestScreen3D extends Screen3D
 {
+	private static final BlockDisplayContext BLOCK_DISPLAY_CONTEXT = BlockDisplayContext.create();
 	private float blockX;
 	private float blockXO;
 	private float blockZ;
@@ -25,18 +28,18 @@ public class TestScreen3D extends Screen3D
 	
 	public TestScreen3D()
 	{
-		super(CommonComponents.EMPTY, 5.0F, 100.0F);
+		super(CommonComponents.EMPTY, 5.0F, 1000.0F);
 		this.renderOrigin(true);
 	}
 	
 	@Override
-	public void render(GuiGraphics stack, int pMouseX, int pMouseY, float pPartialTick)
+	public void extractRenderState(GuiGraphicsExtractor graphics, int pMouseX, int pMouseY, float pPartialTick)
 	{
 		if (this.showStartUp)
 		{
 			Popup.<Runnable>createOptionListPopup(this, list -> {
 				list.addObject(Component.literal("Default Popup"), () -> Popup.createInfoPopup(this, 200, Component.literal("Hello there!")));
-				list.addObject(Component.literal("Text Input Popup"), () -> Popup.createTextFieldPopup(this, val -> {}, 200, Component.literal("Hello there!"), val -> ResourceLocation.isValidPath(val)));
+				list.addObject(Component.literal("Text Input Popup"), () -> Popup.createTextFieldPopup(this, val -> {}, 200, Component.literal("Hello there!"), val -> Identifier.isValidPath(val)));
 				list.addObject(Component.literal("Yes No Popup"), () -> Popup.createYesNoPopupWithCancel(this, () -> {}, () -> {}, 200, Component.literal("Hello there!")));
 			}, val -> {
 				val.run();
@@ -44,15 +47,17 @@ public class TestScreen3D extends Screen3D
 			this.showStartUp = false;
 		}
 		
-		super.render(stack, pMouseX, pMouseY, pPartialTick);
+		super.extractRenderState(graphics, pMouseX, pMouseY, pPartialTick);
 	}
 	
 	@Override
-	protected void render3D(PoseStack stack, MultiBufferSource buffers, int mouseX, int mouseY, float partialTick)
+	protected void render3D(PoseStack stack, SubmitNodeCollector collector, int mouseX, int mouseY, float partialTick)
 	{
 		stack.pushPose();
 		stack.translate(Mth.lerp(partialTick, this.blockXO, this.blockX) - 0.5D, 0.0D, Mth.lerp(partialTick, this.blockZO, this.blockZ) - 0.5D);
-		this.minecraft.getBlockRenderer().renderSingleBlock(Blocks.GRASS_BLOCK.defaultBlockState(), stack, buffers, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, ModelData.EMPTY, (RenderType)null);
+		BlockModelRenderState blockState = new BlockModelRenderState();
+		this.minecraft.getBlockModelResolver().update(blockState, Blocks.GRASS_BLOCK.defaultBlockState(), BLOCK_DISPLAY_CONTEXT);
+		blockState.submit(stack, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
 		stack.popPose();
 	}
 	

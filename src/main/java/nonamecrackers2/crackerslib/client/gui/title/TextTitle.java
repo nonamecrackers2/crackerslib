@@ -1,7 +1,7 @@
 package nonamecrackers2.crackerslib.client.gui.title;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.neoforged.fml.ModList;
@@ -23,10 +23,10 @@ public record TextTitle(Component title, int width, int height) implements Title
 	}
 	
 	@Override
-	public void blit(GuiGraphics stack, int x, int y, float partialTicks)
+	public void extractRenderState(GuiGraphicsExtractor stack, int x, int y, float partialTicks)
 	{
 		Minecraft mc = Minecraft.getInstance();
-		stack.drawString(mc.font, this.title, x, y, 0xFFFFFFFF);
+		stack.text(mc.font, this.title, x, y, 0xFFFFFFFF);
 	}
 
 	@Override

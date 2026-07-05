@@ -12,7 +12,7 @@ public class BlockEntityTypeExtender
 	public static void addToBlockEntityType(BlockEntityType<?> type, Block... blocks)
 	{
 		MixinBlockEntityType mixin = (MixinBlockEntityType)type;
-		Set<Block> currentBlocks = new HashSet<>(mixin.crackerslib$getValidBlocks());
+		Set<Block> currentBlocks = new HashSet<>(type.getValidBlocks());
 		for (Block block : blocks)
 			currentBlocks.add(block);
 		mixin.crackerslib$setValidBlocks(currentBlocks);

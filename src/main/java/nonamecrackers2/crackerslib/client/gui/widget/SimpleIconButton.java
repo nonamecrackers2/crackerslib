@@ -1,19 +1,21 @@
 package nonamecrackers2.crackerslib.client.gui.widget;
 
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.ActiveTextCollector;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.InputWithModifiers;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class SimpleIconButton extends AbstractButton
 {
-	private final ResourceLocation icon;
+	private final Identifier icon;
 	private final Runnable onPressed;
 	
-	public SimpleIconButton(Component name, Component description, ResourceLocation icon, int x, int y, Runnable onPressed)
+	public SimpleIconButton(Component name, Component description, Identifier icon, int x, int y, Runnable onPressed)
 	{
 		super(x, y, 20, 20, name);
 		this.icon = icon;
@@ -22,21 +24,21 @@ public class SimpleIconButton extends AbstractButton
 	}
 	
 	@Override
-	public void onPress()
+	public void onPress(InputWithModifiers modifiers)
 	{
 		this.onPressed.run();
 	}
 	
 	@Override
-	public void renderWidget(GuiGraphics stack, int mouseX, int mouseY, float partialTick)
+	public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick)
 	{
-		super.renderWidget(stack, mouseX, mouseY, partialTick);
-		stack.blit(this.icon, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 0.0F, 0.0F, this.getWidth(), this.getHeight(), 256, 256);
+		this.extractDefaultSprite(graphics);
+		graphics.blit(RenderPipelines.GUI_TEXTURED, this.icon, this.getX(), this.getY(), 0.0F, 0.0F, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight(), 256, 256);
 	}
 	
 	@Override
-	public void renderString(GuiGraphics stack, Font pFont, int pColor) {}
-
+	protected void extractDefaultLabel(ActiveTextCollector output) {}
+	
 	@Override
 	protected void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput)
 	{

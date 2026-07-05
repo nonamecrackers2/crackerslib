@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -25,6 +25,7 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 {
 	private static final Component NO_CONFIG_OPTIONS = Component.translatable("gui.crackerslib.config.noAvailableOptions");
 	private static final int ROW_HEIGHT = 30;
+	private static final int ITEM_PADDING = 4;
 	private final List<ConfigListItem> items = Lists.newArrayList();
 	private final List<ConfigCategory> categories = Lists.newArrayList();
 	private final ModConfig.Type type;
@@ -36,13 +37,13 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 	
 	public ConfigOptionList(Minecraft mc, String modid, ModConfig.Type type, ModConfigSpec spec, int width, int height, int headerHeight, Runnable valuesChangedResponder)
 	{
-		super(mc, width, height, headerHeight, ROW_HEIGHT);
+		super(mc, width, height, headerHeight, ROW_HEIGHT + ITEM_PADDING);
 		this.modid = modid;
 		this.type = type;
 		this.spec = spec;
 		this.valuesChangedResponder = valuesChangedResponder;
 	}
-	
+
 	public String getModid()
 	{
 		return this.modid;
@@ -176,18 +177,19 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 		return this.getWidth() - 40;
 	}
 	
-	@Override
-	protected int getScrollbarPosition()
-	{
-		return this.getX() + this.getWidth() - 5;
-	}
+//	@Override
+//	protected int scrollBarX()
+//	{
+//		// Move scrollbar to other side
+//		return this.getX() + this.getWidth() - this.scrollbarWidth(); // TODO: Test
+//	}
 	
 	@Override
-	public void renderWidget(GuiGraphics stack, int mouseX, int mouseY, float partialTick)
+	public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a)
 	{
-		super.renderWidget(stack, mouseX, mouseY, partialTick);
+		super.extractWidgetRenderState(graphics, mouseX, mouseY, a);
 		if (this.children().isEmpty())
-			stack.drawCenteredString(this.minecraft.font, NO_CONFIG_OPTIONS, this.width / 2, this.height / 2, 0xFFFFFFFF);
+			graphics.centeredText(this.minecraft.font, NO_CONFIG_OPTIONS, this.width / 2, this.height / 2, 0xFFFFFFFF);
 	}
 
 	public @Nullable ConfigListItem getItemAt(int mouseX, int mouseY)
@@ -227,7 +229,7 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 			int x = (ConfigOptionList.this.getWidth() - ConfigOptionList.this.getRowWidth()) / 2;
 			if (category != null)
 				x = category.getX() + 20;
-			this.item.init(this.children, x, ConfigOptionList.this.getY(), ConfigOptionList.this.getRowWidth(), ConfigOptionList.this.itemHeight);
+			this.item.init(this.children, x, ConfigOptionList.this.getY(), ConfigOptionList.this.getRowWidth(), ROW_HEIGHT);
 			this.x = x;
 		}
 		
@@ -244,15 +246,18 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 		}
 
 		@Override
-		public void render(GuiGraphics stack, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean selected, float partialTicks)
+		public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float partialTicks)
 		{
-			stack.renderOutline(this.x, top, width - (this.x - left), height, 0xAAFFFFFF);
+			int top = this.getContentY() + ITEM_PADDING / 2;
+			int left = this.getContentX();
+			int height = ROW_HEIGHT;
+			graphics.outline(this.x, top, this.getWidth() - (this.x - left), height, 0xAAFFFFFF);
 			if (this.x > left)
 			{
-				stack.fill(this.x - 20, top + height / 2, this.x - 4, top + height / 2 + 1, 0x55FFFFFF);
-				stack.fill(this.x - 20, top - height / 2 - 3, this.x - 19, top + height / 2, 0x55FFFFFF);
+				graphics.fill(this.x - 20, top + height / 2, this.x - 4, top + height / 2 + 1, 0x55FFFFFF);
+				graphics.fill(this.x - 20, top - height / 2 - 3, this.x - 19, top + height / 2, 0x55FFFFFF);
 			}
-			this.item.render(stack, left, top, width, height, mouseX, mouseY, partialTicks);
+			this.item.extractRenderState(graphics, left, top, this.getWidth(), height, mouseX, mouseY, partialTicks);
 		}
 	}
 	

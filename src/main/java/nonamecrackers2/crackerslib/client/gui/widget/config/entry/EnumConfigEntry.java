@@ -3,11 +3,12 @@ package nonamecrackers2.crackerslib.client.gui.widget.config.entry;
 import java.util.Arrays;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.CycleButton;
+import net.minecraft.network.chat.Component;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
-import nonamecrackers2.crackerslib.client.gui.widget.CyclableButton;
 
-public class EnumConfigEntry<T extends Enum<T>> extends ConfigEntry<T, CyclableButton<T>>
+public class EnumConfigEntry<T extends Enum<T>> extends ConfigEntry<T, CycleButton<T>>
 {
 	private final Class<T> enumClass;
 	
@@ -18,11 +19,14 @@ public class EnumConfigEntry<T extends Enum<T>> extends ConfigEntry<T, CyclableB
 	}
 
 	@Override
-	protected CyclableButton<T> buildWidget(int x, int y, int width, int height)
+	protected CycleButton<T> buildWidget(int x, int y, int width, int height)
 	{
-		var button = new CyclableButton<>(x + 6, y, 100, Arrays.stream(this.enumClass.getEnumConstants()).filter(v -> this.valueSpec.test(v)).toList(), this.value.get());
-		button.setResponder(val -> this.getValueUpdatedResponder().run());
-		return button;
+		return CycleButton.<T>builder(e -> Component.literal(e.toString()), this.value.get())
+				.displayOnlyValue()
+				.withValues(Arrays.stream(this.enumClass.getEnumConstants()).filter(v -> this.valueSpec.test(v)).toList())
+				.create(x + 6, y, 100, 20, this.name, (_, _) -> {
+					this.getValueUpdatedResponder().run();
+				});
 	}
 
 	@Override

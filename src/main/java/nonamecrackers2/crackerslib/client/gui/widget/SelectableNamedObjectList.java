@@ -6,8 +6,9 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import nonamecrackers2.crackerslib.client.util.CommonColors;
 
@@ -44,16 +45,16 @@ public class SelectableNamedObjectList<T> extends ObjectSelectionList<Selectable
 			return null;
 	}
 	
-	@Override
-	protected int getScrollbarPosition()
-	{
-		return this.getX() + this.getWidth() - 5;
-	}
+//	@Override
+//	protected int scrollBarX()
+//	{
+//		return this.getX() + this.getWidth() - this.scrollbarWidth(); //TODO: Test
+//	}
 	
 	@Override
-	protected void renderListBackground(GuiGraphics stack)
+	protected void extractListBackground(GuiGraphicsExtractor graphics)
 	{
-		stack.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), CommonColors.BACKGROUND);
+		graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), CommonColors.BACKGROUND);
 	}
 	
 	@Override
@@ -84,16 +85,16 @@ public class SelectableNamedObjectList<T> extends ObjectSelectionList<Selectable
 		}
 
 		@Override
-		public void render(GuiGraphics stack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick)
+		public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float partialTicks)
 		{
 			Font font = this.list.minecraft.font;
-			stack.drawString(font, this.text, pLeft + 2, pTop + pHeight / 2 - font.lineHeight / 2, CommonColors.WHITE);
+			graphics.text(font, this.text, this.getContentX() + 2, this.getContentY() + this.getHeight() / 2 - font.lineHeight / 2, CommonColors.WHITE);
 		}
 		
 		@Override
-		public boolean mouseClicked(double pMouseX, double pMouseY, int pButton)
+		public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
 		{
-			if (pButton == 0)
+			if (event.input() == 0)
 			{
 				this.list.setSelected(this);
 				return true;

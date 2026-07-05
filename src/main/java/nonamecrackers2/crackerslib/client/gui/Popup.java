@@ -6,13 +6,11 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
-import org.lwjgl.opengl.GL11;
-
 import com.google.common.collect.Queues;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.MultiLineLabel;
@@ -247,7 +245,7 @@ public class Popup extends Screen
 		ScreenRectangle widgetsRectangle = new ScreenRectangle(this.x, this.messageTop() + this.messageHeight() + 10, this.boxWidth, this.widgetsHeight);
 		this.onInitialized.init(this, widgetsRectangle);
 		if (this.previous != null)
-			this.previous.init(this.minecraft, this.width, this.height);
+			this.previous.init(this.width, this.height);
 	}
 	
 	private int messageTop()
@@ -269,20 +267,20 @@ public class Popup extends Screen
 	private void close()
 	{
 		if (!POPUP_QUEUE.isEmpty())
-			this.minecraft.setScreen(POPUP_QUEUE.poll());
+			this.minecraft.gui.setScreen(POPUP_QUEUE.poll());
 		else if (this.previous != null)
-			this.minecraft.setScreen(this.previous);
+			this.minecraft.gui.setScreen(this.previous);
 		else
-			this.minecraft.popGuiLayer();
+			this.minecraft.gui.popScreenLayer();
 	}
 	
 	public Popup open()
 	{
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.screen instanceof Popup)
+		if (mc.gui.screen() instanceof Popup)
 			POPUP_QUEUE.add(this);
 		else
-			mc.setScreen(this);
+			mc.gui.setScreen(this);
 		return this;
 	}
 	
@@ -294,24 +292,21 @@ public class Popup extends Screen
 	}
 	
 	@Override
-	public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {}
+	public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {}
 	
 	@Override
-	public void render(GuiGraphics stack, int mouseX, int mouseY, float partialTicks)
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks)
 	{
 		if (this.previous != null)
-			this.previous.render(stack, mouseX, mouseY, partialTicks);
-		stack.flush();
-		RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
-		this.clearTooltipForNextRenderPass();
-		this.renderBlurredBackground(partialTicks);
-		stack.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
-		stack.fill(this.x, this.y, this.x + this.boxWidth, this.y + this.boxHeight, CommonColors.BACKGROUND);
+			this.previous.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+		graphics.nextStratum();
+		graphics.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
+		graphics.fill(this.x, this.y, this.x + this.boxWidth, this.y + this.boxHeight, CommonColors.BACKGROUND);
 		if (this.alignLeft)
-			this.text.renderLeftAligned(stack, this.x + PADDING, this.messageTop(), this.font.lineHeight, CommonColors.WHITE);
+			this.text.visitLines(TextAlignment.LEFT, this.x + PADDING, this.messageTop(), this.font.lineHeight, graphics.textRenderer());
 		else
-			this.text.renderCentered(stack, this.x + this.boxWidth / 2, this.messageTop(), this.font.lineHeight, CommonColors.WHITE);
-		super.render(stack, mouseX, mouseY, partialTicks);
+			this.text.visitLines(TextAlignment.CENTER, this.x + this.boxWidth / 2, this.messageTop(), this.font.lineHeight, graphics.textRenderer());
+		super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 	}
 	
 	@Override

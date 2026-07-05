@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
@@ -150,16 +150,16 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 	}
 	
 	@Override
-	public void render(GuiGraphics stack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks)
+	public void extractRenderState(GuiGraphicsExtractor stack, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks)
 	{
 		Component component = this.displayName;
 		if (this.widget.isFocused())
 			component = component.copy().withStyle(Style.EMPTY.withBold(true).withColor(ChatFormatting.YELLOW));
-		stack.drawString(this.mc.font, component, x + 5 + (this.widget.getX() - x) + this.widget.getWidth(), y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
+		stack.text(this.mc.font, component, x + 5 + (this.widget.getX() - x) + this.widget.getWidth(), y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
 		this.widget.setY(y + height / 2 - this.widget.getHeight() / 2);
-		this.widget.render(stack, mouseX, mouseY, partialTicks);
+		this.widget.extractRenderState(stack, mouseX, mouseY, partialTicks);
 		if (this.restartText != null)
-			stack.drawString(this.mc.font, this.restartText, x + width - this.mc.font.width(this.restartText) - 5, y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
+			stack.text(this.mc.font, this.restartText, x + width - this.mc.font.width(this.restartText) - 5, y + height / 2 - this.mc.font.lineHeight / 2, 0xFFFFFFFF);
 	}
 	
 	@Override

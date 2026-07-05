@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Lists;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -154,9 +154,10 @@ public class ConfigHomeScreen extends Screen
 	}
 	
 	@Override
-	public void render(GuiGraphics stack, int mouseX, int mouseY, float partialTicks)
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks)
 	{
-		super.render(stack, mouseX, mouseY, partialTicks); 
+		super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+		
 		MutableComponent worldDesc = Component.translatable("gui.crackerslib.screen.serverOptions.notInWorld.info");
 		if (this.isWorldLoaded)
 			worldDesc = Component.translatable("gui.crackerslib.screen.serverOptions.inWorld.info");
@@ -164,7 +165,7 @@ public class ConfigHomeScreen extends Screen
 			this.worldButton.setTooltip(Tooltip.create(worldDesc));
 		int titleX = this.width / 2 - this.title.getWidth() / 2;
 		int titleY = this.elementSpacing;
-		this.title.blit(stack, titleX, titleY, partialTicks);
+		this.title.extractRenderState(graphics, titleX, titleY, partialTicks);
 	}
 	
 	@Override
@@ -173,7 +174,7 @@ public class ConfigHomeScreen extends Screen
 		if (this.previous == null)
 			super.onClose();
 		else
-			this.minecraft.setScreen(this.previous);
+			this.minecraft.gui.setScreen(this.previous);
 	}
 	
 	protected void openConfigMenu(ModConfig.Type type)
@@ -183,7 +184,7 @@ public class ConfigHomeScreen extends Screen
 		{
 			OnConfigScreenOpened event = new OnConfigScreenOpened(this.modid, type);
 			if (!NeoForge.EVENT_BUS.post(event).isCanceled())
-				this.minecraft.setScreen(ConfigScreen.makeScreen(this.modid, spec, type, this, event.getInitialPath() != null ? event.getInitialPath() : ""));
+				this.minecraft.gui.setScreen(ConfigScreen.makeScreen(this.modid, spec, type, this, event.getInitialPath() != null ? event.getInitialPath() : ""));
 		}
 	}
 	

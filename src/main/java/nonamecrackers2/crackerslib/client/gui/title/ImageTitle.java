@@ -1,14 +1,15 @@
 package nonamecrackers2.crackerslib.client.gui.title;
 
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
-public record ImageTitle(ResourceLocation location, int imageWidth, int imageHeight, int width, int height) implements TitleLogo
+public record ImageTitle(Identifier location, int imageWidth, int imageHeight, int width, int height) implements TitleLogo
 {
 	public static ImageTitle ofMod(String modid, int imageWidth, int imageHeight, int width, int height)
 	{
-		ResourceLocation location = ResourceLocation.fromNamespaceAndPath(modid, "textures/gui/config/title/title.png");
+		Identifier location = Identifier.fromNamespaceAndPath(modid, "textures/gui/config/title/title.png");
 		return new ImageTitle(location, imageWidth, imageHeight, width, height);
 	}
 	
@@ -20,9 +21,9 @@ public record ImageTitle(ResourceLocation location, int imageWidth, int imageHei
 	}
 	
 	@Override
-	public void blit(GuiGraphics stack, int x, int y, float partialTicks)
+	public void extractRenderState(GuiGraphicsExtractor stack, int x, int y, float partialTicks)
 	{
-		stack.blit(this.location, x, y, this.width, this.height, 0.0F, 0.0F, this.width, this.height, this.imageWidth, this.imageHeight);
+		stack.blit(RenderPipelines.GUI_TEXTURED, this.location, x, y, 0.0F, 0.0F, this.width, this.height, this.width, this.height, this.imageWidth, this.imageHeight); //TODO: Test
 	}
 
 	@Override

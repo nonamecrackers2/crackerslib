@@ -10,16 +10,23 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import nonamecrackers2.crackerslib.CrackersLib;
 import nonamecrackers2.crackerslib.client.config.ConfigHomeScreenFactory;
+import nonamecrackers2.crackerslib.client.event.impl.ConfigMenuButtonEvent;
 import nonamecrackers2.crackerslib.client.event.impl.RegisterConfigScreensEvent;
 import nonamecrackers2.crackerslib.client.gui.ConfigHomeScreen;
 import nonamecrackers2.crackerslib.client.gui.ConfigMenuButtons;
+import nonamecrackers2.crackerslib.client.gui.renderer.GuiCustom3DRenderer;
+import nonamecrackers2.crackerslib.client.gui.renderer.state.GuiCustom3DState;
 import nonamecrackers2.crackerslib.client.gui.title.TextTitle;
 import nonamecrackers2.crackerslib.client.gui.widget.config.CrackersLibDebugConfigHomeMenu;
+import nonamecrackers2.crackerslib.common.command.ConfigCommandBuilder;
 import nonamecrackers2.crackerslib.common.config.CrackersLibConfig;
+import nonamecrackers2.crackerslib.example.common.config.ExampleConfig;
 
 public class CrackersLibClientEvents
 {
@@ -27,23 +34,23 @@ public class CrackersLibClientEvents
 	{
 		ConfigHomeScreen.Builder builder = ConfigHomeScreen.builder(TextTitle.ofModDisplayName(CrackersLib.MODID)).crackersDefault();
 		ConfigHomeScreenFactory factory;
-		if (FMLEnvironment.production)
+		if (FMLEnvironment.isProduction())
 			factory = builder.build();
 		else
 			factory = builder.build(CrackersLibDebugConfigHomeMenu::new);
-		event.builder(factory).addSpec(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC).register();//.addSpec(ModConfig.Type.SERVER, ExampleConfig.SERVER_SPEC).register();
+		event.builder(factory).addSpec(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC).addSpec(ModConfig.Type.SERVER, ExampleConfig.SERVER_SPEC).register();
 	}
 	
-//	public static void registerConfigMenuButton(ConfigMenuButtonEvent event)
-//	{
-//		event.defaultButtonWithSingleCharacter('C', 0xFFF5D442);
-//	}
-//	
-//	@SubscribeEvent
-//	public static void registerClientCommands(RegisterClientCommandsEvent event)
-//	{
-//		ConfigCommandBuilder.builder(event.getDispatcher(), CrackersLib.MODID).addSpec(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC).register();
-//	}
+	public static void registerConfigMenuButton(ConfigMenuButtonEvent event)
+	{
+		event.defaultButtonWithSingleCharacter('C', 0xFFF5D442);
+	}
+	
+	@SubscribeEvent
+	public static void registerClientCommands(RegisterClientCommandsEvent event)
+	{
+		ConfigCommandBuilder.builder(event.getDispatcher(), CrackersLib.MODID).addSpec(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC).register();
+	}
 	
 	@SubscribeEvent
 	public static void initGui(ScreenEvent.Init.Pre event)
@@ -63,7 +70,7 @@ public class CrackersLibClientEvents
 						if (buttonFactory != null)
 						{
 							var button = rowHelper.addChild(buttonFactory.makeButton(action -> {
-								mc.setScreen(factory.createScreen(mod, screen));
+								mc.gui.setScreen(factory.createScreen(mod, screen));
 							}));
 							button.setWidth(20);
 							button.setHeight(20);
@@ -76,5 +83,10 @@ public class CrackersLibClientEvents
 			FrameLayout.alignInRectangle(layout, 5, 5, 20, 200, 0.0F, 0.0F);
 			layout.visitWidgets(event::addListener);
 		}
+	}
+	
+	public static void registerPictureInPictureRenderersEvent(RegisterPictureInPictureRenderersEvent event)
+	{
+		event.register(GuiCustom3DState.class, () -> new GuiCustom3DRenderer());
 	}
 }

@@ -11,7 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import nonamecrackers2.crackerslib.client.gui.ConfigHomeScreen;
-import nonamecrackers2.crackerslib.client.gui.TestScreen3D;
+import nonamecrackers2.crackerslib.client.gui.threed.TestScreen3D;
 import nonamecrackers2.crackerslib.client.gui.title.TitleLogo;
 
 public class CrackersLibDebugConfigHomeMenu extends ConfigHomeScreen
@@ -27,7 +27,7 @@ public class CrackersLibDebugConfigHomeMenu extends ConfigHomeScreen
 		super.init();
 		
 		this.addRenderableWidget(Button.builder(Component.literal("Debug"), b -> {
-			this.minecraft.setScreen(new TestScreen3D());
+			this.minecraft.gui.setScreen(new TestScreen3D());
 		}).pos(5, 5).width(100).build());
 	}
 }

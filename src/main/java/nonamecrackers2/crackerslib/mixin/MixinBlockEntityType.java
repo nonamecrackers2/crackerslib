@@ -12,9 +12,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 @Mixin(BlockEntityType.class)
 public interface MixinBlockEntityType
 {
-	@Accessor("validBlocks")
-	public Set<Block> crackerslib$getValidBlocks();
-	
 	@Mutable
 	@Accessor("validBlocks")
 	public void crackerslib$setValidBlocks(Set<Block> block);

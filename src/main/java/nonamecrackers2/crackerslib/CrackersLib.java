@@ -1,6 +1,6 @@
 package nonamecrackers2.crackerslib;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModLoader;
@@ -18,6 +18,9 @@ import nonamecrackers2.crackerslib.common.config.CrackersLibConfig;
 import nonamecrackers2.crackerslib.common.config.preset.ConfigPresets;
 import nonamecrackers2.crackerslib.common.event.CrackersLibDataEvents;
 import nonamecrackers2.crackerslib.common.init.CrackersLibCommandArguments;
+import nonamecrackers2.crackerslib.example.client.event.ExampleClientEvents;
+import nonamecrackers2.crackerslib.example.common.config.ExampleConfig;
+import nonamecrackers2.crackerslib.example.common.event.ExampleEvents;
 
 @Mod(CrackersLib.MODID)
 public class CrackersLib
@@ -30,9 +33,10 @@ public class CrackersLib
 		IEventBus modBus = container.getEventBus();
 		modBus.addListener(this::commonSetup);
 		modBus.addListener(this::clientSetup);
-		modBus.addListener(CrackersLibDataEvents::gatherData);
+		modBus.addListener(CrackersLibDataEvents::gatherClientData);
+		modBus.addListener(CrackersLibClientEvents::registerPictureInPictureRenderersEvent);
 		container.registerConfig(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC);
-//		container.registerConfig(ModConfig.Type.SERVER, ExampleConfig.SERVER_SPEC);
+		container.registerConfig(ModConfig.Type.SERVER, ExampleConfig.SERVER_SPEC);
 		CrackersLibCommandArguments.register(modBus);
 	}
 	
@@ -40,7 +44,7 @@ public class CrackersLib
 	{
 		IEventBus modBus = ModLoadingContext.get().getActiveContainer().getEventBus();
 		modBus.addListener(CrackersLibClientEvents::registerConfigScreen);
-//		modBus.addListener(ExampleClientEvents::registerConfigMenuButton);
+		modBus.addListener(ExampleClientEvents::registerConfigMenuButton);
 		IEventBus forgeBus = NeoForge.EVENT_BUS;
 		forgeBus.register(CrackersLibClientEvents.class);
 //		forgeBus.register(ExampleClientEvents.class);
@@ -54,18 +58,18 @@ public class CrackersLib
 	
 	public void commonSetup(final FMLCommonSetupEvent event)
 	{
-//		IEventBus modBus = ModLoadingContext.get().getActiveContainer().getEventBus();
-//		modBus.addListener(ExampleEvents::registerPresetsEvent);
-//		IEventBus forgeBus = NeoForge.EVENT_BUS;
-//		forgeBus.addListener(ExampleEvents::registerCommands);
+		IEventBus modBus = ModLoadingContext.get().getActiveContainer().getEventBus();
+		modBus.addListener(ExampleEvents::registerPresetsEvent);
+		IEventBus forgeBus = NeoForge.EVENT_BUS;
+		forgeBus.addListener(ExampleEvents::registerCommands);
 		event.enqueueWork(() -> {
 			ConfigPresets.gatherPresets();
 			CompatHelper.checkForLoaded();
 		});
 	}
 	
-	public static ResourceLocation id(String path)
+	public static Identifier id(String path)
 	{
-		return ResourceLocation.fromNamespaceAndPath(MODID, path);
+		return Identifier.fromNamespaceAndPath(MODID, path);
 	}
 }

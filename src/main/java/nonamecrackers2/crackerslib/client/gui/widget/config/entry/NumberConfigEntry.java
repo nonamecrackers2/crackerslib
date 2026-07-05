@@ -4,6 +4,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.util.ARGB;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
@@ -27,11 +29,11 @@ public abstract class NumberConfigEntry<T extends Number> extends ConfigEntry<T,
 				if (this.valueSpec.test(val))//ConfigHolder.isValid(this.modid, this.value, val))
 					this.widget.setTextColor(0xFFFFFFFF);
 				else
-					this.widget.setTextColor(ChatFormatting.RED.getColor());
+					this.widget.setTextColor(ARGB.color(255, TextColor.RED.getValue()));
 			}
 			catch (NumberFormatException e)
 			{
-				this.widget.setTextColor(ChatFormatting.RED.getColor());
+				this.widget.setTextColor(ARGB.color(255, TextColor.RED.getValue()));
 			}
 		});
 		return box;

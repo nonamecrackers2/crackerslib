@@ -8,72 +8,33 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import nonamecrackers2.crackerslib.mixin.MixinGameRendererAccessor;
 
 public class RenderUtil
 {
-	private static boolean extendFarPlane;
-	private static Matrix4f previousProjMat;
-	
 	private RenderUtil() {}
 	
-	public static void setClipPlanes(Matrix4f mat, float near, float far)
-	{
-		mat.set(2, 2, -((far + near) / (far - near))).set(3, 2, -((2 * far * near) / (far - near)));
-	}
-	
-	public static void renderCenteredWordWrap(GuiGraphics stack, Font font, FormattedText text, int x, int y, int width, int color)
+	public static void extractCenteredWordWrap(GuiGraphicsExtractor graphics, Font font, FormattedText text, int x, int y, int width, int color)
 	{
 		List<FormattedCharSequence> texts = font.split(text, width);
 		int totalHeight = texts.size() * (font.lineHeight + 2);
 		for (int i = 0; i < texts.size(); i++)
-			stack.drawCenteredString(font, texts.get(i), x, y + i * font.lineHeight + 2 - totalHeight / 2, color);
+			graphics.centeredText(font, texts.get(i), x, y + i * font.lineHeight + 2 - totalHeight / 2, color);
 	}
 	
-	public static void renderHorizontallyCenteredWordWrap(GuiGraphics stack, Font font, FormattedText text, int x, int y, int width, int color)
+	public static void extractHorizontallyCenteredWordWrap(GuiGraphicsExtractor graphics, Font font, FormattedText text, int x, int y, int width, int color)
 	{
 		List<FormattedCharSequence> texts = font.split(text, width);
 		for (int i = 0; i < texts.size(); i++)
-			stack.drawCenteredString(font, texts.get(i), x, y + i * font.lineHeight + 2, color);
-	}
-	
-	public static void line(GuiGraphics stack, Vector2f start, Vector2f end, int blitOffset, float lineWidth, float r, float g, float b, float a)
-	{
-		Vector2f normal = start.sub(end, new Vector2f()).normalize();
-		Matrix4f matrix4f = stack.pose().last().pose();
-		BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-		RenderSystem.enableBlend();
-		RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-		RenderSystem.lineWidth(lineWidth);
-		if (normal.y < -0.008F)
-		{
-			bufferbuilder.addVertex(matrix4f, start.x, start.y, (float)blitOffset).setColor(r, g, b, a).setNormal(stack.pose().last(), normal.x, normal.y, 0.0F);
-			bufferbuilder.addVertex(matrix4f, end.x, end.y, (float)blitOffset).setColor(r, g, b, a).setNormal(stack.pose().last(), normal.x, normal.y, 0.0F);
-		}
-		else
-		{
-			bufferbuilder.addVertex(matrix4f, end.x, end.y, (float)blitOffset).setColor(r, g, b, a).setNormal(stack.pose().last(), normal.x, normal.y, 0.0F);
-			bufferbuilder.addVertex(matrix4f, start.x, start.y, (float)blitOffset).setColor(r, g, b, a).setNormal(stack.pose().last(), normal.x, normal.y, 0.0F);
-		}
-		BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
-		RenderSystem.disableBlend();
+			graphics.centeredText(font, texts.get(i), x, y + i * font.lineHeight + 2, color);
 	}
 	
 	public static Vector3f getWorldPosFromScreenPos(Matrix4f mat, int screenX, int screenY, float z)
@@ -365,36 +326,5 @@ public class RenderUtil
 	public static boolean isMouseInBounds(int mouseX, int mouseY, ScreenRectangle rectangle)
 	{
 		return isMouseInBounds(mouseX, mouseY, rectangle.position().x(), rectangle.position().y(), rectangle.width(), rectangle.height());
-	}
-	
-	public static void adjustProjectionMatrix(float partialTicks, float near, float far)
-	{
-		extendFarPlane = true;
-		previousProjMat = RenderSystem.getProjectionMatrix();
-		Minecraft mc = Minecraft.getInstance();
-		GameRenderer renderer = mc.gameRenderer;
-		MixinGameRendererAccessor accessor = (MixinGameRendererAccessor)renderer;
-		double fov = accessor.crackerslib$getFov(renderer.getMainCamera(), partialTicks, true);
-		PoseStack stack = new PoseStack();
-		stack.last().pose().identity();
-		float zoom = accessor.crackerslib$getZoom();
-		if (zoom != 1.0F)
-		{
-			stack.translate(accessor.crackerslib$getZoomX(), -accessor.crackerslib$getZoomY(), 0.0F);
-			stack.scale(zoom, zoom, 1.0F);
-		}
-		stack.last().pose().mul(new Matrix4f().setPerspective((float)(fov * (double)((float)Math.PI / 180.0F)), (float)mc.getWindow().getWidth() / (float)mc.getWindow().getHeight(), near, far));
-		renderer.resetProjectionMatrix(stack.last().pose());
-	}
-	
-	public static void popAdjustedProjectionMatrix()
-	{
-		if (previousProjMat == null)
-			throw new NullPointerException("Previous projection matrix is null!");
-		if (!extendFarPlane)
-			throw new IllegalStateException("Not extending far plane!");
-		extendFarPlane = false;
-		Minecraft.getInstance().gameRenderer.resetProjectionMatrix(previousProjMat);
-		previousProjMat = null;
 	}
 }

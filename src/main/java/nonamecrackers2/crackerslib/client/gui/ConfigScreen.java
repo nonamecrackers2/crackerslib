@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
@@ -26,7 +27,7 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -54,10 +55,10 @@ public class ConfigScreen extends Screen
 	private static final Component CUSTOM_PRESET_TITLE = Component.translatable("config.crackerslib.preset.custom.title");
 	private static final Component CUSTOM_PRESET_DESCRIPTION = Component.translatable("config.crackerslib.preset.custom.description").withStyle(ChatFormatting.GRAY);
 	private static final Component HOLD_SHIFT = Component.translatable("gui.crackerslib.button.preset.holdShift").withStyle(ChatFormatting.DARK_GRAY);
-	private static final ResourceLocation COLLAPSE_ICON = CrackersLib.id("textures/gui/config/collapse.png");
+	private static final Identifier COLLAPSE_ICON = CrackersLib.id("textures/gui/config/collapse.png");
 	private static final Component COLLAPSE_NAME = Component.translatable("gui.crackerslib.button.collapse.title");
 	private static final Component COLLAPSE_TOOLTIP = Component.translatable("gui.crackerslib.button.collapse.description");
-	private static final ResourceLocation EXPAND_ICON = CrackersLib.id("textures/gui/config/expand.png");
+	private static final Identifier EXPAND_ICON = CrackersLib.id("textures/gui/config/expand.png");
 	private static final Component EXPAND_NAME = Component.translatable("gui.crackerslib.button.expand.title");
 	private static final Component EXPAND_TOOLTIP = Component.translatable("gui.crackerslib.button.expand.description");
 	private static final int TITLE_HEIGHT = 12;
@@ -100,23 +101,22 @@ public class ConfigScreen extends Screen
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
 	public static ConfigScreen makeScreen(String modid, ModConfigSpec spec, ModConfig.Type type, Screen homeScreen, String startingPath)
 	{
 		return new ConfigScreen(modid, spec, type, list -> 
 		{
 			if (spec.isLoaded())
 			{
-				Map<String, Object> values;
+				Set<? extends UnmodifiableConfig.Entry> values;
 				if (startingPath.isEmpty())
-					values = spec.getValues().valueMap();
+					values = spec.getValues().entrySet();
 				else
-					values = spec.getValues().<UnmodifiableConfig>get(startingPath).valueMap();
+					values = spec.getValues().<UnmodifiableConfig>get(startingPath).entrySet();
 				buildConfigList(modid, type, list, filterValues(modid, type, startingPath, values), startingPath, Optional.empty());
 			}
 			else
 			{
-				if (!FMLEnvironment.production)
+				if (!FMLEnvironment.isProduction())
 					throw new IllegalStateException("Config spec " + type + " is not loaded! Have you registered it?");
 				else
 					LOGGER.error("Config spec {} is not loaded for mod {}", type, modid);
@@ -124,9 +124,9 @@ public class ConfigScreen extends Screen
 		}, homeScreen);
 	}
 	
-	private static Map<String, Object> filterValues(String modid, ModConfig.Type type, String previousPath, Map<String, Object> values)
+	private static Map<String, Object> filterValues(String modid, ModConfig.Type type, String previousPath, Set<? extends UnmodifiableConfig.Entry> values)
 	{
-		return values.entrySet().stream().map(entry -> {
+		return values.stream().map(entry -> {
 			var path = entry.getKey();
 			if (!previousPath.isEmpty())
 				path = previousPath + "." + path;
@@ -144,8 +144,7 @@ public class ConfigScreen extends Screen
 			Object obj = entry.getValue();
 			if (obj instanceof UnmodifiableConfig next)
 			{
-				@SuppressWarnings("deprecation")
-				var nextValues = filterValues(modid, type, path, next.valueMap());
+				var nextValues = filterValues(modid, type, path, next.entrySet());
 				if (!nextValues.isEmpty())
 				{
 					ConfigCategory nextCategory = list.makeCategory(path, category);
@@ -283,8 +282,8 @@ public class ConfigScreen extends Screen
 	private void closeMenu()
 	{
 		this.list.onClosed();
-		if (this.minecraft.screen == this)
-			this.minecraft.setScreen(this.homeScreen);
+		if (this.minecraft.gui.screen() == this)
+			this.minecraft.gui.setScreen(this.homeScreen);
 	}
 	
 	public Screen getHomeScreen()
@@ -314,11 +313,12 @@ public class ConfigScreen extends Screen
 	}
 	
 	@Override
-	public void render(GuiGraphics stack, int mouseX, int mouseY, float partialTicks)
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks)
 	{
-		super.render(stack, mouseX, mouseY, partialTicks);
-		stack.drawCenteredString(this.font, this.title.getString(), this.width / 2, TITLE_HEIGHT, 0xFFFFFF);
-		this.changePreset.setTooltip(Tooltip.create(this.getPresetTooltip(hasShiftDown())));
+		super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+		
+		graphics.centeredText(this.font, this.title.getString(), this.width / 2, TITLE_HEIGHT, 0xFFFFFF);
+		this.changePreset.setTooltip(Tooltip.create(this.getPresetTooltip(this.minecraft.hasShiftDown())));
 		ConfigListItem item = this.list.getItemAt(mouseX, mouseY);
 		if (this.currentHovered != item)
 		{
@@ -329,7 +329,7 @@ public class ConfigScreen extends Screen
 				this.currentHoveredTooltip = null;
 		}
 		if (!this.children().stream().anyMatch(c -> !c.equals(this.list) && c.isMouseOver((double)mouseX, (double)mouseY)) && this.currentHoveredTooltip != null)
-			stack.renderTooltip(this.font, this.currentHoveredTooltip.toCharSequence(this.minecraft), mouseX, mouseY);
+			graphics.setTooltipForNextFrame(this.currentHoveredTooltip.toCharSequence(this.minecraft), mouseX, mouseY);
 	}
 	
 	private void onValueChanged()

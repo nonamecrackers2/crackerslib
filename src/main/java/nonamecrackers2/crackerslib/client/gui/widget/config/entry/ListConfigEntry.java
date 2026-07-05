@@ -11,6 +11,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.util.ARGB;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
@@ -43,11 +45,11 @@ public class ListConfigEntry extends ConfigEntry<List<?>, EditBox>
 				if (this.valueSpec.test(val))
 					this.widget.setTextColor(0xFFFFFFFF);
 				else
-					this.widget.setTextColor(ChatFormatting.RED.getColor());
+					this.widget.setTextColor(ARGB.color(255, TextColor.RED.getValue()));
 			}
 			catch (NumberFormatException e)
 			{
-				this.widget.setTextColor(ChatFormatting.RED.getColor());
+				this.widget.setTextColor(ARGB.color(255, TextColor.RED.getValue()));
 			}
 		});
 		return box;
