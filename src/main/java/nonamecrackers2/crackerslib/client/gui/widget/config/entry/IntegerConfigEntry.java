@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-// TODO: Saved config entries not appearing/cached?
 public class IntegerConfigEntry extends NumberConfigEntry<Integer>
 {
 	public IntegerConfigEntry(Minecraft mc, String modid, ModConfig.Type type, String path, ModConfigSpec spec, Runnable onValueUpdated)

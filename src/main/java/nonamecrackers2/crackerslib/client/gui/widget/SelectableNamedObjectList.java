@@ -45,12 +45,6 @@ public class SelectableNamedObjectList<T> extends ObjectSelectionList<Selectable
 			return null;
 	}
 	
-//	@Override
-//	protected int scrollBarX()
-//	{
-//		return this.getX() + this.getWidth() - this.scrollbarWidth(); //TODO: Test
-//	}
-	
 	@Override
 	protected void extractListBackground(GuiGraphicsExtractor graphics)
 	{

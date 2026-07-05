@@ -177,13 +177,6 @@ public class ConfigOptionList extends ContainerObjectSelectionList<ConfigOptionL
 		return this.getWidth() - 40;
 	}
 	
-//	@Override
-//	protected int scrollBarX()
-//	{
-//		// Move scrollbar to other side
-//		return this.getX() + this.getWidth() - this.scrollbarWidth(); // TODO: Test
-//	}
-	
 	@Override
 	public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a)
 	{

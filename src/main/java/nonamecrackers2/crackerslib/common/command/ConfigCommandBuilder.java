@@ -179,6 +179,7 @@ public class ConfigCommandBuilder
 		if (!Objects.equals(config.get(), value) && valueSpec.test(value))
 		{
 			config.set(value);
+			config.clearCache();
 			config.save();
 			String joinedPath = ConfigHelper.DOT_JOINER.join(config.getPath());
 			Component result = Component.translatable("commands.crackerslib.setConfig.set.success", joinedPath, value.toString());
@@ -228,6 +229,7 @@ public class ConfigCommandBuilder
 		if (flag)
 		{
 			config.set(config.getDefault());
+			config.clearCache();
 			config.save();
 			String name = ConfigHelper.DOT_JOINER.join(config.getPath());
 			source.sendSuccess(() -> Component.translatable("commands.crackerslib.setDefault.success", name, config.get().toString()), true);

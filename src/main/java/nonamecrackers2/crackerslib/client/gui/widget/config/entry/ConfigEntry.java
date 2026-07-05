@@ -134,6 +134,7 @@ public abstract class ConfigEntry<T, W extends AbstractWidget> implements Config
 			if (event.getOverrideValue() != null && this.valueSpec.test(event.getOverrideValue()))
 				current = event.getOverrideValue();
 			this.value.set(current);
+			this.value.clearCache();
 		}
 	}
 	
