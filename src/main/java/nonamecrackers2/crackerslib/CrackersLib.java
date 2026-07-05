@@ -9,6 +9,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import nonamecrackers2.crackerslib.client.event.CrackersLibClientEvents;
 import nonamecrackers2.crackerslib.client.event.impl.RegisterConfigScreensEvent;
@@ -34,7 +35,8 @@ public class CrackersLib
 		modBus.addListener(this::commonSetup);
 		modBus.addListener(this::clientSetup);
 		modBus.addListener(CrackersLibDataEvents::gatherClientData);
-		modBus.addListener(CrackersLibClientEvents::registerPictureInPictureRenderersEvent);
+		if (FMLEnvironment.getDist().isClient())
+			modBus.addListener(CrackersLibClientEvents::registerPictureInPictureRenderersEvent);
 		container.registerConfig(ModConfig.Type.CLIENT, CrackersLibConfig.CLIENT_SPEC);
 		container.registerConfig(ModConfig.Type.SERVER, ExampleConfig.SERVER_SPEC);
 		CrackersLibCommandArguments.register(modBus);
